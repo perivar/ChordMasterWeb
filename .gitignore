@@ -1,0 +1,9 @@
+node_modules
+
+/.cache
+/build
+.env
+
+eslint_errors.tsx
+serviceAccountKey.json
+firebase-config.json
