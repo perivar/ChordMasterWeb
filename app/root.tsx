@@ -19,6 +19,7 @@ import "./tailwind.css";
 
 import clsx from "clsx";
 
+import ConfirmProvider from "./components/layout/confirm-provider";
 import ResponsiveNavBar from "./components/responsive-navbar";
 import { Toaster } from "./components/ui/toaster";
 
@@ -50,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <body>
           <ResponsiveNavBar />
           {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
-          {children}
+          <ConfirmProvider>{children}</ConfirmProvider>
           <ScrollRestoration />
           <Scripts />
           <Toaster />

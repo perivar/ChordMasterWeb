@@ -17,7 +17,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({ agent });
 };
 
-export default function RouteComponent() {
+export default function About() {
   const data = useLoaderData<typeof loader>();
   const { toast } = useToast();
 

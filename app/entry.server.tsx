@@ -58,7 +58,7 @@ function handleBotRequest(
           const body = new PassThrough();
           const stream = createReadableStreamFromReadable(body);
 
-          responseHeaders.set("Content-Type", "text/html");
+          setResponseHeaders(responseHeaders);
 
           resolve(
             new Response(stream, {
@@ -136,4 +136,15 @@ function handleBrowserRequest(
 
     setTimeout(abort, ABORT_DELAY);
   });
+}
+
+function setResponseHeaders(responseHeaders: Headers) {
+  responseHeaders.set("Content-Type", "text/html");
+
+  const enableCrossOriginIsolation: boolean = true;
+  if (enableCrossOriginIsolation) {
+    // Enable cross-origin isolated features. https://web.dev/articles/coop-coep
+    responseHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
+    responseHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+  }
 }

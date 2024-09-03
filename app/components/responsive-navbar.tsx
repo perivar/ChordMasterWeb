@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@remix-run/react";
 import { Command, Menu, Moon, Sun } from "lucide-react";
 import { Theme, useTheme } from "remix-themes";
@@ -24,7 +24,12 @@ import {
 
 export default function ResponsiveNavBar() {
   const [theme, setTheme] = useTheme();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setMounted] = useState(false); // To check if the component has mounted
+
+  useEffect(() => {
+    setMounted(true); // Now the component is mounted
+  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
@@ -166,11 +171,12 @@ export default function ResponsiveNavBar() {
               size="icon"
               onClick={toggleTheme}
               className="ml-auto">
-              {theme === "dark" ? (
-                <Sun className="size-5" />
-              ) : (
-                <Moon className="size-5" />
-              )}
+              {isMounted &&
+                (theme === "dark" ? (
+                  <Sun className="size-5" />
+                ) : (
+                  <Moon className="size-5" />
+                ))}
               <span className="sr-only">Toggle theme</span>
             </Button>
           </div>
