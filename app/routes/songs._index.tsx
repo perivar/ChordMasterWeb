@@ -18,7 +18,6 @@ export default function Index() {
   const loaderData = useRouteLoaderData<typeof parentLoader>("root");
   const userId = loaderData?.decodedClaims?.uid;
   const { documents } = useFirestoreCache(userId);
-  // const documents = dummySongList;
 
   return (
     <>
@@ -40,17 +39,6 @@ export default function Index() {
       )}
 
       <SortableSongList allItems={documents} />
-      {/* <table>
-        <tbody>
-          {documents.map((song, i) => (
-            <tr key={song.id}>
-              <td>
-                <Link to={`/songs/${song.id}`}>{song.title}</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table> */}
     </>
   );
 }

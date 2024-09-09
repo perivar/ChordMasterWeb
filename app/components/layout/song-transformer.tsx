@@ -1,5 +1,4 @@
 import { FunctionComponent } from "react";
-import CustomHtmlDivFormatter from "~/utils/CustomHtmlDivFormatter";
 import ChordSheetJS, {
   Chord,
   ChordLyricsPair,
@@ -9,6 +8,9 @@ import ChordSheetJS, {
   Tag,
   Ternary,
 } from "chordsheetjs";
+import { TriangleAlert } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 // have to copy this from the chordsheetjs main.d.ts since it's not exported
 type Item = ChordLyricsPair | Comment | Tag | Ternary | Literal;
@@ -30,9 +32,18 @@ interface Props {
 const showErrorMessage = (area: string, e: Error): JSX.Element | null => {
   if (e instanceof Error) {
     return (
-      <div className="flex flex-col items-center justify-center p-4">
-        <p className="px-8 pb-5 text-center text-lg">Failed in {area}:</p>
-        <p className="px-8 pb-5 text-center text-lg">{e.message}</p>
+      <div className="p-4">
+        <Alert
+          className="flex flex-col items-center justify-center p-4"
+          variant="destructive">
+          <AlertTitle className="flex items-center space-x-2 text-lg">
+            <TriangleAlert className="size-6" />
+            <span>Error in {area}</span>
+          </AlertTitle>
+          <AlertDescription className="text-center">
+            {e.message}
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -204,7 +215,8 @@ const SongTransformer: FunctionComponent<Props> = props => {
   }
 
   try {
-    htmlSong = new CustomHtmlDivFormatter().format(transposedSong, fontSize);
+    // htmlSong = new CustomHtmlDivFormatter().format(transposedSong, fontSize);
+    htmlSong = new ChordSheetJS.HtmlDivFormatter().format(transposedSong);
   } catch (e) {
     if (e instanceof Error) {
       console.log(e.message);
