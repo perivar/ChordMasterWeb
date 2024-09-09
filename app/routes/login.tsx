@@ -1,20 +1,17 @@
 // app/routes/login.tsx
 
 import { FormEvent, SVGProps, useState } from "react";
-import {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunctionArgs,
-} from "@remix-run/node";
+import { ActionFunctionArgs, LinksFunction } from "@remix-run/node";
 import {
   Form,
   Link,
   useActionData,
   useFetcher,
-  useLoaderData,
+  useRouteLoaderData,
 } from "@remix-run/react";
-import { isSessionValid, sessionLogin } from "~/fb.sessions.server";
+import { sessionLogin } from "~/fb.sessions.server";
 import { auth } from "~/firebase-service";
+import { type loader as parentLoader } from "~/root";
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
@@ -39,18 +36,6 @@ export const links: LinksFunction = () => {
   return [];
 };
 
-// use loader to check for existing session, if found, send the user to index
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userSession = await isSessionValid(request);
-
-  if (userSession?.success) {
-    const decodedClaims = userSession?.decodedClaims;
-    return { decodedClaims };
-  } else {
-    return null;
-  }
-}
-
 // our action function will be launched when the submit button is clicked
 // this will sign in our firebase user and create our session and cookie using user.getIDToken()
 export async function action({ request }: ActionFunctionArgs) {
@@ -70,7 +55,7 @@ export default function Login() {
   // to use our actionData error in our form, we need to pull in our action data
   const actionData = useActionData<typeof action>();
   const fetcher = useFetcher();
-  const loaderData = useLoaderData<typeof loader>();
+  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
 
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState<boolean>(false);

@@ -15,7 +15,7 @@
       "name": "Debug Frontend",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:5173/",
+      "url": "http://localhost:5173/login",
       "webRoot": "${workspaceFolder}/app", // Point to your "app" folder (the parent of "route" folder)
       "sourceMaps": true
     },

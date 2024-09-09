@@ -1,4 +1,4 @@
-// app/routes/artist.$id.tsx
+// app/routes/artists.$id.tsx
 
 import { MetaFunction } from "@remix-run/node";
 import { useParams } from "@remix-run/react";

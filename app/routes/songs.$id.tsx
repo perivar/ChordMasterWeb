@@ -1,9 +1,9 @@
-// app/routes/song.$id.tsx
+// app/routes/songs.$id.tsx
 
 import { useEffect, useState } from "react";
-import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { isSessionValid } from "~/fb.sessions.server";
+import { MetaFunction } from "@remix-run/node";
+import { Link, useParams, useRouteLoaderData } from "@remix-run/react";
+import { type loader as parentLoader } from "~/root";
 
 import { ISong } from "~/hooks/useFirestore";
 import { useFirestoreCache } from "~/hooks/useFirestoreCache";
@@ -15,20 +15,6 @@ export const meta: MetaFunction = () => [
   { name: "description", content: "View Song" },
 ];
 
-// use loader to check for existing session, if not found, send the user to login
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userSession = await isSessionValid(request);
-
-  if (userSession?.success) {
-    const decodedClaims = userSession?.decodedClaims;
-    return { decodedClaims };
-  } else {
-    throw redirect("/login", {
-      statusText: (userSession?.error as Error)?.message,
-    });
-  }
-}
-
 const getChordPro = (song: ISong) => {
   let headerlessContent = song.content;
   headerlessContent = headerlessContent.replace(/{artist:[^}]*}\n/g, "");
@@ -39,15 +25,38 @@ const getChordPro = (song: ISong) => {
 
 export default function SongView() {
   const params = useParams();
-  const loaderData = useLoaderData<typeof loader>();
-  const { documents } = useFirestoreCache(loaderData?.decodedClaims?.uid);
+  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
+  const userId = loaderData?.decodedClaims?.uid;
+  const { documents } = useFirestoreCache(userId);
 
+  const [song, setSong] = useState<ISong>();
   const [fontSize, setFontSize] = useState<number>();
   const [showTabs, setShowTabs] = useState(false);
   const [content, setContent] = useState<string>("");
   const [tone, setTone] = useState<number>(0);
 
-  const song = documents.find(s => s.id === params.id);
+  // read using query client directly
+  // const queryClient = useQueryClient();
+  // const queryClientData = queryClient.getQueryData<{
+  //   songs: ISong[];
+  // }>(["songs", userId]);
+
+  // useEffect(() => {
+  //   if (!queryClientData) return;
+
+  //   // Find the song by ID in the cached data
+  //   const foundSong = queryClientData.songs.find(s => s.id === params.id);
+  //   setSong(foundSong);
+  // }, [queryClientData, params.id]);
+
+  // read using the cache hook
+  useEffect(() => {
+    if (!documents) return;
+
+    // Find the song by ID in the cached data
+    const foundSong = documents.find(s => s.id === params.id);
+    setSong(foundSong);
+  }, [documents, params.id]);
 
   useEffect(() => {
     if (song) {
@@ -67,9 +76,15 @@ export default function SongView() {
     }
   }, [song]);
 
-  if (!content) return;
+  // uncommenting this causes an everlasting loop
+  // if (!content) {
+  //   throw redirect("/", {
+  //     statusText: "Could not load song content, please refresh song list.",
+  //   });
+  // }
 
   return (
+    // <div>{JSON.stringify(song)}</div>
     <SongTransformer
       chordProSong={content}
       transposeDelta={tone}

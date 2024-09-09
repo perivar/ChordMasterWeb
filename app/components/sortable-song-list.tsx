@@ -113,12 +113,10 @@ export default function SortableSongList<T extends ListItem>({
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
-              <Link to={`/song/${row.original.id}`}>
-                {row.getValue("title")}
-              </Link>
+              <Link to={`/songs/${row.original.id}`}>{row.original.title}</Link>
             </div>
             <div className="text-sm text-muted-foreground md:hidden">
-              <Link to={`/artist/${row.original.artist.id}`}>
+              <Link to={`/artists/${row.original.artist.id}`}>
                 {row.original.artist.name}
               </Link>
             </div>
@@ -130,7 +128,7 @@ export default function SortableSongList<T extends ListItem>({
         header: "Artist",
         cell: ({ row }) => (
           <div className="hidden md:table-cell">
-            <Link to={`/artist/${row.original.artist.id}`}>
+            <Link to={`/artists/${row.original.artist.id}`}>
               {row.original.artist.name}
             </Link>
           </div>
@@ -151,7 +149,7 @@ export default function SortableSongList<T extends ListItem>({
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem>
-                    <Link to={`/artist/${row.original.artist.id}`}>
+                    <Link to={`/artists/${row.original.artist.id}`}>
                       Go To Artist
                     </Link>
                   </DropdownMenuItem>

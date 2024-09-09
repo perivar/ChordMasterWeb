@@ -1,4 +1,5 @@
 // https://github.com/aaronksaunders/remix-firebase-sample-app/tree/main
+// see also: https://www.mattstobbs.com/remix-authentication/
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import { ServiceAccount } from "firebase-admin";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
@@ -36,9 +37,9 @@ const { getSession, commitSession, destroySession } =
       // Expires can also be set (although maxAge overrides it when used in combination).
       // Note that this method is NOT recommended as `new Date` creates only one date on each server deployment, not a dynamic date in the future!
       //
-      expires: new Date(Date.now() + 600),
+      // expires: new Date(Date.now() + 600),
       httpOnly: true,
-      maxAge: 600,
+      // maxAge: 600,
       path: "/",
       sameSite: "lax",
       secrets: ["s3cr3t"],
@@ -95,7 +96,9 @@ const setCookieAndRedirect = async (
   session.set("idToken", sessionCookie);
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await commitSession(session),
+      "Set-Cookie": await commitSession(session, {
+        maxAge: 60 * 60 * 24 * 5, // 5 days,
+      }),
     },
   });
 };

@@ -70,7 +70,7 @@ export default function ResponsiveNavBar() {
         { title: "Help Center", to: "#help", description: "Get support" },
       ],
     },
-    { title: "About", to: "/about" },
+    { title: "Songs", to: "/songs" },
     { title: "Login", to: "/login" },
   ];
 

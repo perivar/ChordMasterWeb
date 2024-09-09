@@ -652,7 +652,7 @@ const useFirestore = (errorCallback?: (error: string) => void) => {
 
   const getSongsByUserId = async (
     userId: string,
-    limitCount: number,
+    limitCount?: number,
     startAfterId?: QueryDocumentSnapshot<DocumentData>,
     invertOwner = false, // change the behavior to the exact opposite, only get songs that the userId does not own,
     onlyPublished = false // only include published songs
@@ -662,9 +662,12 @@ const useFirestore = (errorCallback?: (error: string) => void) => {
 
       let songsQuery = query(
         collection(db, "songs"),
-        where("user.uid", invertOwner ? "!=" : "==", userId),
-        limit(limitCount)
+        where("user.uid", invertOwner ? "!=" : "==", userId)
       );
+
+      if (limitCount) {
+        songsQuery = query(songsQuery, limit(limitCount));
+      }
 
       if (onlyPublished) {
         songsQuery = query(songsQuery, where("published", "==", true));
@@ -1021,7 +1024,7 @@ const useFirestore = (errorCallback?: (error: string) => void) => {
 
   const getPlaylistsByUserId = async (
     userId: string,
-    limitCount: number,
+    limitCount?: number,
     startAfterId?: QueryDocumentSnapshot<DocumentData>
   ) => {
     try {
@@ -1029,9 +1032,12 @@ const useFirestore = (errorCallback?: (error: string) => void) => {
 
       let playlistsQuery = query(
         collection(db, "playlists"),
-        where("user.uid", "==", userId),
-        limit(limitCount)
+        where("user.uid", "==", userId)
       );
+
+      if (limitCount) {
+        playlistsQuery = query(playlistsQuery, limit(limitCount));
+      }
 
       if (startAfterId && startAfterId.id) {
         playlistsQuery = query(playlistsQuery, startAfter(startAfterId));
