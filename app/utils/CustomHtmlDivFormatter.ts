@@ -70,7 +70,7 @@ export default class CustomHtmlDivFormatter {
   format(song: Song, fontSize = 14) {
     const CHORD_SIZE_CLASS = fontSize !== 14 ? ` chord-size-${fontSize}` : "";
     const LYRICS_SIZE_CLASS = fontSize !== 14 ? ` line-size-${fontSize}` : "";
-    let html = "";
+    let html = `<div class="chord-sheet">`;
     let waitEndOfTabs = false;
 
     song.lines.forEach((l, index) => {
@@ -94,7 +94,7 @@ export default class CustomHtmlDivFormatter {
         return;
       }
 
-      html += `<p class="line${LYRICS_SIZE_CLASS}">`;
+      html += `<div class="line${LYRICS_SIZE_CLASS}">`;
       if (l.items && l.items.length > 0) {
         l.items.forEach(item => {
           if (item instanceof ChordSheetJS.ChordLyricsPair) {
@@ -103,9 +103,10 @@ export default class CustomHtmlDivFormatter {
               if (lyrics && lyrics.length <= item.chords.length)
                 lyrics =
                   lyrics + " ".repeat(item.chords.length - lyrics.length + 1);
-              html += `<span class="chord${CHORD_SIZE_CLASS}">${item.chords}</span>${lyrics}`;
+              html += `<div class="chord${CHORD_SIZE_CLASS}">${item.chords}</div>`;
+              html += item.lyrics && `<div>${item.lyrics}</div>`;
             } else {
-              html += `${item.lyrics}`;
+              html += item.lyrics && `<div>${item.lyrics}</div>`;
             }
             // Disable all comments, use tags for viewing instead
             // } else if (item instanceof ChordSheetJS.Comment && item.content) {
@@ -114,75 +115,71 @@ export default class CustomHtmlDivFormatter {
 
             //   // if comment includes chords - format them
             //   comment = comment.replace(/\[([^\]]+)\]/g, (v, c) => {
-            //     return `<span class="chord${CHORD_SIZE_CLASS} chord-inline">${c}</span>`;
+            //     return `<div class="chord${CHORD_SIZE_CLASS} chord-inline">${c}</div>`;
             //   });
 
-            //   html += `<span class="comment">${comment}</span>`;
+            //   html += `<div class="comment">${comment}</div>`;
           } else if (
             item instanceof ChordSheetJS.Tag &&
             item.name &&
             item.name === TITLE
           ) {
-            html += `<span class="title">${item.value}</span>`;
+            html += `<div class="title">${item.value}</div>`;
           } else if (
             item instanceof ChordSheetJS.Tag &&
             item.name &&
             item.name === ARTIST
           ) {
-            html += `<span class="artist">${item.value}</span>`;
+            html += `<div class="artist">${item.value}</div>`;
           } else if (
             item instanceof ChordSheetJS.Tag &&
             item.name &&
             item.name === START_OF_VERSE
           ) {
-            html += `<span class="comment">${"Verse"} ${
-              item.value ?? ""
-            }</span>`;
+            html += `<div class="comment">${"Verse"} ${item.value ?? ""}</div>`;
           } else if (
             item instanceof ChordSheetJS.Tag &&
             item.name &&
             item.name === START_OF_CHORUS
           ) {
-            html += `<span class="comment">${"Chorus"} ${
+            html += `<div class="comment">${"Chorus"} ${
               item.value ?? ""
-            }</span>`;
+            }</div>`;
           } else if (
             item instanceof ChordSheetJS.Tag &&
             item.name &&
             item.name === COMMENT
           ) {
             // tag comments have name 'comment' and the comment as value
-            html += `<span class="comment">${item.value}</span>`;
+            html += `<div class="comment">${item.value}</div>`;
           } else if (
             item instanceof ChordSheetJS.Tag &&
             item.name &&
             item.value &&
             item.value !== null
           ) {
-            // console.log(
-            //   `html format -> tag name: ${item.name}, value: ${item.value}`
-            // );
-
-            html += `<span class="meta-label">${item.name}</span><span class="meta-value">${item.value}</span>`;
+            html += `<div class="meta-label">${item.name}</div><div class="meta-value">${item.value}</div>`;
           } else {
+            // ignore
             // console.log('html format -> not handled:', item.toString());
           }
         });
       }
-      html += "</p>";
+      html += "</div>";
+
       if (index < song.lines.length - 1) {
         html += NEW_LINE;
       }
     });
 
     // combine words separated with chords like
-    // everyday: 'every<span class="chord">C6</span>day'
+    // everyday: 'every<div class="chord">C6</div>day'
     // to single words
-    html = html.replace(/\w+(<span class="chord(.*?)<\/span>\w+)+/g, v => {
-      return `<span class="word">${v}</span>`;
-    });
+    // html = html.replace(/\w+(<div class="chord(.*?)<\/div>\w+)+/g, v => {
+    //   return `<div class="word">${v}</div>`;
+    // });
 
-    // console.log('htmlSong:', html);
+    html += "</div>";
     return html;
   }
 }

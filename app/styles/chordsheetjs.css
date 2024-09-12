@@ -3,7 +3,7 @@
 }
 
 .comment {
-  @apply text-muted-foreground font-bold mt-4 block;
+  @apply text-blue-500 font-bold mt-4 block;
 }
 
 .row {
@@ -11,7 +11,7 @@
 }
 
 .column {
-  @apply mr-4;
+  @apply mr-1;
 }
 
 .paragraph {
@@ -19,7 +19,7 @@
 }
 
 .chord {
-  @apply font-bold text-blue-500;
+  @apply text-red-500;
 }
 
 .chord:not(:last-child) {

@@ -1,15 +1,48 @@
 // app/routes/songs.$id.tsx
 
+import fs from "fs";
+import path from "path";
 import { useEffect, useState } from "react";
-import { LinksFunction, MetaFunction } from "@remix-run/node";
-import { Link, useParams, useRouteLoaderData } from "@remix-run/react";
+import {
+  json,
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  useParams,
+  useRouteLoaderData,
+} from "@remix-run/react";
 import { type loader as parentLoader } from "~/root";
 import { getChordPro } from "~/utils/getChordPro";
+import { Chord } from "chordsheetjs";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Minus,
+  Plus,
+} from "lucide-react";
 
+import { useAutoCloseToast } from "~/hooks/use-auto-close-toast";
 import { ISong } from "~/hooks/useFirestore";
 import { useFirestoreCache } from "~/hooks/useFirestoreCache";
-import SongTransformer from "~/components/layout/song-transformer";
+import { Button } from "~/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
+import { Label } from "~/components/ui/label";
+import { Switch } from "~/components/ui/switch";
+import ChordTab, { ChordsData } from "~/components/ChordTab";
 import { LoadingSpinner } from "~/components/loading-spinner";
+import SongRender from "~/components/SongRender";
+import SongTransformer from "~/components/SongTransformer";
 import styles from "~/styles/chordsheetjs.css?url";
 
 export const meta: MetaFunction = () => [
@@ -20,31 +53,44 @@ export const meta: MetaFunction = () => [
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+// Loader function to fetch the JSON data
+export const loader: LoaderFunction = async () => {
+  // Get the absolute path to the chords.json file
+  const filePath = path.resolve("public/assets/chords/chords.json");
+
+  // Read the file
+  const fileContents = fs.readFileSync(filePath, "utf-8");
+
+  // Parse the JSON
+  const guitarChords: ChordsData = JSON.parse(fileContents);
+
+  return json(guitarChords);
+};
+
 export default function SongView() {
+  const navigate = useNavigate();
   const params = useParams();
-  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
-  const userId = loaderData?.decodedClaims?.uid;
+  const rootLoaderData = useRouteLoaderData<typeof parentLoader>("root");
+  const userId = rootLoaderData?.decodedClaims?.uid;
+  const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
+
   const { documents } = useFirestoreCache(userId);
+  const { autoCloseToast } = useAutoCloseToast();
 
   const [song, setSong] = useState<ISong>();
-  const [fontSize, setFontSize] = useState<number>();
-  const [showTabs, setShowTabs] = useState(false);
+
+  const [fontSize, setFontSize] = useState<number>(12);
+  const [showTabs, setShowTabs] = useState(true);
+  const [showPageTurner, setShowPageTurner] = useState(true);
+
   const [content, setContent] = useState<string>("");
-  const [tone, setTone] = useState<number>(0);
-
-  // read using query client directly
-  // const queryClient = useQueryClient();
-  // const queryClientData = queryClient.getQueryData<{
-  //   songs: ISong[];
-  // }>(["songs", userId]);
-
-  // useEffect(() => {
-  //   if (!queryClientData) return;
-
-  //   // Find the song by ID in the cached data
-  //   const foundSong = queryClientData.songs.find(s => s.id === params.id);
-  //   setSong(foundSong);
-  // }, [queryClientData, params.id]);
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState<boolean>(false);
+  const [transpose, setTranspose] = useState<number>(0);
+  const [showAutoScrollSlider, setShowAutoScrollSlider] = useState(false);
+  const [scrollSpeed, setScrollSpeed] = useState<number>(0);
+  const [selectedChord, setSelectedChord] = useState<Chord | null>(null);
+  const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
+  const [showPiano, setShowPiano] = useState(true);
 
   // read using the cache hook
   useEffect(() => {
@@ -60,7 +106,7 @@ export default function SongView() {
       setContent(getChordPro(song));
 
       if (song.transposeAmount !== undefined) {
-        setTone(song.transposeAmount);
+        setTranspose(song.transposeAmount);
       }
 
       if (song.fontSize !== undefined) {
@@ -73,6 +119,36 @@ export default function SongView() {
     }
   }, [song]);
 
+  const onClickChord = (allChords: Chord[], chordString: string) => {
+    const foundChord = allChords.find(c => c.toString() === chordString);
+    if (foundChord) {
+      setSelectedChord(foundChord);
+    } else {
+      autoCloseToast({
+        autoCloseDelay: 2000,
+        variant: "destructive",
+        title: "Error",
+        description: `${chordString} is not a valid chord`,
+      });
+      setSelectedChord(null);
+    }
+  };
+
+  const onPressArtist = () => {
+    navigate(`/artists/${song?.artist.id}`);
+  };
+
+  const handleTranspose = (direction: "up" | "down") => {
+    const newTranspose = direction === "up" ? transpose + 1 : transpose - 1;
+    setTranspose(newTranspose);
+  };
+
+  const handleFontSize = (direction: "increase" | "decrease") => {
+    setFontSize(prev =>
+      direction === "increase" ? prev + 1 : Math.max(prev - 1, 8)
+    );
+  };
+
   if (!content) {
     return (
       <div className="mx-auto mt-6 flex items-center justify-center">
@@ -83,54 +159,99 @@ export default function SongView() {
   }
 
   return (
-    <SongTransformer
-      chordProSong={content}
-      transposeDelta={tone}
-      showTabs={showTabs}
-      fontSize={fontSize}>
-      {songProps => (
-        <div className="mx-auto mt-6 flex flex-col pb-6 pl-6">
-          {<div dangerouslySetInnerHTML={{ __html: songProps.htmlSong }} />}
-          {/* <style>{`
-            .chord-sheet {
-              font-family: monospace;
-            }
-            .chord-sheet .comment {
-              color: #00ccee;
-              display: block;
-              font-weight: bold;
-              margin-top: 1em
-            }
-            .chord-sheet .row {
-              display: flex
-            }             
-            .chord-sheet .column {
-              margin-right: 1em;
-            } 
-            .chord-sheet .paragraph {
-              margin-bottom: 1em
-            }
-            .chord-sheet .chord {
-              font-weight: bold;
-              color: #3b82f6;
-            }
-            .chord-sheet .chord:not(:last-child) {
-              padding-right: 10px
-            }
-            .chord-sheet .chord:after {
-              content: "\\200b"
-            }
-            .chord-sheet .lyrics:after {
-              content: "\\200b"
-            }
-       `}</style> */}
-          <div>
-            {song?.external?.url && (
-              <Link to={song?.external?.url}>{song?.external?.source}</Link>
-            )}
+    <div className="flex h-screen bg-background text-foreground">
+      <SongTransformer
+        chordProSong={content}
+        transposeDelta={transpose}
+        showTabs={showTabs}
+        fontSize={fontSize}>
+        {songProps => (
+          <div className="mx-auto mt-6 flex flex-col pb-6 pl-6 font-mono">
+            <SongRender
+              onPressArtist={onPressArtist}
+              onPressChord={chordString =>
+                onClickChord(songProps.chords, chordString)
+              }
+              song={songProps.transformedSong}
+              scrollSpeed={scrollSpeed}
+            />
+            <ChordTab
+              guitarChords={guitarChords}
+              showPiano={showPiano}
+              onPressClose={() => setSelectedChord(null)}
+              selectedChord={selectedChord}
+              allChords={songProps.chords}
+              closeLabel={"Close"}
+            />
+            <div>
+              {song?.external?.url && (
+                <Link to={song?.external?.url}>{song?.external?.source}</Link>
+              )}
+            </div>
           </div>
+        )}
+      </SongTransformer>
+      <Collapsible
+        open={isSideMenuOpen}
+        onOpenChange={setIsSideMenuOpen}
+        className={`transition-all duration-300 ease-in-out ${isSideMenuOpen ? "border-l border-border" : ""}`}>
+        <div className="flex items-center justify-between p-4">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`relative transition-all duration-300 ease-in-out`}>
+              {isSideMenuOpen ? (
+                <ChevronRight className="size-4" />
+              ) : (
+                <ChevronLeft className="size-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
         </div>
-      )}
-    </SongTransformer>
+        <CollapsibleContent className="space-y-4 p-4">
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Transpose</h3>
+            <div className="flex space-x-2">
+              <Button onClick={() => handleTranspose("down")} size="sm">
+                <ChevronDown className="size-4" />
+              </Button>
+              <span className="flex w-8 items-center justify-center">
+                {transpose}
+              </span>
+              <Button onClick={() => handleTranspose("up")} size="sm">
+                <ChevronUp className="size-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Font Size</h3>
+            <div className="flex space-x-2">
+              <Button onClick={() => handleFontSize("decrease")} size="sm">
+                <Minus className="size-4" />
+              </Button>
+              <span className="flex w-8 items-center justify-center">
+                {fontSize}
+              </span>
+              <Button onClick={() => handleFontSize("increase")} size="sm">
+                <Plus className="size-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="chord-type"
+                checked={showPiano}
+                onCheckedChange={setShowPiano}
+              />
+              <Label htmlFor="chord-type">
+                {showPiano ? "Piano Notes" : "Guitar Tabs"}
+              </Label>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 }

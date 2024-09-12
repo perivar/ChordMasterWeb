@@ -3,6 +3,9 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  ssr: {
+    noExternal: ['chord-symbol'] // ensures chord-symbol is bundled
+  },
   plugins: [
     remix({
       future: {

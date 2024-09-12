@@ -1,0 +1,125 @@
+.title {
+  @apply text-slate-500 text-[20px];
+}
+
+.artist {
+  @apply text-gray-500 block font-bold cursor-pointer mb-6;
+}
+
+.meta-label {
+  @apply text-gray-500 inline-block w-1/4 break-words align-top capitalize;
+}
+
+.meta-value {
+  @apply text-green-500 inline-block w-3/4 pb-1;
+}
+
+.comment {
+  @apply text-blue-500 block font-bold mt-6;
+}
+
+.line {
+  @apply relative text-[14px] whitespace-pre-wrap;
+}
+
+.line-size-14 {
+  @apply text-[14px];
+}
+
+.line-size-15 {
+  @apply text-[15px];
+}
+
+.line-size-16 {
+  @apply text-[16px];
+}
+
+.line-size-17 {
+  @apply text-[17px];
+}
+
+.line-size-18 {
+  @apply text-[18px];
+}
+
+.line-size-19 {
+  @apply text-[19px];
+}
+
+.line-size-20 {
+  @apply text-[20px];
+}
+
+.line-size-21 {
+  @apply text-[21px];
+}
+
+.line-size-22 {
+  @apply text-[22px];
+}
+
+.line-size-23 {
+  @apply text-[23px];
+}
+
+.line-size-24 {
+  @apply text-[24px];
+}
+
+.chord {
+  @apply text-red-500 relative inline-block pt-5 -top-4 w-0 cursor-pointer;
+}
+
+.chord:hover {
+  @apply text-green-500;
+}
+
+.chord-inline {
+  @apply relative inline-block pt-0 w-auto top-auto;
+}
+
+.chord-size-14 {
+  top: -14px;
+}
+.chord-size-15 {
+  top: -15px;
+}
+.chord-size-16 {
+  top: -16px;
+}
+.chord-size-17 {
+  top: -17px;
+}
+.chord-size-18 {
+  top: -18px;
+}
+.chord-size-19 {
+  top: -19px;
+}
+.chord-size-20 {
+  top: -20px;
+}
+.chord-size-21 {
+  top: -21px;
+}
+.chord-size-22 {
+  top: -22px;
+}
+.chord-size-23 {
+  top: -23px;
+}
+.chord-size-24 {
+  top: -24px;
+}
+
+.chord:active {
+  @apply text-green-500;
+}
+
+.word {
+  @apply inline-block;
+}
+
+.tab-line {
+  @apply max-w-[4px] inline-block break-words pb-5;
+}
