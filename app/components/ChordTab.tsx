@@ -111,7 +111,7 @@ const ChordTab: FunctionComponent<Props> = ({
                 className={`m-2 p-2 ${selected ? "border-2 border-cyan-500" : ""}`}>
                 {showPiano ? (
                   <div className="flex flex-col">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between font-semibold">
                       {notesChordAlternatives?.chordNotes.map(note => (
                         <div key={note} className="w-8 text-center">
                           <p className="text-base">{note}</p>
@@ -139,7 +139,7 @@ const ChordTab: FunctionComponent<Props> = ({
                     </div>
                     <div className="text-center">
                       {notesChordAlternatives?.chordNames.map(chord => (
-                        <p key={chord} className="text-sm">
+                        <p key={chord} className="text-sm text-blue-500">
                           {chord}
                         </p>
                       ))}

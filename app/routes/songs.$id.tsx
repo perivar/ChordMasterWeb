@@ -10,7 +10,6 @@ import {
   MetaFunction,
 } from "@remix-run/node";
 import {
-  Link,
   useLoaderData,
   useNavigate,
   useParams,
@@ -23,6 +22,7 @@ import {
   ChevronDown,
   ChevronUp,
   EllipsisVertical,
+  ListPlus,
   Minus,
   Plus,
 } from "lucide-react";
@@ -42,7 +42,9 @@ import {
 } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
 import ChordTab, { ChordsData } from "~/components/ChordTab";
+import LinkButton from "~/components/LinkButton";
 import { LoadingSpinner } from "~/components/loading-spinner";
+import SelectPlaylist from "~/components/SelectPlaylist";
 import SongRender from "~/components/SongRender";
 import SongTransformer from "~/components/SongTransformer";
 import styles from "~/styles/chordsheetjs.css?url";
@@ -86,7 +88,6 @@ export default function SongView() {
   const [showPageTurner, setShowPageTurner] = useState(true);
 
   const [content, setContent] = useState<string>("");
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState<boolean>(false);
   const [transpose, setTranspose] = useState<number>(0);
   const [showAutoScrollSlider, setShowAutoScrollSlider] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState<number>(0);
@@ -179,6 +180,10 @@ export default function SongView() {
                 song={songProps.transformedSong}
                 scrollSpeed={scrollSpeed}
               />
+              <LinkButton
+                title={song?.external?.source}
+                url={song?.external?.url}
+              />
               <ChordTab
                 guitarChords={guitarChords}
                 showPiano={showPiano}
@@ -187,11 +192,11 @@ export default function SongView() {
                 allChords={songProps.chords}
                 closeLabel={"Close"}
               />
-              <div className="mt-4">
-                {song?.external?.url && (
-                  <Link to={song?.external?.url}>{song?.external?.source}</Link>
-                )}
-              </div>
+              <SelectPlaylist
+                songId={params.id}
+                show={showPlaylistSelection}
+                onPressClose={() => setShowPlaylistSelection(false)}
+              />
             </div>
           )}
         </SongTransformer>
@@ -209,51 +214,109 @@ export default function SongView() {
           </Button>
         </SheetTrigger>
 
-        {/* Sheet Content (right panel) */}
-        <SheetContent side="right" className="w-64 space-y-4 p-4 md:w-72">
+        <SheetContent
+          side="right"
+          className="flex w-56 flex-col space-y-4 p-4 md:w-56">
           <SheetHeader>
             <SheetTitle>Edit Settings</SheetTitle>
             <SheetDescription></SheetDescription>
           </SheetHeader>
-          {/* Sheet content */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Transpose</h3>
-            <div className="flex space-x-2">
-              <Button onClick={() => handleTranspose("down")} size="sm">
-                <ChevronDown className="size-4" />
+
+          {/* Settings Section */}
+          <div className="grid grid-cols-2 items-center gap-4">
+            {/* Transpose Section */}
+            <h3 className="text-nowrap text-sm font-medium">Transpose</h3>
+            <div className="flex justify-end space-x-2">
+              <Button
+                onClick={() => handleTranspose("down")}
+                size="sm"
+                variant="outline">
+                <Minus className="size-4" />
               </Button>
               <span className="flex w-8 items-center justify-center">
                 {transpose}
               </span>
-              <Button onClick={() => handleTranspose("up")} size="sm">
-                <ChevronUp className="size-4" />
+              <Button
+                onClick={() => handleTranspose("up")}
+                size="sm"
+                variant="outline">
+                <Plus className="size-4" />
               </Button>
             </div>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Font Size</h3>
-            <div className="flex space-x-2">
-              <Button onClick={() => handleFontSize("decrease")} size="sm">
-                <Minus className="size-4" />
+
+            {/* Font Size Section */}
+            <h3 className="text-nowrap text-sm font-medium">Font Size</h3>
+            <div className="flex justify-end space-x-2">
+              <Button
+                onClick={() => handleFontSize("decrease")}
+                size="sm"
+                variant="outline">
+                <ChevronDown className="size-4" />
               </Button>
               <span className="flex w-8 items-center justify-center">
                 {fontSize}
               </span>
-              <Button onClick={() => handleFontSize("increase")} size="sm">
-                <Plus className="size-4" />
+              <Button
+                onClick={() => handleFontSize("increase")}
+                size="sm"
+                variant="outline">
+                <ChevronUp className="size-4" />
               </Button>
             </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
+
+            {/* Show Tablature Section */}
+            <Label
+              htmlFor="show-tablature"
+              className="text-nowrap text-sm font-medium">
+              Show Tablature
+            </Label>
+            <div className="flex justify-end">
+              <Switch
+                id="show-tablature"
+                checked={showTabs}
+                onCheckedChange={setShowTabs}
+              />
+            </div>
+
+            {/* Show Page Turner Section */}
+            <Label
+              htmlFor="show-pageturner"
+              className="text-nowrap text-sm font-medium">
+              Show Page Turner
+            </Label>
+            <div className="flex justify-end">
+              <Switch
+                id="show-pageturner"
+                checked={showPageTurner}
+                onCheckedChange={setShowPageTurner}
+              />
+            </div>
+
+            {/* Chord Type Section */}
+            <Label
+              htmlFor="chord-type"
+              className="text-nowrap text-sm font-medium">
+              {showPiano ? "Piano Notes" : "Guitar Tabs"}
+            </Label>
+            <div className="flex justify-end">
               <Switch
                 id="chord-type"
                 checked={showPiano}
                 onCheckedChange={setShowPiano}
               />
-              <Label htmlFor="chord-type">
-                {showPiano ? "Piano Notes" : "Guitar Tabs"}
-              </Label>
+            </div>
+
+            {/* Add to Playlist Section */}
+            <Label className="text-nowrap text-sm font-medium">
+              Add to Playlist
+            </Label>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setShowPlaylistSelection(true)}
+                size="sm"
+                variant="outline">
+                <ListPlus className="size-4" />
+              </Button>
             </div>
           </div>
         </SheetContent>

@@ -1,11 +1,13 @@
 import {
   ARTIST,
   COMMENT,
+  END_OF_TAB,
   START_OF_CHORUS,
+  START_OF_TAB,
   START_OF_VERSE,
   TITLE,
 } from "~/utils/ChordSheetConstants";
-import ChordSheetJS, { ChordLyricsPair, Song } from "chordsheetjs";
+import ChordSheetJS, { ChordLyricsPair, Line, Song } from "chordsheetjs";
 
 interface Props {
   song: Song;
@@ -16,16 +18,69 @@ interface Props {
 
 // Main component for rendering the chord sheet
 const SongRender = (props: Props) => {
+  const song = props.song;
+
+  const isStartOfTabs = (line: Line) => {
+    return line.items.some(
+      i => i instanceof ChordSheetJS.Tag && i.name === START_OF_TAB
+    );
+  };
+
+  const isEndOfTabs = (line: Line) => {
+    return line.items.some(
+      i => i instanceof ChordSheetJS.Tag && i.name === END_OF_TAB
+    );
+  };
+
+  const getLiteral = (line: Line) => {
+    let literal = "";
+    line.items.forEach(item => {
+      if (item instanceof ChordSheetJS.Literal) {
+        literal = literal + item.string;
+      }
+    });
+    return literal;
+  };
+
+  const getTabStringArray = (song: Song, startAtIndex: number) => {
+    const tabArray: string[] = [];
+    let line = song.lines[startAtIndex];
+    do {
+      const tabLine = getLiteral(line);
+      if (tabLine !== "") {
+        tabArray.push(tabLine);
+      }
+      startAtIndex++;
+      line = song.lines[startAtIndex];
+    } while (line !== null && !isEndOfTabs(line));
+    return tabArray;
+  };
+
+  // The transposeArray function takes an array of strings and transposes it,
+  // essentially turning columns into rows.
+  const transposeArray = (array: string[]) => {
+    let biggestLine = 0;
+    array.forEach(line => (biggestLine = Math.max(line.length, biggestLine)));
+
+    const transposedArray: string[] = [];
+    for (let i = 0; i < biggestLine; i++) {
+      transposedArray.push("");
+    }
+
+    for (let i = 0; i < array.length; i++) {
+      for (let j = 0; j < biggestLine; j++) {
+        const character = array[i][j] ? array[i][j] : " ";
+        transposedArray[j] = transposedArray[j] + character;
+      }
+    }
+    return transposedArray;
+  };
+
   const handleChordClick = (chord: string) => {
     if (props.onPressChord) {
       props.onPressChord(chord);
     }
   };
-
-  // Parse the chord sheet
-  // const parser = new ChordSheetJS.ChordProParser();
-  // const song: Song = parser.parse(props.song);
-  const song = props.song;
 
   // Function to render a single ChordLyricsPair (handling both chords and lyrics)
   const renderChordLyricsPair = (item: ChordLyricsPair, key: string) => {
@@ -55,88 +110,122 @@ const SongRender = (props: Props) => {
 
   // Function to render the parsed song
   const renderSong = () => {
-    return song.lines.map((line, lineIndex) => (
-      <div key={lineIndex} className="row">
-        {line.items.map((item, itemIndex) => {
-          const key = `${lineIndex}${itemIndex}`;
-          if (item instanceof ChordSheetJS.ChordLyricsPair) {
-            return renderChordLyricsPair(item, key);
-          } else if (
-            item instanceof ChordSheetJS.Tag &&
-            item.name &&
-            item.name === TITLE
-          ) {
-            return (
-              <div key={key} className="title">
-                {item.value}
+    let waitEndOfTabs = false;
+
+    return song.lines.map((line, lineIndex) => {
+      // If we're inside a tab, check if it's the end of the tab block
+      if (waitEndOfTabs) {
+        if (isEndOfTabs(line)) {
+          waitEndOfTabs = false; // Reset the flag when the tab ends
+        }
+        // Skip rendering this line
+        return null;
+      }
+
+      // Check if the line is the start of a tab block
+      if (isStartOfTabs(line)) {
+        waitEndOfTabs = true; // Set the flag to true to wait for the end of the tab
+
+        // Get the tab string array and transpose if necessary
+        const tabStringArray = getTabStringArray(song, lineIndex);
+        const transposedArray = transposeArray(tabStringArray);
+
+        // Render the tab block
+        return (
+          <div key={`tab-${lineIndex}`} className="tab">
+            {transposedArray.map((tabLine, tabIndex) => (
+              <div key={`tab-line-${tabIndex}`} className="tab-line">
+                {tabLine}
               </div>
-            );
-          } else if (
-            item instanceof ChordSheetJS.Tag &&
-            item.name &&
-            item.name === ARTIST
-          ) {
-            return (
-              <div
-                key={key}
-                role="button"
-                tabIndex={0}
-                onKeyDown={() => {}}
-                className="artist"
-                onClick={props.onPressArtist}>
-                {item.value}
-              </div>
-            );
-          } else if (
-            item instanceof ChordSheetJS.Tag &&
-            item.name &&
-            item.name === START_OF_VERSE
-          ) {
-            return (
-              <div key={key} className="comment">
-                {"Verse"} {item.value ?? ""}
-              </div>
-            );
-          } else if (
-            item instanceof ChordSheetJS.Tag &&
-            item.name &&
-            item.name === START_OF_CHORUS
-          ) {
-            return (
-              <div key={key} className="comment">
-                {"Chorus"} {item.value ?? ""}
-              </div>
-            );
-          } else if (
-            item instanceof ChordSheetJS.Tag &&
-            item.name &&
-            item.name === COMMENT
-          ) {
-            // tag comments have name 'comment' and the comment as value
-            return (
-              <div key={key} className="comment">
-                {item.value}
-              </div>
-            );
-          } else if (
-            item instanceof ChordSheetJS.Tag &&
-            item.name &&
-            item.value &&
-            item.value !== null
-          ) {
-            return (
-              <div key={key}>
-                <div className="meta-label">{item.name}</div>
-                <div className="meta-value">{item.value}</div>
-              </div>
-            );
-          } else {
-            // ignore
-            return <div key={key}>{item.toString()}</div>;
-          }
-        })}
-      </div>
-    ));
+            ))}
+          </div>
+        );
+      }
+
+      // Normal rendering for non-tab lines
+      return (
+        <div key={lineIndex} className="row">
+          {line.items.map((item, itemIndex) => {
+            const key = `${lineIndex}${itemIndex}`;
+            if (item instanceof ChordSheetJS.ChordLyricsPair) {
+              return renderChordLyricsPair(item, key);
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === TITLE
+            ) {
+              return (
+                <div key={key} className="title">
+                  {item.value}
+                </div>
+              );
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === ARTIST
+            ) {
+              return (
+                <div
+                  key={key}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={() => {}}
+                  className="artist"
+                  onClick={props.onPressArtist}>
+                  {item.value}
+                </div>
+              );
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === START_OF_VERSE
+            ) {
+              return (
+                <div key={key} className="comment">
+                  {"Verse"} {item.value ?? ""}
+                </div>
+              );
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === START_OF_CHORUS
+            ) {
+              return (
+                <div key={key} className="comment">
+                  {"Chorus"} {item.value ?? ""}
+                </div>
+              );
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === COMMENT
+            ) {
+              // tag comments have name 'comment' and the comment as value
+              return (
+                <div key={key} className="comment">
+                  {item.value}
+                </div>
+              );
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.value &&
+              item.value !== null
+            ) {
+              return (
+                <div key={key}>
+                  <div className="meta-label">{item.name}</div>
+                  <div className="meta-value">{item.value}</div>
+                </div>
+              );
+            } else {
+              // ignore
+              return <div key={key}>{item.toString()}</div>;
+            }
+          })}
+        </div>
+      );
+    });
   };
 
   return (

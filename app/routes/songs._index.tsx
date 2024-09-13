@@ -38,7 +38,9 @@ export default function Index() {
         </div>
       )}
 
-      <SortableSongList allItems={documents} />
+      <div className="mb-6">
+        <SortableSongList allItems={documents} />
+      </div>
     </>
   );
 }

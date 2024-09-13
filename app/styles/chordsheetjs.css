@@ -2,6 +2,22 @@
   @apply font-mono text-sm;
 }
 
+.title {
+  @apply text-[20px];
+}
+
+.artist {
+  @apply block font-bold cursor-pointer mb-6;
+}
+
+.meta-label {
+  @apply text-gray-500 inline-block w-1/4 break-words align-top capitalize;
+}
+
+.meta-value {
+  @apply text-green-500 inline-block w-3/4 pb-1;
+}
+
 .comment {
   @apply text-blue-500 font-bold mt-4 block;
 }
@@ -29,4 +45,11 @@
 .chord:after,
 .lyrics:after {
   content: "\200b"; /* Zero-width space */
+}
+
+.tab {
+  @apply mt-6;
+}
+.tab-line {
+  @apply inline-block max-w-3 break-words pb-5;
 }
