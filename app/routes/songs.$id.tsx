@@ -21,9 +21,8 @@ import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
 import {
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   ChevronUp,
+  EllipsisVertical,
   Minus,
   Plus,
 } from "lucide-react";
@@ -32,12 +31,15 @@ import { useAutoCloseToast } from "~/hooks/use-auto-close-toast";
 import { ISong } from "~/hooks/useFirestore";
 import { useFirestoreCache } from "~/hooks/useFirestoreCache";
 import { Button } from "~/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
 import { Label } from "~/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
 import ChordTab, { ChordsData } from "~/components/ChordTab";
 import { LoadingSpinner } from "~/components/loading-spinner";
@@ -159,57 +161,61 @@ export default function SongView() {
   }
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
-      <SongTransformer
-        chordProSong={content}
-        transposeDelta={transpose}
-        showTabs={showTabs}
-        fontSize={fontSize}>
-        {songProps => (
-          <div className="mx-auto mt-6 flex flex-col pb-6 pl-6 font-mono">
-            <SongRender
-              onPressArtist={onPressArtist}
-              onPressChord={chordString =>
-                onClickChord(songProps.chords, chordString)
-              }
-              song={songProps.transformedSong}
-              scrollSpeed={scrollSpeed}
-            />
-            <ChordTab
-              guitarChords={guitarChords}
-              showPiano={showPiano}
-              onPressClose={() => setSelectedChord(null)}
-              selectedChord={selectedChord}
-              allChords={songProps.chords}
-              closeLabel={"Close"}
-            />
-            <div>
-              {song?.external?.url && (
-                <Link to={song?.external?.url}>{song?.external?.source}</Link>
-              )}
+    <div className="relative">
+      {/* Main content (song sheet) */}
+      <div className="size-full">
+        <SongTransformer
+          chordProSong={content}
+          transposeDelta={transpose}
+          showTabs={showTabs}
+          fontSize={fontSize}>
+          {songProps => (
+            <div className="mt-6 flex flex-col pb-6 pl-6 font-mono">
+              <SongRender
+                onPressArtist={onPressArtist}
+                onPressChord={chordString =>
+                  onClickChord(songProps.chords, chordString)
+                }
+                song={songProps.transformedSong}
+                scrollSpeed={scrollSpeed}
+              />
+              <ChordTab
+                guitarChords={guitarChords}
+                showPiano={showPiano}
+                onPressClose={() => setSelectedChord(null)}
+                selectedChord={selectedChord}
+                allChords={songProps.chords}
+                closeLabel={"Close"}
+              />
+              <div className="mt-4">
+                {song?.external?.url && (
+                  <Link to={song?.external?.url}>{song?.external?.source}</Link>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-      </SongTransformer>
-      <Collapsible
-        open={isSideMenuOpen}
-        onOpenChange={setIsSideMenuOpen}
-        className={`transition-all duration-300 ease-in-out ${isSideMenuOpen ? "border-l border-border" : ""}`}>
-        <div className="flex items-center justify-between p-4">
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`relative transition-all duration-300 ease-in-out`}>
-              {isSideMenuOpen ? (
-                <ChevronRight className="size-4" />
-              ) : (
-                <ChevronLeft className="size-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-        </div>
-        <CollapsibleContent className="space-y-4 p-4">
+          )}
+        </SongTransformer>
+      </div>
+
+      {/* Right panel (Sheet component for overlay) */}
+      <Sheet>
+        {/* Sheet Trigger Button (always visible at top right) */}
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed right-4 top-20 z-30">
+            <EllipsisVertical className="size-4" />
+          </Button>
+        </SheetTrigger>
+
+        {/* Sheet Content (right panel) */}
+        <SheetContent side="right" className="w-64 space-y-4 p-4 md:w-72">
+          <SheetHeader>
+            <SheetTitle>Edit Settings</SheetTitle>
+            <SheetDescription></SheetDescription>
+          </SheetHeader>
+          {/* Sheet content */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Transpose</h3>
             <div className="flex space-x-2">
@@ -250,8 +256,8 @@ export default function SongView() {
               </Label>
             </div>
           </div>
-        </CollapsibleContent>
-      </Collapsible>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
