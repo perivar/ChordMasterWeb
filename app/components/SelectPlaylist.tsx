@@ -19,7 +19,6 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   songId,
   onPressClose,
 }) => {
-  const [showModal, setShowModal] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [playlists, setPlaylists] = useState<{ id: number; name: string }[]>([
     { id: 1, name: "Chill Vibes" },
@@ -28,10 +27,6 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   ]);
   const [newPlaylist, setNewPlaylist] = useState("");
   const [selectedPlaylists, setSelectedPlaylists] = useState<number[]>([]);
-
-  const toggleModal = () => {
-    setShowModal(!showModal);
-  };
 
   const handlePlaylistSelect = (playlistId: number) => {
     setSelectedPlaylists(prev =>
@@ -96,10 +91,10 @@ const SelectPlaylist: FunctionComponent<Props> = ({
         )}
 
         <div className="flex justify-end space-x-2">
-          <Button variant="ghost" onClick={toggleModal}>
+          <Button variant="ghost" onClick={onPressClose}>
             Cancel
           </Button>
-          <Button onClick={toggleModal} variant="default">
+          <Button onClick={onPressClose} variant="default">
             Save
           </Button>
         </div>

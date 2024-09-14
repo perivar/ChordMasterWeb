@@ -53,7 +53,7 @@
     "remix-themes": "^1.5.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "^0.9.2",
+    "vaul": "^0.9.3",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

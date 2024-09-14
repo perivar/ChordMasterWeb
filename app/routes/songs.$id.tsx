@@ -84,8 +84,8 @@ export default function SongView() {
   const [song, setSong] = useState<ISong>();
 
   const [fontSize, setFontSize] = useState<number>(12);
-  const [showTabs, setShowTabs] = useState(true);
-  const [showPageTurner, setShowPageTurner] = useState(true);
+  const [showTabs, setShowTabs] = useState(false);
+  const [showPageTurner, setShowPageTurner] = useState(false);
 
   const [content, setContent] = useState<string>("");
   const [transpose, setTranspose] = useState<number>(0);
