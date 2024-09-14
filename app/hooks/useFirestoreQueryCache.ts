@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import useFirestore from "./useFirestore";
 
-export function useFirestoreCache(userId?: string) {
+export function useFirestoreQueryCache(userId?: string) {
   const { getSongsByUserId } = useFirestore();
 
   const queryResult = useQuery({

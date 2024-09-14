@@ -27,6 +27,7 @@ import ConfirmProvider from "./components/layout/confirm-provider";
 import ResponsiveNavBar from "./components/responsive-navbar";
 import { Toaster } from "./components/ui/toaster";
 import { isSessionValid } from "./fb.sessions.server";
+import { AppProvider } from "./lib/AppContext";
 
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
 
@@ -77,15 +78,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </head>
         <body>
           <ResponsiveNavBar />
-          <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{
-              persister: localStoragePersister,
-            }}>
-            {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
-            <ConfirmProvider>{children}</ConfirmProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </PersistQueryClientProvider>
+          <AppProvider>
+            <PersistQueryClientProvider
+              client={queryClient}
+              persistOptions={{
+                persister: localStoragePersister,
+              }}>
+              {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
+              <ConfirmProvider>{children}</ConfirmProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </PersistQueryClientProvider>
+          </AppProvider>
           <ScrollRestoration />
           <Scripts />
           <Toaster />

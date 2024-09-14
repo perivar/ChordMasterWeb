@@ -27,9 +27,9 @@ import {
   Plus,
 } from "lucide-react";
 
-import { useAutoCloseToast } from "~/hooks/use-auto-close-toast";
+import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
 import { ISong } from "~/hooks/useFirestore";
-import { useFirestoreCache } from "~/hooks/useFirestoreCache";
+import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {
@@ -78,7 +78,8 @@ export default function SongView() {
   const userId = rootLoaderData?.decodedClaims?.uid;
   const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
 
-  const { documents } = useFirestoreCache(userId);
+  // const { documents } = useFirestoreCache(userId);
+  const documents = useSongs();
   const { autoCloseToast } = useAutoCloseToast();
 
   const [song, setSong] = useState<ISong>();
