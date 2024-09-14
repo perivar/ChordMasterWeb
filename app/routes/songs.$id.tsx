@@ -29,7 +29,7 @@ import {
 
 import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
 import { ISong } from "~/hooks/useFirestore";
-import useSongs from "~/hooks/useSongs";
+import { useFirestoreQueryCache } from "~/hooks/useFirestoreQueryCache";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {
@@ -78,8 +78,6 @@ export default function SongView() {
   const userId = rootLoaderData?.decodedClaims?.uid;
   const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
 
-  // const { documents } = useFirestoreCache(userId);
-  const documents = useSongs();
   const { autoCloseToast } = useAutoCloseToast();
 
   const [song, setSong] = useState<ISong>();
@@ -96,14 +94,17 @@ export default function SongView() {
   const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
   const [showPiano, setShowPiano] = useState(true);
 
+  const { documents: songs } = useFirestoreQueryCache(userId);
+  // const songs = useSongs();
+
   // read using the cache hook
   useEffect(() => {
-    if (!documents) return;
+    if (!songs) return;
 
     // Find the song by ID in the cached data
-    const foundSong = documents.find(s => s.id === params.id);
+    const foundSong = songs.find(s => s.id === params.id);
     setSong(foundSong);
-  }, [documents, params.id]);
+  }, [songs, params.id]);
 
   useEffect(() => {
     if (song) {

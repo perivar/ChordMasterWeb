@@ -17,6 +17,7 @@ import { themeSessionResolver } from "./theme.sessions.server";
 
 import "./tailwind.css";
 
+import { useEffect } from "react";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -24,10 +25,12 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import clsx from "clsx";
 
 import ConfirmProvider from "./components/layout/confirm-provider";
+import { LoadingSpinner } from "./components/loading-spinner";
 import ResponsiveNavBar from "./components/responsive-navbar";
 import { Toaster } from "./components/ui/toaster";
+import { AppProvider } from "./context/AppContext";
 import { isSessionValid } from "./fb.sessions.server";
-import { AppProvider } from "./lib/AppContext";
+import useFirestoreMethods from "./hooks/useFirestoreMethods";
 
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
 
@@ -113,5 +116,23 @@ function HTML({
 }
 
 export default function App() {
+  const data = useRouteLoaderData<typeof loader>("root");
+  const { loadUserSongData, isLoading } = useFirestoreMethods(
+    data?.decodedClaims?.uid
+  );
+
+  useEffect(() => {
+    loadUserSongData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto mt-6 flex items-center justify-center">
+        <LoadingSpinner className="mr-2 size-4" />
+        <h1>Loading ...</h1>
+      </div>
+    );
+  }
+
   return <Outlet />;
 }

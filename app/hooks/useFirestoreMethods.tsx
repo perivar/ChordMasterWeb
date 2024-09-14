@@ -1,6 +1,5 @@
 import { useState } from "react";
-
-import { clearCache, getCache, setCache } from "~/lib/localStorageUtils";
+import { clearCache, getCache, setCache } from "~/utils/localStorageUtils";
 
 import useAppContext from "./useAppContext";
 import useFirestore from "./useFirestore";
