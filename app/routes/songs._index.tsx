@@ -4,7 +4,7 @@ import type { MetaFunction } from "@remix-run/node";
 import { Link, useRouteLoaderData } from "@remix-run/react";
 import { type loader as parentLoader } from "~/root";
 
-import { useFirestoreQueryCache } from "~/hooks/useFirestoreQueryCache";
+import useSongs from "~/hooks/useSongs";
 import SortableSongList from "~/components/sortable-song-list";
 
 export const meta: MetaFunction = () => {
@@ -16,10 +16,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const loaderData = useRouteLoaderData<typeof parentLoader>("root");
-  const userId = loaderData?.decodedClaims?.uid;
-
-  const { documents: songs } = useFirestoreQueryCache(userId);
-  // const songs = useSongs();
+  const songs = useSongs();
 
   return (
     <>

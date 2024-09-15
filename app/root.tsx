@@ -18,17 +18,13 @@ import { themeSessionResolver } from "./theme.sessions.server";
 import "./tailwind.css";
 
 import { useEffect } from "react";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
-import { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import clsx from "clsx";
 
 import ConfirmProvider from "./components/layout/confirm-provider";
 import { LoadingSpinner } from "./components/loading-spinner";
 import ResponsiveNavBar from "./components/responsive-navbar";
 import { Toaster } from "./components/ui/toaster";
-import { AppProvider } from "./context/AppContext";
+import { AppProvider, IUserRecord } from "./context/AppContext";
 import { isSessionValid } from "./fb.sessions.server";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
 
@@ -39,65 +35,62 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // get theme
   const { getTheme } = await themeSessionResolver(request);
 
-  // check if we are authenticated, and if we are, return the claims
+  // check if we are authenticated, and if we are, return the claims and the user
   const userSession = await isSessionValid(request);
   let decodedClaims;
+  let user: IUserRecord = {
+    uid: undefined,
+    displayName: undefined,
+    email: undefined,
+    avatar: undefined,
+  };
   if (userSession?.success) {
     decodedClaims = userSession?.decodedClaims;
+    user = {
+      uid: userSession.user?.uid,
+      email: userSession.user?.email,
+      displayName:
+        userSession.user?.providerData[0]?.displayName ??
+        userSession.user?.displayName,
+      avatar:
+        userSession.user?.providerData[0]?.photoURL ??
+        userSession.user?.photoURL,
+    };
   }
 
-  return { theme: getTheme(), decodedClaims };
+  return { theme: getTheme(), decodedClaims, user };
 }
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 4 * 60 * 60 * 1000, // Keep cached for 4 hours
-      gcTime: 24 * 60 * 60 * 1000, // Keep unused cache for 24 hours
-      refetchOnReconnect: false, // Prevent refetch on reconnect
-      refetchOnMount: false, // Prevent refetch on mount
-      refetchOnWindowFocus: false, // Prevent refetch on window focus
-    },
-  },
-});
-
-const localStoragePersister = createSyncStoragePersister({
-  storage: typeof window !== "undefined" ? window.localStorage : undefined,
-});
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useRouteLoaderData<typeof loader>("root");
   const theme = data?.theme ?? null;
 
   return (
-    <ThemeProvider specifiedTheme={theme} themeAction="/action/set-theme">
-      <HTML lang="en">
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <Meta />
-          <PreventFlashOnWrongTheme ssrTheme={Boolean(theme)} />
-          <Links />
-        </head>
-        <body>
-          <ResponsiveNavBar />
-          <AppProvider>
-            <PersistQueryClientProvider
-              client={queryClient}
-              persistOptions={{
-                persister: localStoragePersister,
-              }}>
-              {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
-              <ConfirmProvider>{children}</ConfirmProvider>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </PersistQueryClientProvider>
-          </AppProvider>
-          <ScrollRestoration />
-          <Scripts />
-          <Toaster />
-        </body>
-      </HTML>
-    </ThemeProvider>
+    <AppProvider>
+      <ThemeProvider specifiedTheme={theme} themeAction="/action/set-theme">
+        <HTML lang="en">
+          <head>
+            <meta charSet="utf-8" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
+            <Meta />
+            <PreventFlashOnWrongTheme ssrTheme={Boolean(theme)} />
+            <Links />
+          </head>
+          <body>
+            <ResponsiveNavBar />
+            {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
+            <ConfirmProvider>{children}</ConfirmProvider>
+
+            <ScrollRestoration />
+            <Scripts />
+            <Toaster />
+          </body>
+        </HTML>
+      </ThemeProvider>
+    </AppProvider>
   );
 }
 
@@ -117,12 +110,37 @@ function HTML({
 
 export default function App() {
   const data = useRouteLoaderData<typeof loader>("root");
-  const { loadUserSongData, isLoading } = useFirestoreMethods(
-    data?.decodedClaims?.uid
-  );
+
+  const {
+    // loadAppConfigData,
+    loadUserAppConfigData,
+    loadUserSongData,
+    loadUserPlaylistData,
+    isLoading,
+  } = useFirestoreMethods(data?.user);
 
   useEffect(() => {
-    loadUserSongData();
+    const loadData = async () => {
+      // try {
+      //   await loadAppConfigData(Constants.appConfigDocId);
+      // } catch (error) {
+      //   console.log("Loading app settings failed:", error);
+      // }
+
+      try {
+        await loadUserAppConfigData();
+      } catch (error) {
+        console.log("Loading user app settings failed:", error);
+      }
+
+      // instead of loading the artists, use the artists from the loaded songs instead
+      // await loadArtistData();
+
+      await loadUserSongData();
+      await loadUserPlaylistData();
+    };
+
+    loadData();
   }, []);
 
   if (isLoading) {

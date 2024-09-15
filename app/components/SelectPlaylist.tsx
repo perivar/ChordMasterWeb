@@ -2,6 +2,11 @@ import { FunctionComponent, useState } from "react";
 import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { Plus } from "lucide-react";
 
+import useAppContext from "~/hooks/useAppContext";
+import useFirestore from "~/hooks/useFirestore";
+import useFirestoreMethods from "~/hooks/useFirestoreMethods";
+import usePlaylists from "~/hooks/usePlaylists";
+
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { DialogContent } from "./ui/dialog";
@@ -19,30 +24,43 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   songId,
   onPressClose,
 }) => {
-  const [showInput, setShowInput] = useState(false);
-  const [playlists, setPlaylists] = useState<{ id: number; name: string }[]>([
-    { id: 1, name: "Chill Vibes" },
-    { id: 2, name: "Workout Playlist" },
-    { id: 3, name: "Road Trip" },
-  ]);
-  const [newPlaylist, setNewPlaylist] = useState("");
-  const [selectedPlaylists, setSelectedPlaylists] = useState<number[]>([]);
+  const { addNewPlaylist } = useFirestore();
 
-  const handlePlaylistSelect = (playlistId: number) => {
-    setSelectedPlaylists(prev =>
-      prev.includes(playlistId)
-        ? prev.filter(id => id !== playlistId)
-        : [...prev, playlistId]
-    );
+  const { hasPlaylistContainsSong, playlistRemoveSong, playlistAddSong } =
+    useFirestoreMethods();
+  const playlists = usePlaylists();
+  const { state, dispatch } = useAppContext();
+
+  const [showInput, setShowInput] = useState(false);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+
+  const onSelectPlaylist = async (id: string) => {
+    console.log("Selecting playlist:", id);
+    const playlist = playlists.find(a => a.id === id);
+
+    if (songId && playlist) {
+      if (hasPlaylistContainsSong(playlist.id!, songId)) {
+        await playlistRemoveSong(playlist.id!, songId);
+      } else {
+        await playlistAddSong(playlist.id!, songId);
+      }
+    }
   };
 
-  const handleCreatePlaylist = () => {
-    if (newPlaylist) {
-      setPlaylists(prev => [
-        ...prev,
-        { id: prev.length + 1, name: newPlaylist },
-      ]);
-      setNewPlaylist("");
+  const handleCreatePlaylist = async () => {
+    if (newPlaylistName) {
+      //   const playlist = await addNewPlaylist(
+      //     {
+      //       uid: state.user!.uid,
+      //       email: state.user!.email,
+      //       displayName: state.user!.displayName,
+      //     },
+      //     newPlaylistName,
+      //     []
+      //   );
+      // await dispatch(addOrUpdatePlaylist(playlist));
+
+      setNewPlaylistName("");
       setShowInput(false);
     }
   };
@@ -62,8 +80,8 @@ const SelectPlaylist: FunctionComponent<Props> = ({
                 className="flex items-center justify-between rounded-md border border-border p-2">
                 <span>{playlist.name}</span>
                 <Checkbox
-                  checked={selectedPlaylists.includes(playlist.id)}
-                  onCheckedChange={() => handlePlaylistSelect(playlist.id)}
+                  checked={hasPlaylistContainsSong(playlist.id!, songId!)}
+                  onCheckedChange={() => onSelectPlaylist(playlist.id!)}
                 />
               </div>
             ))
@@ -76,8 +94,8 @@ const SelectPlaylist: FunctionComponent<Props> = ({
         {showInput ? (
           <div className="space-y-2">
             <Input
-              value={newPlaylist}
-              onChange={e => setNewPlaylist(e.target.value)}
+              value={newPlaylistName}
+              onChange={e => setNewPlaylistName(e.target.value)}
               placeholder="New Playlist Name"
             />
             <Button onClick={handleCreatePlaylist} variant="secondary">

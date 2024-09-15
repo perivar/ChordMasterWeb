@@ -1,4 +1,14 @@
 import { useState } from "react";
+import {
+  IUserRecord,
+  setArtists,
+  setOrUpdatePlaylists,
+  setOrUpdateSongs,
+  setPlaylists,
+  setSongs,
+  updateAppConfig,
+  updateUserAppConfig,
+} from "~/context/AppContext";
 import { clearCache, getCache, setCache } from "~/utils/localStorageUtils";
 
 import useAppContext from "./useAppContext";
@@ -23,7 +33,7 @@ export type UseFirestoreMethodsHookResult = {
 const CACHE_TTL = 4 * 60 * 60 * 1000; // Cache TTL in milliseconds (4 hour)
 
 const useFirestoreMethods = (
-  userId?: string
+  user?: IUserRecord
 ): UseFirestoreMethodsHookResult => {
   const isMounted = useIsMounted();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,11 +57,12 @@ const useFirestoreMethods = (
     const cacheKey = `appConfig-${id}`;
     const cachedConfig = getCache(cacheKey);
     if (cachedConfig) {
-      dispatch({ type: "SET_APP_CONFIG", appConfig: cachedConfig });
+      dispatch(updateAppConfig(cachedConfig));
     } else {
       const config = await getAppConfig(id);
       if (isMounted()) {
-        dispatch({ type: "SET_APP_CONFIG", appConfig: config });
+        dispatch(updateAppConfig(config));
+
         setCache(cacheKey, config, CACHE_TTL);
       }
     }
@@ -63,12 +74,12 @@ const useFirestoreMethods = (
     const cacheKey = `userAppConfig`;
     const cachedConfig = getCache(cacheKey);
     if (cachedConfig) {
-      dispatch({ type: "SET_USER_APP_CONFIG", userAppConfig: cachedConfig });
+      dispatch(updateUserAppConfig(cachedConfig));
     } else {
-      if (userId) {
-        const config = await getUserAppConfig(userId);
+      if (user && user.uid) {
+        const config = await getUserAppConfig(user.uid);
         if (isMounted()) {
-          dispatch({ type: "SET_USER_APP_CONFIG", userAppConfig: config });
+          dispatch(updateUserAppConfig(config));
           setCache(cacheKey, config, CACHE_TTL);
         }
       }
@@ -81,38 +92,20 @@ const useFirestoreMethods = (
     const cacheKey = `artists`;
     const cachedArtists = getCache(cacheKey);
     if (cachedArtists) {
-      dispatch({ type: "SET_ARTISTS", artists: cachedArtists });
+      dispatch(setArtists(cachedArtists));
     } else {
       const artists = await getAllArtists();
       if (isMounted()) {
-        dispatch({ type: "SET_ARTISTS", artists });
+        dispatch(setArtists(artists));
         setCache(cacheKey, artists, CACHE_TTL);
       }
     }
     setIsLoading(false);
   };
 
-  // const loadUserSongData = async () => {
-  //   setIsLoading(true);
-  //   const cacheKey = `userSongs`;
-  //   const cachedSongs = getCache(cacheKey);
-  //   if (cachedSongs) {
-  //     dispatch({ type: "SET_SONGS", songs: cachedSongs });
-  //   } else {
-  //     if (userId) {
-  //       const { songs } = await getSongsByUserId(userId);
-  //       if (isMounted()) {
-  //         dispatch({ type: "SET_SONGS", songs });
-  //         setCache(cacheKey, songs, CACHE_TTL);
-  //       }
-  //     }
-  //   }
-  //   setIsLoading(false);
-  // };
-
   const loadUserSongData = async () => {
     setIsLoading(true);
-    if (userId) {
+    if (user && user.uid) {
       const cacheKeySongs = `userSongs`;
       const cacheKeyArtists = `artists`;
 
@@ -120,10 +113,10 @@ const useFirestoreMethods = (
       const cachedArtists = getCache(cacheKeyArtists);
 
       if (cachedSongs && cachedArtists) {
-        dispatch({ type: "SET_SONGS", songs: cachedSongs });
-        dispatch({ type: "SET_ARTISTS", artists: cachedArtists });
+        dispatch(setSongs(cachedSongs));
+        dispatch(setArtists(cachedArtists));
       } else {
-        const { songs } = await getSongsByUserId(userId);
+        const { songs } = await getSongsByUserId(user.uid);
 
         if (isMounted()) {
           // instead of loading the artists, use the artists from the loaded songs instead
@@ -145,8 +138,8 @@ const useFirestoreMethods = (
             x.title.localeCompare(y.title)
           );
 
-          dispatch({ type: "SET_SONGS", songs: sortedSongs });
-          dispatch({ type: "SET_ARTISTS", artists });
+          dispatch(setSongs(sortedSongs));
+          dispatch(setArtists(artists));
 
           setCache(cacheKeySongs, sortedSongs, CACHE_TTL);
           setCache(cacheKeyArtists, artists, CACHE_TTL);
@@ -161,12 +154,12 @@ const useFirestoreMethods = (
     const cacheKey = `userPlaylists`;
     const cachedPlaylists = getCache(cacheKey);
     if (cachedPlaylists) {
-      dispatch({ type: "SET_PLAYLISTS", playlists: cachedPlaylists });
+      dispatch(setPlaylists(cachedPlaylists));
     } else {
-      if (userId) {
-        const { playlists } = await getPlaylistsByUserId(userId);
+      if (user && user.uid) {
+        const { playlists } = await getPlaylistsByUserId(user.uid);
         if (isMounted()) {
-          dispatch({ type: "SET_PLAYLISTS", playlists });
+          dispatch(setPlaylists(playlists));
           setCache(cacheKey, playlists, CACHE_TTL);
         }
       }
@@ -179,10 +172,10 @@ const useFirestoreMethods = (
     const cacheKey = `song-${songId}`;
     const cachedSong = getCache(cacheKey);
     if (cachedSong) {
-      dispatch({ type: "SET_SONGS", songs: [cachedSong] });
+      dispatch(setOrUpdateSongs([cachedSong]));
     } else {
       const song = await getSongById(songId);
-      dispatch({ type: "SET_SONGS", songs: [song] });
+      dispatch(setOrUpdateSongs([song]));
       setCache(cacheKey, song, CACHE_TTL);
     }
     setIsLoading(false);
@@ -193,10 +186,10 @@ const useFirestoreMethods = (
     const cacheKey = `playlist-${playlistId}`;
     const cachedPlaylist = getCache(cacheKey);
     if (cachedPlaylist) {
-      dispatch({ type: "SET_PLAYLISTS", playlists: [cachedPlaylist] });
+      dispatch(setOrUpdatePlaylists([cachedPlaylist]));
     } else {
       const playlist = await getPlaylistById(playlistId);
-      dispatch({ type: "SET_PLAYLISTS", playlists: [playlist] });
+      dispatch(setOrUpdatePlaylists([playlist]));
       setCache(cacheKey, playlist, CACHE_TTL);
     }
     setIsLoading(false);
@@ -209,12 +202,13 @@ const useFirestoreMethods = (
 
   const playlistAddSong = async (playlistId: string, songId: string) => {
     const playlist = state.playlists.find(p => p.id === playlistId);
-    if (playlist) {
+    const song = state.songs.find(s => s.id === songId);
+    if (playlist && song) {
       await addSongToPlaylist(playlistId, songId);
       const updatedPlaylists = state.playlists.map(p =>
         p.id === playlistId ? { ...p, songIds: [...p.songIds, songId] } : p
       );
-      dispatch({ type: "SET_PLAYLISTS", playlists: updatedPlaylists });
+      dispatch(setPlaylists(updatedPlaylists));
       setCache(
         `playlist-${playlistId}`,
         { ...playlist, songIds: [...playlist.songIds, songId] },
@@ -232,7 +226,7 @@ const useFirestoreMethods = (
           ? { ...p, songIds: p.songIds.filter(id => id !== songId) }
           : p
       );
-      dispatch({ type: "SET_PLAYLISTS", playlists: updatedPlaylists });
+      dispatch(setPlaylists(updatedPlaylists));
       setCache(
         `playlist-${playlistId}`,
         { ...playlist, songIds: playlist.songIds.filter(id => id !== songId) },

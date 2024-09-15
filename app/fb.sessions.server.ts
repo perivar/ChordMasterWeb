@@ -69,7 +69,11 @@ export const isSessionValid = async (request: Request) => {
         idToken,
         true /** checkRevoked */
       );
-      return { success: true, decodedClaims };
+
+      // UserRecord type photoURL, displayName
+      const user = await getAuth().getUser(decodedClaims.uid);
+
+      return { success: true, decodedClaims, user };
     } else {
       const err = new Error("No idToken found");
       return { success: false, err };

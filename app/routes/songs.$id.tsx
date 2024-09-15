@@ -9,13 +9,7 @@ import {
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import {
-  useLoaderData,
-  useNavigate,
-  useParams,
-  useRouteLoaderData,
-} from "@remix-run/react";
-import { type loader as parentLoader } from "~/root";
+import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
 import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
 import {
@@ -29,7 +23,8 @@ import {
 
 import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
 import { ISong } from "~/hooks/useFirestore";
-import { useFirestoreQueryCache } from "~/hooks/useFirestoreQueryCache";
+import useSongs from "~/hooks/useSongs";
+import useUserAppConfig from "~/hooks/useUserAppConfig";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {
@@ -74,17 +69,20 @@ export const loader: LoaderFunction = async () => {
 export default function SongView() {
   const navigate = useNavigate();
   const params = useParams();
-  const rootLoaderData = useRouteLoaderData<typeof parentLoader>("root");
-  const userId = rootLoaderData?.decodedClaims?.uid;
   const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
 
   const { autoCloseToast } = useAutoCloseToast();
 
   const [song, setSong] = useState<ISong>();
 
-  const [fontSize, setFontSize] = useState<number>(12);
-  const [showTabs, setShowTabs] = useState(false);
-  const [showPageTurner, setShowPageTurner] = useState(false);
+  const songs = useSongs();
+  const userAppConfig = useUserAppConfig();
+
+  const [fontSize, setFontSize] = useState<number>(userAppConfig.fontSize);
+  const [showTabs, setShowTabs] = useState(userAppConfig.showTablature);
+  const [showPageTurner, setShowPageTurner] = useState(
+    userAppConfig.enablePageTurner
+  );
 
   const [content, setContent] = useState<string>("");
   const [transpose, setTranspose] = useState<number>(0);
@@ -93,9 +91,6 @@ export default function SongView() {
   const [selectedChord, setSelectedChord] = useState<Chord | null>(null);
   const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
   const [showPiano, setShowPiano] = useState(true);
-
-  const { documents: songs } = useFirestoreQueryCache(userId);
-  // const songs = useSongs();
 
   // read using the cache hook
   useEffect(() => {

@@ -208,13 +208,14 @@ export default function Login() {
         {error ? error.message : null}
       </div>
 
-      {loaderData?.decodedClaims?.email && (
+      {loaderData?.user?.email && (
         <div className="flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <div className="grid grid-cols-2 gap-2">
-            <div>You are logged in as:</div>
+          <div className="grid grid-cols-3 gap-1">
+            <div>Logged in as:</div>
             <div className="text-blue-600">
-              {loaderData.decodedClaims?.email}
+              {loaderData.user?.displayName ?? ""}
             </div>
+            <div className="text-blue-600">{loaderData.user?.email ?? ""}</div>
           </div>
           <div className="text-center">
             Do you want to{" "}
