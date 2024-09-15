@@ -1,6 +1,23 @@
 import React, { createContext, ReactNode, useReducer } from "react";
 import { createSlice, PayloadAction, UnknownAction } from "@reduxjs/toolkit";
 import { APP_DEFAULTS, USER_APP_DEFAULTS } from "~/constants/defaults";
+import {
+  addArtistToArray,
+  addOrUpdateArtistInArray,
+  addOrUpdateArtistsInArray,
+  addOrUpdatePlaylistInArray,
+  addOrUpdatePlaylistsInArray,
+  addOrUpdateSongInArray,
+  addOrUpdateSongsInArray,
+  addPlaylistToArray,
+  addSongToArray,
+  deleteArtistFromArray,
+  deletePlaylistFromArray,
+  deleteSongFromArray,
+  editArtistInArray,
+  editPlaylistInArray,
+  editSongInArray,
+} from "~/utils/arrayUtilities";
 
 import {
   IAppConfig,
@@ -18,6 +35,7 @@ export type IUserRecord = {
 };
 
 type State = {
+  user?: IUserRecord;
   songs: ISong[];
   artists: IArtist[];
   playlists: IPlaylist[];
@@ -26,6 +44,7 @@ type State = {
 };
 
 const initialState: State = {
+  user: undefined,
   songs: [],
   playlists: [],
   artists: [],
@@ -38,176 +57,77 @@ const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
+    // User Reducers
+    setUser(state, action: PayloadAction<IUserRecord>) {
+      state.user = action.payload;
+    },
+
     // Song Reducers
     setSongs(state, action: PayloadAction<ISong[]>) {
       state.songs = action.payload;
     },
-    setOrUpdateSongs(state, action: PayloadAction<ISong[]>) {
-      action.payload.forEach(element => {
-        // add or update
-        const songIndex = state.songs.findIndex(song => song.id === element.id);
-        if (songIndex !== -1) {
-          // update
-          state.songs[songIndex] = {
-            ...state.songs[songIndex],
-            ...element,
-          };
-        } else {
-          // add
-          state.songs.push(element);
-        }
-      });
+    addSong(state, action: PayloadAction<ISong>) {
+      state.songs = addSongToArray(state.songs, action.payload);
     },
-    newSong(state, action: PayloadAction<ISong>) {
-      state.songs.push(action.payload);
+    addOrUpdateSongs(state, action: PayloadAction<ISong[]>) {
+      state.songs = addOrUpdateSongsInArray(state.songs, action.payload);
     },
     addOrUpdateSong(state, action: PayloadAction<ISong>) {
-      // add or update
-      const songIndex = state.songs.findIndex(
-        song => song.id === action.payload.id
-      );
-      if (songIndex !== -1) {
-        // update
-        state.songs[songIndex] = {
-          ...state.songs[songIndex],
-          ...action.payload,
-        };
-      } else {
-        // add
-        state.songs.push(action.payload);
-      }
+      state.songs = addOrUpdateSongInArray(state.songs, action.payload);
     },
     editSong(state, action: PayloadAction<ISong>) {
-      // edit the songs
-      const songIndex = state.songs.findIndex(
-        song => song.id === action.payload.id
-      );
-      if (songIndex !== -1) {
-        state.songs[songIndex] = {
-          ...state.songs[songIndex],
-          ...action.payload,
-        };
-      }
+      state.songs = editSongInArray(state.songs, action.payload);
     },
     deleteSong(state, action: PayloadAction<string>) {
-      state.songs = state.songs.filter(arrow => arrow.id !== action.payload);
+      state.songs = deleteSongFromArray(state.songs, action.payload);
     },
 
     // Artist Reducers
     setArtists(state, action: PayloadAction<IArtist[]>) {
       state.artists = action.payload;
     },
-    setOrUpdateArtists(state, action: PayloadAction<IArtist[]>) {
-      action.payload.forEach(element => {
-        // add or update
-        const artistIndex = state.artists.findIndex(
-          artist => artist.id === element.id
-        );
-        if (artistIndex !== -1) {
-          // update
-          state.artists[artistIndex] = {
-            ...state.artists[artistIndex],
-            ...element,
-          };
-        } else {
-          // add
-          state.artists.push(element);
-        }
-      });
+    addArtist(state, action: PayloadAction<IArtist>) {
+      state.artists = addArtistToArray(state.artists, action.payload);
     },
-    newArtist(state, action: PayloadAction<IArtist>) {
-      state.artists.push(action.payload);
+    addOrUpdateArtists(state, action: PayloadAction<IArtist[]>) {
+      state.artists = addOrUpdateArtistsInArray(state.artists, action.payload);
     },
     addOrUpdateArtist(state, action: PayloadAction<IArtist>) {
-      // add or update
-      const artistIndex = state.artists.findIndex(
-        artist => artist.id === action.payload.id
-      );
-      if (artistIndex !== -1) {
-        // update
-        state.artists[artistIndex] = {
-          ...state.artists[artistIndex],
-          ...action.payload,
-        };
-      } else {
-        // add
-        state.artists.push(action.payload);
-      }
+      state.artists = addOrUpdateArtistInArray(state.artists, action.payload);
     },
     editArtist(state, action: PayloadAction<IArtist>) {
-      // edit the artists
-      const artistIndex = state.artists.findIndex(
-        artist => artist.id === action.payload.id
-      );
-      if (artistIndex !== -1) {
-        state.artists[artistIndex] = {
-          ...state.artists[artistIndex],
-          ...action.payload,
-        };
-      }
+      state.artists = editArtistInArray(state.artists, action.payload);
     },
     deleteArtist(state, action: PayloadAction<string>) {
-      state.artists = state.artists.filter(
-        arrow => arrow.id !== action.payload
-      );
+      state.artists = deleteArtistFromArray(state.artists, action.payload);
     },
 
     // Playlist Reducers
     setPlaylists(state, action: PayloadAction<IPlaylist[]>) {
       state.playlists = action.payload;
     },
-    setOrUpdatePlaylists(state, action: PayloadAction<IPlaylist[]>) {
-      action.payload.forEach(element => {
-        // add or update
-        const playlistIndex = state.playlists.findIndex(
-          playlist => playlist.id === element.id
-        );
-        if (playlistIndex !== -1) {
-          // update
-          state.playlists[playlistIndex] = {
-            ...state.playlists[playlistIndex],
-            ...element,
-          };
-        } else {
-          // add
-          state.playlists.push(element);
-        }
-      });
+    addPlaylist(state, action: PayloadAction<IPlaylist>) {
+      state.playlists = addPlaylistToArray(state.playlists, action.payload);
     },
-    newPlaylist(state, action: PayloadAction<IPlaylist>) {
-      state.playlists.push(action.payload);
+    addOrUpdatePlaylists(state, action: PayloadAction<IPlaylist[]>) {
+      state.playlists = addOrUpdatePlaylistsInArray(
+        state.playlists,
+        action.payload
+      );
     },
     addOrUpdatePlaylist(state, action: PayloadAction<IPlaylist>) {
-      // add or update
-      const playlistIndex = state.playlists.findIndex(
-        playlist => playlist.id === action.payload.id
+      state.playlists = addOrUpdatePlaylistInArray(
+        state.playlists,
+        action.payload
       );
-      if (playlistIndex !== -1) {
-        // update
-        state.playlists[playlistIndex] = {
-          ...state.playlists[playlistIndex],
-          ...action.payload,
-        };
-      } else {
-        // add
-        state.playlists.push(action.payload);
-      }
     },
     editPlaylist(state, action: PayloadAction<IPlaylist>) {
-      // edit the playlists
-      const playlistIndex = state.playlists.findIndex(
-        playlist => playlist.id === action.payload.id
-      );
-      if (playlistIndex !== -1) {
-        state.playlists[playlistIndex] = {
-          ...state.playlists[playlistIndex],
-          ...action.payload,
-        };
-      }
+      state.playlists = editPlaylistInArray(state.playlists, action.payload);
     },
     deletePlaylist(state, action: PayloadAction<string>) {
-      state.playlists = state.playlists.filter(
-        arrow => arrow.id !== action.payload
+      state.playlists = deletePlaylistFromArray(
+        state.playlists,
+        action.payload
       );
     },
 
@@ -236,23 +156,25 @@ const appSlice = createSlice({
 
 // Export actions for use in components
 export const {
+  setUser,
+
   setSongs,
-  setOrUpdateSongs,
-  newSong,
+  addSong,
+  addOrUpdateSongs,
   editSong,
   deleteSong,
   addOrUpdateSong,
 
   setArtists,
-  setOrUpdateArtists,
-  newArtist,
+  addArtist,
+  addOrUpdateArtists,
   editArtist,
   deleteArtist,
   addOrUpdateArtist,
 
   setPlaylists,
-  setOrUpdatePlaylists,
-  newPlaylist,
+  addPlaylist,
+  addOrUpdatePlaylists,
   editPlaylist,
   deletePlaylist,
   addOrUpdatePlaylist,
@@ -268,8 +190,18 @@ const AppContext = createContext<
   { state: State; dispatch: React.Dispatch<UnknownAction> } | undefined
 >(undefined);
 
-const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(appSlice.reducer, initialState);
+const AppProvider = ({
+  children,
+  user,
+}: {
+  children: ReactNode;
+  user?: IUserRecord;
+}) => {
+  const [state, dispatch] = useReducer(appSlice.reducer, {
+    ...initialState,
+    user, // Initialize the state with the user object
+  });
+
   return (
     <AppContext.Provider value={{ state, dispatch }}>
       {children}

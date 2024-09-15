@@ -2,8 +2,6 @@ import { FunctionComponent, useState } from "react";
 import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { Plus } from "lucide-react";
 
-import useAppContext from "~/hooks/useAppContext";
-import useFirestore from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import usePlaylists from "~/hooks/usePlaylists";
 
@@ -24,12 +22,13 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   songId,
   onPressClose,
 }) => {
-  const { addNewPlaylist } = useFirestore();
-
-  const { hasPlaylistContainsSong, playlistRemoveSong, playlistAddSong } =
-    useFirestoreMethods();
+  const {
+    hasPlaylistContainsSong,
+    playlistRemoveSong,
+    playlistAddSong,
+    addPlaylist,
+  } = useFirestoreMethods();
   const playlists = usePlaylists();
-  const { state, dispatch } = useAppContext();
 
   const [showInput, setShowInput] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
@@ -49,16 +48,7 @@ const SelectPlaylist: FunctionComponent<Props> = ({
 
   const handleCreatePlaylist = async () => {
     if (newPlaylistName) {
-      //   const playlist = await addNewPlaylist(
-      //     {
-      //       uid: state.user!.uid,
-      //       email: state.user!.email,
-      //       displayName: state.user!.displayName,
-      //     },
-      //     newPlaylistName,
-      //     []
-      //   );
-      // await dispatch(addOrUpdatePlaylist(playlist));
+      await addPlaylist(newPlaylistName, []);
 
       setNewPlaylistName("");
       setShowInput(false);

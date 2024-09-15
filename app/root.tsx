@@ -18,7 +18,6 @@ import { themeSessionResolver } from "./theme.sessions.server";
 import "./tailwind.css";
 
 import { useEffect } from "react";
-import clsx from "clsx";
 
 import ConfirmProvider from "./components/layout/confirm-provider";
 import { LoadingSpinner } from "./components/loading-spinner";
@@ -61,49 +60,50 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { theme: getTheme(), decodedClaims, user };
 }
 
+// It defines the overall page structure (header, footer, etc.) and renders children
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useRouteLoaderData<typeof loader>("root");
-  const theme = data?.theme ?? null;
 
   return (
-    <AppProvider>
-      <ThemeProvider specifiedTheme={theme} themeAction="/action/set-theme">
-        <HTML lang="en">
-          <head>
-            <meta charSet="utf-8" />
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1"
-            />
-            <Meta />
-            <PreventFlashOnWrongTheme ssrTheme={Boolean(theme)} />
-            <Links />
-          </head>
-          <body>
-            <ResponsiveNavBar />
-            {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
-            <ConfirmProvider>{children}</ConfirmProvider>
-
-            <ScrollRestoration />
-            <Scripts />
-            <Toaster />
-          </body>
-        </HTML>
-      </ThemeProvider>
-    </AppProvider>
+    <ThemeProvider
+      specifiedTheme={data?.theme ?? null}
+      themeAction="/action/set-theme">
+      <AppProvider user={data?.user}>
+        <ConfirmProvider>
+          <InnerLayout ssrTheme={Boolean(data?.theme)}>{children}</InnerLayout>
+        </ConfirmProvider>
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 
-function HTML({
+// In order to avoid the Error: useTheme must be used within a ThemeProvider
+function InnerLayout({
+  ssrTheme,
   children,
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
+}: {
+  ssrTheme: boolean;
+  children: React.ReactNode;
+}) {
   const [theme] = useTheme();
 
   return (
-    <html className={clsx(theme, className)} {...props}>
-      {children}
+    <html lang="en" data-theme={theme} className={theme ?? ""}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={ssrTheme} />
+        <Links />
+      </head>
+      <body>
+        <ResponsiveNavBar />
+        {/* children will be the root Component, ErrorBoundary, or HydrateFallback */}
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+        <Toaster />
+      </body>
     </html>
   );
 }
@@ -111,13 +111,14 @@ function HTML({
 export default function App() {
   const data = useRouteLoaderData<typeof loader>("root");
 
+  // In order to avoid the Error: useAppContext must be used within a AppProvider
   const {
     // loadAppConfigData,
     loadUserAppConfigData,
     loadUserSongData,
     loadUserPlaylistData,
     isLoading,
-  } = useFirestoreMethods(data?.user);
+  } = useFirestoreMethods();
 
   useEffect(() => {
     const loadData = async () => {
@@ -152,5 +153,6 @@ export default function App() {
     );
   }
 
+  // Remix’s Outlet renders the matched route’s component, which will be wrapped by Layout.
   return <Outlet />;
 }

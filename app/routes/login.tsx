@@ -210,11 +210,13 @@ export default function Login() {
 
       {loaderData?.user?.email && (
         <div className="flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <div className="grid grid-cols-3 gap-1">
-            <div>Logged in as:</div>
-            <div className="text-blue-600">
-              {loaderData.user?.displayName ?? ""}
-            </div>
+          <div className="flex flex-row gap-2">
+            <div>You are logged in as:</div>
+            {loaderData.user?.displayName && (
+              <div className="text-blue-600">
+                {loaderData.user?.displayName}
+              </div>
+            )}
             <div className="text-blue-600">{loaderData.user?.email ?? ""}</div>
           </div>
           <div className="text-center">
