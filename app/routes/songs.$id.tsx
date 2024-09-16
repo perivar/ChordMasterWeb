@@ -9,12 +9,13 @@ import {
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate, useParams } from "@remix-run/react";
 import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
 import {
   ChevronDown,
   ChevronUp,
+  Edit2Icon,
   EllipsisVertical,
   ListPlus,
   Minus,
@@ -38,14 +39,13 @@ import {
 import { Switch } from "~/components/ui/switch";
 import ChordTab, { ChordsData } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
-import { LoadingSpinner } from "~/components/loading-spinner";
+import { LoadingSpinner } from "~/components/LoadingSpinner";
 import SelectPlaylist from "~/components/SelectPlaylist";
 import SongRender from "~/components/SongRender";
 import SongTransformer from "~/components/SongTransformer";
 import styles from "~/styles/chordsheetjs.css?url";
 
 export const meta: MetaFunction = () => [
-  // your meta here
   { title: "Song" },
   { name: "description", content: "View Song" },
 ];
@@ -160,6 +160,13 @@ export default function SongView() {
 
   return (
     <div className="relative">
+      <div className="mt-6 pb-4 pl-6">
+        <Button asChild size="sm" variant="outline">
+          <Link to={`/songs/${params.id}/edit`}>
+            <Edit2Icon className="size-4" />
+          </Link>
+        </Button>
+      </div>
       {/* Main content (song sheet) */}
       <div className="size-full">
         <SongTransformer
@@ -168,7 +175,7 @@ export default function SongView() {
           showTabs={showTabs}
           fontSize={fontSize}>
           {songProps => (
-            <div className="mt-6 flex flex-col pb-6 pl-6 font-mono">
+            <div className="flex flex-col pb-6 pl-6 font-mono">
               <SongRender
                 onPressArtist={onPressArtist}
                 onPressChord={chordString =>

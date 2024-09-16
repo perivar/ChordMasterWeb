@@ -20,8 +20,8 @@ import "./tailwind.css";
 import { useEffect } from "react";
 
 import ConfirmProvider from "./components/layout/confirm-provider";
-import { LoadingSpinner } from "./components/loading-spinner";
-import ResponsiveNavBar from "./components/responsive-navbar";
+import LoadingIndicator from "./components/LoadingIndicator";
+import ResponsiveNavBar from "./components/ResponsiveNavBar";
 import { Toaster } from "./components/ui/toaster";
 import { AppProvider, IUserRecord } from "./context/AppContext";
 import { isSessionValid } from "./fb.sessions.server";
@@ -145,12 +145,7 @@ export default function App() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto mt-6 flex items-center justify-center">
-        <LoadingSpinner className="mr-2 size-4" />
-        <h1>Loading ...</h1>
-      </div>
-    );
+    return <LoadingIndicator />;
   }
 
   // Remix’s Outlet renders the matched route’s component, which will be wrapped by Layout.

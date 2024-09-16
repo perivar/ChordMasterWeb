@@ -5,13 +5,10 @@ import { Link, useRouteLoaderData } from "@remix-run/react";
 import { type loader as parentLoader } from "~/root";
 
 import useSongs from "~/hooks/useSongs";
-import SortableSongList from "~/components/sortable-song-list";
+import SortableSongList from "~/components/SortableSongList";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "ChordMaster" },
-    { name: "description", content: "Sheet music, chords and tabs" },
-  ];
+  return [{ title: "Songs" }, { name: "description", content: "View Songs" }];
 };
 
 export default function Index() {

@@ -30,7 +30,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { LoadingSpinner } from "~/components/loading-spinner";
+import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 export const links: LinksFunction = () => {
   return [];
@@ -42,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   try {
-    const idToken = formData.get("idToken" ?? "") as string;
+    const idToken = formData.get("idToken") as string;
     return await sessionLogin(request, idToken, "/");
   } catch (error) {
     if (error instanceof Error) {

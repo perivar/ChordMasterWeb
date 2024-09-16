@@ -16,7 +16,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { LoadingSpinner } from "~/components/loading-spinner";
+import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 export const links: LinksFunction = () => {
   return [];
@@ -25,7 +25,7 @@ export const links: LinksFunction = () => {
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const email = formData.get("email" ?? "") as string;
+  const email = formData.get("email") as string;
 
   // perform firebase send password reset email
   try {

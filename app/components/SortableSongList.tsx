@@ -38,8 +38,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { DataTablePagination } from "~/components/data-table-navigation";
 
+import { DataTablePagination } from "./DataTablePagination";
 import { useConfirm } from "./layout/confirm-provider";
 
 interface ListItem {

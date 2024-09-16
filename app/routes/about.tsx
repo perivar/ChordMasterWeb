@@ -7,7 +7,7 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 
 export const meta: MetaFunction = () => [
-  // your meta here
+  
   { title: "About Us" },
   { name: "description", content: "Welcome to our About Us Page!" },
 ];
