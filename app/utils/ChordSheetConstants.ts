@@ -98,3 +98,9 @@ export const SUBTITLE = "subtitle";
  * @type {string}
  */
 export const TITLE = "title";
+
+/**
+ * Columm break directive. See https://www.chordpro.org/chordpro/directives-column_break/
+ * @type {string}
+ */
+export const COLUMN_BREAK = "column_break";

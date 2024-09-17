@@ -18,12 +18,17 @@ import { themeSessionResolver } from "./theme.sessions.server";
 import "./tailwind.css";
 
 import { useEffect } from "react";
+import clsx from "clsx";
 
 import ConfirmProvider from "./components/layout/confirm-provider";
 import LoadingIndicator from "./components/LoadingIndicator";
 import ResponsiveNavBar from "./components/ResponsiveNavBar";
 import { Toaster } from "./components/ui/toaster";
-import { AppProvider, IUserRecord } from "./context/AppContext";
+import {
+  AppProvider,
+  IUserRecord,
+  loadStateFromLocalStorage,
+} from "./context/AppContext";
 import { isSessionValid } from "./fb.sessions.server";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
 
@@ -88,7 +93,7 @@ function InnerLayout({
   const [theme] = useTheme();
 
   return (
-    <html lang="en" data-theme={theme} className={theme ?? ""}>
+    <html lang="en" className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -141,7 +146,11 @@ export default function App() {
       await loadUserPlaylistData();
     };
 
-    loadData();
+    // check if the state exists in local storage
+    // if not, it does not exist or has expired
+    if (!loadStateFromLocalStorage(data?.user)) {
+      loadData();
+    }
   }, []);
 
   if (isLoading) {

@@ -10,6 +10,8 @@ import {
   MetaFunction,
 } from "@remix-run/node";
 import { Link, useLoaderData, useNavigate, useParams } from "@remix-run/react";
+import { editSong } from "~/context/AppContext";
+import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
 import {
@@ -22,8 +24,9 @@ import {
   Plus,
 } from "lucide-react";
 
+import useAppContext from "~/hooks/useAppContext";
 import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
-import { ISong } from "~/hooks/useFirestore";
+import useFirestore, { ISong } from "~/hooks/useFirestore";
 import useSongs from "~/hooks/useSongs";
 import useUserAppConfig from "~/hooks/useUserAppConfig";
 import { Button } from "~/components/ui/button";
@@ -39,7 +42,7 @@ import {
 import { Switch } from "~/components/ui/switch";
 import ChordTab, { ChordsData } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
-import { LoadingSpinner } from "~/components/LoadingSpinner";
+import LoadingIndicator from "~/components/LoadingIndicator";
 import SelectPlaylist from "~/components/SelectPlaylist";
 import SongRender from "~/components/SongRender";
 import SongTransformer from "~/components/SongTransformer";
@@ -66,15 +69,24 @@ export const loader: LoaderFunction = async () => {
   return json(guitarChords);
 };
 
+export const MIN_FONT_SIZE = 14;
+export const MAX_FONT_SIZE = 24;
+export const FONT_SIZE_STEP = 2;
+
 export default function SongView() {
   const navigate = useNavigate();
   const params = useParams();
+  const songIdParam = params.id;
+
   const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
+
+  const { state, dispatch } = useAppContext();
 
   const { autoCloseToast } = useAutoCloseToast();
 
-  const [song, setSong] = useState<ISong>();
+  const { setSongPreferences } = useFirestore();
 
+  const [song, setSong] = useState<ISong>();
   const songs = useSongs();
   const userAppConfig = useUserAppConfig();
 
@@ -97,9 +109,9 @@ export default function SongView() {
     if (!songs) return;
 
     // Find the song by ID in the cached data
-    const foundSong = songs.find(s => s.id === params.id);
+    const foundSong = songs.find(s => s.id === songIdParam);
     setSong(foundSong);
-  }, [songs, params.id]);
+  }, [songs, songIdParam]);
 
   useEffect(() => {
     if (song) {
@@ -118,6 +130,19 @@ export default function SongView() {
       }
     }
   }, [song]);
+
+  const onChangeShowTabs = async (value: boolean) => {
+    setShowTabs(value);
+
+    if (songIdParam && song) {
+      await setSongPreferences(songIdParam, { showTablature: value });
+
+      // update the song in redux with the preferences
+      const newSong = { ...song };
+      newSong.showTablature = value;
+      dispatch(editSong(newSong));
+    }
+  };
 
   const onClickChord = (allChords: Chord[], chordString: string) => {
     const foundChord = allChords.find(c => c.toString() === chordString);
@@ -138,31 +163,59 @@ export default function SongView() {
     navigate(`/artists/${song?.artist.id}`);
   };
 
-  const handleTranspose = (direction: "up" | "down") => {
-    const newTranspose = direction === "up" ? transpose + 1 : transpose - 1;
-    setTranspose(newTranspose);
+  const changeTranspose = async (amount: number) => {
+    setTranspose(amount);
+    if (songIdParam && song) {
+      await setSongPreferences(songIdParam, { transposeAmount: amount });
+
+      // update the song in redux with the preferences
+      const newSong = { ...song };
+      newSong.transposeAmount = amount;
+      dispatch(editSong(newSong));
+    }
   };
 
-  const handleFontSize = (direction: "increase" | "decrease") => {
-    setFontSize(prev =>
-      direction === "increase" ? prev + 1 : Math.max(prev - 1, 8)
-    );
+  const transposeUp = () => {
+    changeTranspose(transpose + 1 >= 12 ? 0 : transpose + 1);
+    setSelectedChord(null);
+  };
+
+  const transposeDown = () => {
+    changeTranspose(transpose - 1 <= -12 ? 0 : transpose - 1);
+    setSelectedChord(null);
+  };
+
+  const changeFontSize = async (amount: number) => {
+    const newFontSize = clamp(fontSize + amount, MIN_FONT_SIZE, MAX_FONT_SIZE);
+    setFontSize(newFontSize);
+
+    if (songIdParam && song) {
+      await setSongPreferences(songIdParam, { fontSize: newFontSize });
+
+      // update the song in redux with the preferences
+      const newSong = { ...song };
+      newSong.fontSize = newFontSize;
+      dispatch(editSong(newSong));
+    }
+  };
+
+  const increaseFontSize = async () => {
+    await changeFontSize(FONT_SIZE_STEP);
+  };
+
+  const decreaseFontSize = async () => {
+    await changeFontSize(-FONT_SIZE_STEP);
   };
 
   if (!content) {
-    return (
-      <div className="mx-auto mt-6 flex items-center justify-center">
-        <LoadingSpinner className="mr-2 size-4" />
-        <h1>No content.</h1>
-      </div>
-    );
+    return <LoadingIndicator title={"No content."} />;
   }
 
   return (
     <div className="relative">
       <div className="mt-6 pb-4 pl-6">
         <Button asChild size="sm" variant="outline">
-          <Link to={`/songs/${params.id}/edit`}>
+          <Link to={`/songs/${songIdParam}/edit`}>
             <Edit2Icon className="size-4" />
           </Link>
         </Button>
@@ -197,7 +250,7 @@ export default function SongView() {
                 closeLabel={"Close"}
               />
               <SelectPlaylist
-                songId={params.id}
+                songId={songIdParam}
                 show={showPlaylistSelection}
                 onPressClose={() => setShowPlaylistSelection(false)}
               />
@@ -231,19 +284,13 @@ export default function SongView() {
             {/* Transpose Section */}
             <h3 className="text-nowrap text-sm font-medium">Transpose</h3>
             <div className="flex justify-end space-x-2">
-              <Button
-                onClick={() => handleTranspose("down")}
-                size="sm"
-                variant="outline">
+              <Button onClick={transposeDown} size="sm" variant="outline">
                 <Minus className="size-4" />
               </Button>
               <span className="flex w-8 items-center justify-center">
                 {transpose}
               </span>
-              <Button
-                onClick={() => handleTranspose("up")}
-                size="sm"
-                variant="outline">
+              <Button onClick={transposeUp} size="sm" variant="outline">
                 <Plus className="size-4" />
               </Button>
             </div>
@@ -251,19 +298,13 @@ export default function SongView() {
             {/* Font Size Section */}
             <h3 className="text-nowrap text-sm font-medium">Font Size</h3>
             <div className="flex justify-end space-x-2">
-              <Button
-                onClick={() => handleFontSize("decrease")}
-                size="sm"
-                variant="outline">
+              <Button onClick={decreaseFontSize} size="sm" variant="outline">
                 <ChevronDown className="size-4" />
               </Button>
               <span className="flex w-8 items-center justify-center">
                 {fontSize}
               </span>
-              <Button
-                onClick={() => handleFontSize("increase")}
-                size="sm"
-                variant="outline">
+              <Button onClick={increaseFontSize} size="sm" variant="outline">
                 <ChevronUp className="size-4" />
               </Button>
             </div>
@@ -278,7 +319,7 @@ export default function SongView() {
               <Switch
                 id="show-tablature"
                 checked={showTabs}
-                onCheckedChange={setShowTabs}
+                onCheckedChange={onChangeShowTabs}
               />
             </div>
 

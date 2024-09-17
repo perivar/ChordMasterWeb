@@ -7,19 +7,19 @@
 }
 
 .artist {
-  @apply block font-bold cursor-pointer mb-6;
+  @apply block font-bold cursor-pointer mb-2;
 }
 
 .meta-label {
-  @apply text-gray-500 inline-block w-1/4 break-words align-top capitalize;
+  @apply text-gray-500 inline-block w-1/12 break-words align-top capitalize;
 }
 
 .meta-value {
-  @apply text-green-500 inline-block w-3/4 pb-1;
+  @apply text-green-500 inline-block w-11/12;
 }
 
 .comment {
-  @apply text-blue-500 font-bold mt-4 block;
+  @apply text-primary font-bold mt-6 block;
 }
 
 .row {
@@ -27,7 +27,7 @@
 }
 
 .column {
-  @apply mr-1;
+  @apply mr-0;
 }
 
 .paragraph {

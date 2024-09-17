@@ -1,7 +1,10 @@
 import {
   ARTIST,
+  COLUMN_BREAK,
   COMMENT,
+  END_OF_CHORUS,
   END_OF_TAB,
+  END_OF_VERSE,
   START_OF_CHORUS,
   START_OF_TAB,
   START_OF_VERSE,
@@ -188,11 +191,33 @@ const SongRender = (props: Props) => {
             } else if (
               item instanceof ChordSheetJS.Tag &&
               item.name &&
+              item.name === END_OF_VERSE
+            ) {
+              // ignore
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
               item.name === START_OF_CHORUS
             ) {
               return (
                 <div key={key} className="comment">
                   {"Chorus"} {item.value ?? ""}
+                </div>
+              );
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === END_OF_CHORUS
+            ) {
+              // ignore
+            } else if (
+              item instanceof ChordSheetJS.Tag &&
+              item.name &&
+              item.name === COLUMN_BREAK
+            ) {
+              return (
+                <div key={key} className="paragraph">
+                  &nbsp;
                 </div>
               );
             } else if (
@@ -213,14 +238,24 @@ const SongRender = (props: Props) => {
               item.value !== null
             ) {
               return (
-                <div key={key}>
+                <div key={key} className="w-full">
                   <div className="meta-label">{item.name}</div>
                   <div className="meta-value">{item.value}</div>
                 </div>
               );
+            } else if (item instanceof ChordSheetJS.Comment && item.content) {
+              return (
+                <div key={key} className="comment">
+                  {item.content}
+                </div>
+              );
             } else {
               // ignore
-              return <div key={key}>{item.toString()}</div>;
+              return (
+                <div key={key} className="comment">
+                  {item.toString()}
+                </div>
+              );
             }
           })}
         </div>

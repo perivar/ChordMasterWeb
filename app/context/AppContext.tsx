@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useReducer } from "react";
+import React, { createContext, ReactNode, useEffect, useReducer } from "react";
 import { createSlice, PayloadAction, UnknownAction } from "@reduxjs/toolkit";
 import { APP_DEFAULTS, USER_APP_DEFAULTS } from "~/constants/defaults";
 import {
@@ -18,6 +18,7 @@ import {
   editPlaylistInArray,
   editSongInArray,
 } from "~/utils/arrayUtilities";
+import { getCache, setCache } from "~/utils/localStorageUtils";
 
 import {
   IAppConfig,
@@ -50,6 +51,36 @@ const initialState: State = {
   artists: [],
   appConfig: APP_DEFAULTS,
   userAppConfig: USER_APP_DEFAULTS,
+};
+
+const CACHE_TTL = 4 * 60 * 60 * 1000; // Cache TTL in milliseconds (4 hour)
+const LOCAL_STORAGE_KEY = "appState";
+
+export const saveStateToLocalStorage = (state: State) => {
+  try {
+    const userKey = state.user?.uid || "guest"; // Fallback to "guest" if no user info
+    const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+
+    setCache(localStorageKey, state, CACHE_TTL);
+  } catch (error) {
+    console.error("Could not save state", error);
+  }
+};
+
+// Load state from local storage using the user-specific key
+export const loadStateFromLocalStorage = (
+  user?: IUserRecord
+): State | undefined => {
+  try {
+    const userKey = user?.uid || "guest"; // Fallback to "guest" if no user info
+    const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+
+    // getCache return null if non exist or expired
+    return getCache(localStorageKey) ?? undefined;
+  } catch (error) {
+    console.error("Could not load state", error);
+    return undefined;
+  }
 };
 
 // Create slice using @reduxjs/toolkit
@@ -197,10 +228,21 @@ const AppProvider = ({
   children: ReactNode;
   user?: IUserRecord;
 }) => {
-  const [state, dispatch] = useReducer(appSlice.reducer, {
-    ...initialState,
-    user, // Initialize the state with the user object
-  });
+  // Load state from local storage or use undefined if none is found
+  const persistedState = loadStateFromLocalStorage(user);
+
+  // Ensure the user is always included in the result, but don't use initialState unless needed
+  const finalState = {
+    ...(persistedState || initialState), // Only use initialState if persistedState is null
+    user, // Always include the user object
+  };
+
+  const [state, dispatch] = useReducer(appSlice.reducer, finalState);
+
+  // Save state to local storage on every state change
+  useEffect(() => {
+    saveStateToLocalStorage(state);
+  }, [state]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

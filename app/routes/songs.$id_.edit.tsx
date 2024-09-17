@@ -124,9 +124,9 @@ export default function SongEdit() {
   };
 
   const handleSaveSong = async () => {
-    if (title.trim() === "") return setError("invalid_title");
-    if (artist.trim() === "") return setError("invalid_artist");
-    if (content.trim() === "") return setError("invalid_content");
+    if (title.trim() === "") return setError("Invalit Title");
+    if (artist.trim() === "") return setError("Invalid Artist");
+    if (content.trim() === "") return setError("Invalid Content");
 
     const artistName = artist.trim();
     const songTitle = title.trim();
@@ -180,7 +180,7 @@ export default function SongEdit() {
         // console.log('SongEdit -> editSong:', updatedSong);
         songIdParam = updatedSong.id;
 
-        // await dispatch(addOrUpdateSongReducer(updatedSong));
+        await dispatch(addOrUpdateSong(updatedSong));
       } catch (e) {
         if (e instanceof Error) {
           setError(e.message);
