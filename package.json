@@ -41,7 +41,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "deepmerge": "^4.3.1",
-    "firebase": "^10.13.1",
+    "firebase": "^10.13.2",
     "firebase-admin": "^12.5.0",
     "isbot": "^5.1.17",
     "lucide-react": "^0.441.0",
@@ -51,7 +51,7 @@
     "remix-themes": "^1.5.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "^0.9.3",
+    "vaul": "^0.9.4",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

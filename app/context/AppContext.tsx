@@ -1,4 +1,10 @@
-import React, { createContext, ReactNode, useEffect, useReducer } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react";
 import { createSlice, PayloadAction, UnknownAction } from "@reduxjs/toolkit";
 import { APP_DEFAULTS, USER_APP_DEFAULTS } from "~/constants/defaults";
 import {
@@ -28,15 +34,9 @@ import {
   IUserAppConfig,
 } from "~/hooks/useFirestore";
 
-export type IUserRecord = {
-  uid?: string;
-  email?: string;
-  displayName?: string;
-  avatar?: string;
-};
+import { IUserRecord, useUser } from "./UserContext";
 
 type State = {
-  user?: IUserRecord;
   songs: ISong[];
   artists: IArtist[];
   playlists: IPlaylist[];
@@ -45,7 +45,6 @@ type State = {
 };
 
 const initialState: State = {
-  user: undefined,
   songs: [],
   playlists: [],
   artists: [],
@@ -56,12 +55,22 @@ const initialState: State = {
 const CACHE_TTL = 4 * 60 * 60 * 1000; // Cache TTL in milliseconds (4 hour)
 const LOCAL_STORAGE_KEY = "appState";
 
-export const saveStateToLocalStorage = (state: State) => {
-  try {
-    const userKey = state.user?.uid || "guest"; // Fallback to "guest" if no user info
-    const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+// Function to compare current state with initialState, while ignoring user
+const isStateDifferentFromInitialState = (persistedState: State | null) => {
+  if (!persistedState) return false;
 
-    setCache(localStorageKey, state, CACHE_TTL);
+  // Compare the rest of the state ignoring the user property
+  return JSON.stringify(persistedState) !== JSON.stringify(initialState);
+};
+
+export const saveStateToLocalStorage = (state: State, user?: IUserRecord) => {
+  try {
+    if (user?.uid) {
+      const userKey = user?.uid;
+      const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+
+      setCache(localStorageKey, state, CACHE_TTL);
+    }
   } catch (error) {
     console.error("Could not save state", error);
   }
@@ -88,11 +97,6 @@ const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
-    // User Reducers
-    setUser(state, action: PayloadAction<IUserRecord>) {
-      state.user = action.payload;
-    },
-
     // Song Reducers
     setSongs(state, action: PayloadAction<ISong[]>) {
       state.songs = action.payload;
@@ -182,13 +186,13 @@ const appSlice = createSlice({
       // like dispatch(updateUserAppConfig({language: 'en'})
       state.userAppConfig = { ...state.userAppConfig, ...action.payload };
     },
+    // Reset State Reducer
+    resetState: () => initialState,
   },
 });
 
 // Export actions for use in components
 export const {
-  setUser,
-
   setSongs,
   addSong,
   addOrUpdateSongs,
@@ -215,33 +219,33 @@ export const {
   updateAppConfig,
   setUserAppConfig,
   updateUserAppConfig,
+
+  // reset
+  resetState,
 } = appSlice.actions;
 
 const AppContext = createContext<
   { state: State; dispatch: React.Dispatch<UnknownAction> } | undefined
 >(undefined);
 
-const AppProvider = ({
-  children,
-  user,
-}: {
-  children: ReactNode;
-  user?: IUserRecord;
-}) => {
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useUser();
+
   // Load state from local storage or use undefined if none is found
-  const persistedState = loadStateFromLocalStorage(user);
+  const persistedState = loadStateFromLocalStorage(user ?? undefined);
 
   // Ensure the user is always included in the result, but don't use initialState unless needed
   const finalState = {
     ...(persistedState || initialState), // Only use initialState if persistedState is null
-    user, // Always include the user object
   };
 
   const [state, dispatch] = useReducer(appSlice.reducer, finalState);
 
   // Save state to local storage on every state change
   useEffect(() => {
-    saveStateToLocalStorage(state);
+    if (isStateDifferentFromInitialState(state)) {
+      saveStateToLocalStorage(state);
+    }
   }, [state]);
 
   return (
@@ -251,4 +255,12 @@ const AppProvider = ({
   );
 };
 
-export { AppContext, AppProvider };
+// Hook to use the UserContext
+// example: const { state, dispatch } = useAppContext();
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useAppContext must be used within an AppProvider");
+  }
+  return context;
+};

@@ -9,12 +9,16 @@ import {
   MetaFunction,
 } from "@remix-run/node";
 import { Form, useNavigate, useParams } from "@remix-run/react";
-import { addOrUpdateArtist, addOrUpdateSong } from "~/context/AppContext";
+import {
+  addOrUpdateArtist,
+  addOrUpdateSong,
+  useAppContext,
+} from "~/context/AppContext";
+import { useUser } from "~/context/UserContext";
 import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter";
 import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
 import ChordSheetJS from "chordsheetjs";
 
-import useAppContext from "~/hooks/useAppContext";
 import useFirestore, { IArtist, ISong } from "~/hooks/useFirestore";
 import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
@@ -50,7 +54,8 @@ export default function SongEdit() {
 
   let songIdParam = params?.id;
 
-  const { state, dispatch } = useAppContext();
+  const { dispatch } = useAppContext();
+  const { user } = useUser();
 
   const [song, setSong] = useState<ISong>();
   const songs = useSongs();
@@ -192,9 +197,9 @@ export default function SongEdit() {
       try {
         const newSong = await addNewSong(
           {
-            uid: state.user?.uid!,
-            email: state.user?.email!,
-            displayName: state.user?.displayName!,
+            uid: user?.uid!,
+            email: user?.email!,
+            displayName: user?.displayName!,
           },
           {
             id: artistDb.id,

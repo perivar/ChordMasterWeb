@@ -1,4 +1,4 @@
-import useAppContext from "./useAppContext";
+import { useAppContext } from "~/context/AppContext";
 
 const useArtists = () => {
   const { state } = useAppContext();

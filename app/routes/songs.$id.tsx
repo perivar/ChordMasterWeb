@@ -10,7 +10,7 @@ import {
   MetaFunction,
 } from "@remix-run/node";
 import { Link, useLoaderData, useNavigate, useParams } from "@remix-run/react";
-import { editSong } from "~/context/AppContext";
+import { editSong, useAppContext } from "~/context/AppContext";
 import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
@@ -24,7 +24,6 @@ import {
   Plus,
 } from "lucide-react";
 
-import useAppContext from "~/hooks/useAppContext";
 import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import useSongs from "~/hooks/useSongs";
@@ -80,7 +79,7 @@ export default function SongView() {
 
   const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
 
-  const { state, dispatch } = useAppContext();
+  const { dispatch } = useAppContext();
 
   const { autoCloseToast } = useAutoCloseToast();
 

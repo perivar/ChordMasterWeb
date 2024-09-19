@@ -24,12 +24,10 @@ import ConfirmProvider from "./components/layout/confirm-provider";
 import LoadingIndicator from "./components/LoadingIndicator";
 import ResponsiveNavBar from "./components/ResponsiveNavBar";
 import { Toaster } from "./components/ui/toaster";
-import {
-  AppProvider,
-  IUserRecord,
-  loadStateFromLocalStorage,
-} from "./context/AppContext";
+import { AppProvider, loadStateFromLocalStorage } from "./context/AppContext";
+import { IUserRecord, UserProvider } from "./context/UserContext";
 import { isSessionValid } from "./fb.sessions.server";
+import useFirebaseUser from "./hooks/useFirebaseUser";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
 
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
@@ -73,11 +71,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <ThemeProvider
       specifiedTheme={data?.theme ?? null}
       themeAction="/action/set-theme">
-      <AppProvider user={data?.user}>
-        <ConfirmProvider>
-          <InnerLayout ssrTheme={Boolean(data?.theme)}>{children}</InnerLayout>
-        </ConfirmProvider>
-      </AppProvider>
+      <UserProvider initialUser={data?.user}>
+        <AppProvider>
+          <ConfirmProvider>
+            <InnerLayout ssrTheme={Boolean(data?.theme)}>
+              {children}
+            </InnerLayout>
+          </ConfirmProvider>
+        </AppProvider>
+      </UserProvider>
     </ThemeProvider>
   );
 }
@@ -115,6 +117,8 @@ function InnerLayout({
 
 export default function App() {
   const data = useRouteLoaderData<typeof loader>("root");
+
+  useFirebaseUser();
 
   // In order to avoid the Error: useAppContext must be used within a AppProvider
   const {

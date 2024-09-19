@@ -1,4 +1,4 @@
-import useAppContext from "./useAppContext";
+import { useAppContext } from "~/context/AppContext";
 
 const useUserAppConfig = () => {
   const { state } = useAppContext();

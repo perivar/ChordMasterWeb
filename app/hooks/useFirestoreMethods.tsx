@@ -5,15 +5,15 @@ import {
   setSongs,
   updateAppConfig,
   updateUserAppConfig,
+  useAppContext,
 } from "~/context/AppContext";
+import { useUser } from "~/context/UserContext";
 import {
   addOrUpdateArtistInArray,
   addOrUpdatePlaylistInArray,
   addOrUpdateSongInArray,
-  addPlaylistToArray,
 } from "~/utils/arrayUtilities";
 
-import useAppContext from "./useAppContext";
 import useFirestore from "./useFirestore";
 import useIsMounted from "./useIsMounted";
 
@@ -29,11 +29,11 @@ export type UseFirestoreMethodsHookResult = {
   hasPlaylistContainsSong: (playlistId: string, songId: string) => boolean;
   playlistAddSong: (playlistId: string, songId: string) => Promise<void>;
   playlistRemoveSong: (playlistId: string, songId: string) => Promise<void>;
-  addPlaylist: (newPlaylistName: string, songIds: string[]) => Promise<void>;
 };
 
 const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
   const isMounted = useIsMounted();
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
@@ -46,7 +46,6 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     getAllArtists,
     addSongToPlaylist,
     removeSongFromPlaylist,
-    addNewPlaylist,
   } = useFirestore();
 
   const { state, dispatch } = useAppContext();
@@ -58,7 +57,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     // this can e.g. be found using the extra section in app.config.ts
     // import Constants from 'expo-constants';
     // loadAppConfigData(Constants.expoConfig.extra.appConfigDocId);
-    if (state.user && state.user.uid) {
+    if (user && user.uid) {
       const config = await getAppConfig(id);
       if (isMounted()) {
         dispatch(updateAppConfig(config));
@@ -69,8 +68,8 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
 
   const loadUserAppConfigData = async () => {
     setIsLoading(true);
-    if (state.user && state.user.uid) {
-      const config = await getUserAppConfig(state.user.uid);
+    if (user && user.uid) {
+      const config = await getUserAppConfig(user.uid);
       if (isMounted()) {
         dispatch(updateUserAppConfig(config));
       }
@@ -91,8 +90,8 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
 
   const loadUserSongData = async () => {
     setIsLoading(true);
-    if (state.user && state.user.uid) {
-      const { songs } = await getSongsByUserId(state.user.uid);
+    if (user && user.uid) {
+      const { songs } = await getSongsByUserId(user.uid);
 
       if (isMounted()) {
         // instead of loading the artists, use the artists from the loaded songs instead
@@ -125,8 +124,8 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
 
   const loadUserPlaylistData = async () => {
     setIsLoading(true);
-    if (state.user && state.user.uid) {
-      const { playlists } = await getPlaylistsByUserId(state.user.uid);
+    if (user && user.uid) {
+      const { playlists } = await getPlaylistsByUserId(user.uid);
       if (isMounted()) {
         // and sort playlists
         const sortedPlaylists = playlists.sort((x, y) =>
@@ -203,26 +202,6 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     }
   };
 
-  const addPlaylist = async (newPlaylistName: string, songIds: string[]) => {
-    if (newPlaylistName && state.user && state.user.uid) {
-      const newPlaylist = await addNewPlaylist(
-        {
-          uid: state.user.uid!,
-          email: state.user.email!,
-          displayName: state.user.displayName!,
-        },
-        newPlaylistName,
-        songIds
-      );
-
-      // Update the playlist array
-      const updatedPlaylists = addPlaylistToArray(state.playlists, newPlaylist);
-
-      // Dispatch setPlaylists action to update the entire playlists array
-      dispatch(setPlaylists(updatedPlaylists));
-    }
-  };
-
   return {
     isLoading,
     loadAppConfigData,
@@ -235,7 +214,6 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     hasPlaylistContainsSong,
     playlistAddSong,
     playlistRemoveSong,
-    addPlaylist,
   };
 };
 
