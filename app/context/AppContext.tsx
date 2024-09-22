@@ -29,12 +29,13 @@ import { getCache, setCache } from "~/utils/localStorageUtils";
 import {
   IAppConfig,
   IArtist,
+  IAuthUser,
   IPlaylist,
   ISong,
   IUserAppConfig,
 } from "~/hooks/useFirestore";
 
-import { IUserRecord, useUser } from "./UserContext";
+import { useUser } from "./UserContext";
 
 type State = {
   songs: ISong[];
@@ -63,11 +64,16 @@ const isStateDifferentFromInitialState = (persistedState: State | null) => {
   return JSON.stringify(persistedState) !== JSON.stringify(initialState);
 };
 
-export const saveStateToLocalStorage = (state: State, user?: IUserRecord) => {
+export const saveStateToLocalStorage = (state: State, user?: IAuthUser) => {
   try {
     if (user?.uid) {
-      const userKey = user?.uid;
+      const userKey = user.uid;
       const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+
+      // Check if the state is different from the initial state
+      if (!isStateDifferentFromInitialState(state)) {
+        return; // Exit if the state hasn't changed
+      }
 
       setCache(localStorageKey, state, CACHE_TTL);
     }
@@ -78,14 +84,17 @@ export const saveStateToLocalStorage = (state: State, user?: IUserRecord) => {
 
 // Load state from local storage using the user-specific key
 export const loadStateFromLocalStorage = (
-  user?: IUserRecord
+  user?: IAuthUser
 ): State | undefined => {
   try {
-    const userKey = user?.uid || "guest"; // Fallback to "guest" if no user info
-    const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+    if (user) {
+      const userKey = user?.uid;
+      const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
 
-    // getCache return null if non exist or expired
-    return getCache(localStorageKey) ?? undefined;
+      // getCache return null if non exist or expired
+      return getCache(localStorageKey) ?? undefined;
+    }
+    return undefined;
   } catch (error) {
     console.error("Could not load state", error);
     return undefined;
@@ -186,8 +195,19 @@ const appSlice = createSlice({
       // like dispatch(updateUserAppConfig({language: 'en'})
       state.userAppConfig = { ...state.userAppConfig, ...action.payload };
     },
+
     // Reset State Reducer
     resetState: () => initialState,
+
+    // Reducer to set the entire persisted state
+    setState(_state, action: PayloadAction<State>) {
+      return action.payload; // Replace current state with new state
+    },
+
+    // Reducer to merge state
+    mergeState(state, action: PayloadAction<State>) {
+      return { ...state, ...action.payload }; // Merge persisted state with current state
+    },
   },
 });
 
@@ -222,6 +242,8 @@ export const {
 
   // reset
   resetState,
+  setState,
+  mergeState,
 } = appSlice.actions;
 
 const AppContext = createContext<
@@ -231,22 +253,15 @@ const AppContext = createContext<
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
 
-  // Load state from local storage or use undefined if none is found
-  const persistedState = loadStateFromLocalStorage(user ?? undefined);
+  // Initial state using just initialState
+  const [state, dispatch] = useReducer(appSlice.reducer, initialState);
 
-  // Ensure the user is always included in the result, but don't use initialState unless needed
-  const finalState = {
-    ...(persistedState || initialState), // Only use initialState if persistedState is null
-  };
-
-  const [state, dispatch] = useReducer(appSlice.reducer, finalState);
-
-  // Save state to local storage on every state change
+  // Save state to local storage on every state change if the user exists
   useEffect(() => {
-    if (isStateDifferentFromInitialState(state)) {
-      saveStateToLocalStorage(state);
+    if (user) {
+      saveStateToLocalStorage(state, user);
     }
-  }, [state]);
+  }, [state, user]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

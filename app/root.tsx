@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import {
+  json,
   Links,
   Meta,
   Outlet,
@@ -24,10 +25,16 @@ import ConfirmProvider from "./components/layout/confirm-provider";
 import LoadingIndicator from "./components/LoadingIndicator";
 import ResponsiveNavBar from "./components/ResponsiveNavBar";
 import { Toaster } from "./components/ui/toaster";
-import { AppProvider, loadStateFromLocalStorage } from "./context/AppContext";
-import { IUserRecord, UserProvider } from "./context/UserContext";
+import {
+  AppProvider,
+  loadStateFromLocalStorage,
+  setState,
+  useAppContext,
+} from "./context/AppContext";
+import { UserProvider } from "./context/UserContext";
 import { isSessionValid } from "./fb.sessions.server";
 import useFirebaseUser from "./hooks/useFirebaseUser";
+import { IAuthUser } from "./hooks/useFirestore";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
 
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
@@ -40,27 +47,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // check if we are authenticated, and if we are, return the claims and the user
   const userSession = await isSessionValid(request);
   let decodedClaims;
-  let user: IUserRecord = {
-    uid: undefined,
-    displayName: undefined,
-    email: undefined,
-    avatar: undefined,
+  let user: IAuthUser = {
+    uid: "",
+    displayName: "",
+    email: "",
+    avatar: "",
   };
   if (userSession?.success) {
     decodedClaims = userSession?.decodedClaims;
     user = {
-      uid: userSession.user?.uid,
-      email: userSession.user?.email,
+      uid: userSession.user?.uid ?? "",
+      email: userSession.user?.email ?? "",
       displayName:
         userSession.user?.providerData[0]?.displayName ??
-        userSession.user?.displayName,
+        userSession.user?.displayName ??
+        "",
       avatar:
         userSession.user?.providerData[0]?.photoURL ??
-        userSession.user?.photoURL,
+        userSession.user?.photoURL ??
+        "",
     };
   }
-
-  return { theme: getTheme(), decodedClaims, user };
+  return json({ theme: getTheme(), decodedClaims, user });
 }
 
 // It defines the overall page structure (header, footer, etc.) and renders children
@@ -71,7 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <ThemeProvider
       specifiedTheme={data?.theme ?? null}
       themeAction="/action/set-theme">
-      <UserProvider initialUser={data?.user}>
+      <UserProvider>
         <AppProvider>
           <ConfirmProvider>
             <InnerLayout ssrTheme={Boolean(data?.theme)}>
@@ -120,6 +128,12 @@ export default function App() {
 
   useFirebaseUser();
 
+  const { dispatch } = useAppContext();
+
+  // TODO: For some reason this just does not work when switching users
+  // have to use the user from the loaderdata
+  // const { user } = useUser();
+
   // In order to avoid the Error: useAppContext must be used within a AppProvider
   const {
     // loadAppConfigData,
@@ -150,12 +164,21 @@ export default function App() {
       await loadUserPlaylistData();
     };
 
-    // check if the state exists in local storage
-    // if not, it does not exist or has expired
-    if (!loadStateFromLocalStorage(data?.user)) {
-      loadData();
+    // Check if a user exists
+    if (data?.user) {
+      // check if the state exists in local storage
+      // if not, it does not exist or has expired
+      const persistedState = loadStateFromLocalStorage(data.user);
+
+      if (persistedState) {
+        // If a persisted state exists, update the app's state
+        dispatch(setState(persistedState));
+      } else {
+        // If no persisted state, load the necessary data
+        loadData();
+      }
     }
-  }, []);
+  }, [data?.user]);
 
   if (isLoading) {
     return <LoadingIndicator />;

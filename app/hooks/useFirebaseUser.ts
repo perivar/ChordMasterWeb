@@ -19,14 +19,16 @@ const useFirebaseUser = () => {
       // debug('useFirebaseUser - onAuthStateChanged');
       if (authUser) {
         // provider-specific profile information is stored in the data.user.providerData array
-        // use the data.user instead
-        // const userData = authUser.providerData[0];
-        const userData = authUser;
+        const user = authUser;
+
         const userInfo: IAuthUser = {
-          uid: userData.uid,
-          displayName: userData.displayName ?? "",
-          email: userData.email ?? "",
+          uid: user?.uid ?? "",
+          email: user?.email ?? "",
+          displayName:
+            user?.providerData[0]?.displayName ?? user?.displayName ?? "",
+          avatar: user?.providerData[0]?.photoURL ?? user?.photoURL ?? "",
         };
+
         loginUser(userInfo);
 
         // subscribe to user change

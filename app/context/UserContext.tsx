@@ -1,43 +1,20 @@
 // UserContext.tsx
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
-export type IUserRecord = {
-  uid?: string;
-  email?: string;
-  displayName?: string;
-  avatar?: string;
-};
+import { IAuthUser } from "~/hooks/useFirestore";
 
 interface UserContextType {
-  user: IUserRecord | null;
-  loginUser: (userData: IUserRecord) => void;
+  user: IAuthUser | null;
+  loginUser: (userData: IAuthUser) => void;
   logoutUser: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider = ({
-  children,
-  initialUser = null,
-}: {
-  children: ReactNode;
-  initialUser?: IUserRecord | null;
-}) => {
-  const [user, setUser] = useState<IUserRecord | null>(initialUser);
+export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<IAuthUser | null>(null);
 
-  useEffect(() => {
-    if (initialUser) {
-      setUser(initialUser);
-    }
-  }, [initialUser]);
-
-  const loginUser = (userData: IUserRecord) => {
+  const loginUser = (userData: IAuthUser) => {
     setUser(userData);
   };
 

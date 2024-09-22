@@ -1,13 +1,7 @@
 // app/routes/songs.$id.edit.tsx
 
 import { useEffect, useState } from "react";
-import {
-  ActionFunctionArgs,
-  json,
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import { LinksFunction, MetaFunction } from "@remix-run/node";
 import { Form, useNavigate, useParams } from "@remix-run/react";
 import {
   addOrUpdateArtist,
@@ -19,7 +13,8 @@ import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter
 import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
 import ChordSheetJS from "chordsheetjs";
 
-import useFirestore, { IArtist, ISong } from "~/hooks/useFirestore";
+import useFirestore, { IArtist } from "~/hooks/useFirestore";
+import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
@@ -37,28 +32,15 @@ export const meta: MetaFunction = () => [
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-// Loader function to fetch the JSON data
-export const loader: LoaderFunction = async () => {
-  return json("");
-};
-
-// our action function will be launched when the submit button is clicked
-// this will sign in our firebase user and create our session and cookie using user.getIDToken()
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-}
-
 export default function SongEdit() {
   const navigate = useNavigate();
   const params = useParams();
-
   let songIdParam = params?.id;
 
   const { dispatch } = useAppContext();
   const { user } = useUser();
-
-  const [song, setSong] = useState<ISong>();
-  const songs = useSongs();
+  const allSongs = useSongs();
+  const song = allSongs.find(s => s.id === songIdParam);
 
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
@@ -69,7 +51,7 @@ export default function SongEdit() {
   const [error, setError] = useState<string | null>();
   const { addNewSong, editSong, getArtistsByName, addNewArtist } =
     useFirestore();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, loadSongData } = useFirestoreMethods();
 
   const [isReplaceModalOpen, setReplaceModalOpen] = useState(false);
   const [replaceFromText, setReplaceFromText] = useState("");
@@ -80,14 +62,11 @@ export default function SongEdit() {
   // const [activeTab, setActiveTab] = useState("chordpro");
   const [mode, setMode] = useState<"CHORD_PRO" | "CHORD_SHEET">("CHORD_PRO");
 
-  // read using the cache hook
   useEffect(() => {
-    if (!songs) return;
-
-    // Find the song by ID in the cached data
-    const foundSong = songs.find(s => s.id === params.id);
-    setSong(foundSong);
-  }, [songs, params.id]);
+    if (songIdParam) {
+      loadSongData(songIdParam);
+    }
+  }, [songIdParam]);
 
   useEffect(() => {
     if (song) {

@@ -1,16 +1,16 @@
 // app/routes/songs.$id.tsx
 
-import fs from "fs";
-import path from "path";
 import { useEffect, useState } from "react";
+import { LinksFunction, MetaFunction } from "@remix-run/node";
 import {
   json,
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { Link, useLoaderData, useNavigate, useParams } from "@remix-run/react";
+  Link,
+  useLoaderData,
+  useNavigate,
+  useParams,
+} from "@remix-run/react";
 import { editSong, useAppContext } from "~/context/AppContext";
+import { readDataFile } from "~/files.server";
 import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
@@ -54,19 +54,15 @@ export const meta: MetaFunction = () => [
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-// Loader function to fetch the JSON data
-export const loader: LoaderFunction = async () => {
-  // Get the absolute path to the chords.json file
-  const filePath = path.resolve("public/assets/chords/chords.json");
+export async function loader() {
+  const chordsData = (await readDataFile(
+    "public/assets/chords/chords.json"
+  )) as ChordsData;
 
-  // Read the file
-  const fileContents = fs.readFileSync(filePath, "utf-8");
+  const headers = { "Cache-Control": "max-age=86400" }; // One day
 
-  // Parse the JSON
-  const guitarChords: ChordsData = JSON.parse(fileContents);
-
-  return json(guitarChords);
-};
+  return json({ chords: chordsData }, { headers });
+}
 
 export const MIN_FONT_SIZE = 14;
 export const MAX_FONT_SIZE = 24;
@@ -77,7 +73,7 @@ export default function SongView() {
   const params = useParams();
   const songIdParam = params.id;
 
-  const guitarChords = useLoaderData<ChordsData>(); // Retrieve the data from the loader
+  const data = useLoaderData<typeof loader>();
 
   const { dispatch } = useAppContext();
 
@@ -241,7 +237,7 @@ export default function SongView() {
                 url={song?.external?.url}
               />
               <ChordTab
-                guitarChords={guitarChords}
+                guitarChords={data.chords}
                 showPiano={showPiano}
                 onPressClose={() => setSelectedChord(null)}
                 selectedChord={selectedChord}
