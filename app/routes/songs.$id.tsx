@@ -55,6 +55,10 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export async function loader() {
+  // originally from: https://github.com/artutra/OpenChord/tree/master/app/assets/chords
+  // better? : https://github.com/T-vK/chord-collection
+  // newer? : https://github.com/tombatossals/chords-db and https://tombatossals.github.io/react-chords/
+  // https://github.com/techies23/react-chords
   const chordsData = (await readDataFile(
     "public/assets/chords/chords.json"
   )) as ChordsData;
@@ -97,7 +101,7 @@ export default function SongView() {
   const [scrollSpeed, setScrollSpeed] = useState<number>(0);
   const [selectedChord, setSelectedChord] = useState<Chord | null>(null);
   const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
-  const [showPiano, setShowPiano] = useState(true);
+  const [showPiano, setShowPiano] = useState(false);
 
   // read using the cache hook
   useEffect(() => {

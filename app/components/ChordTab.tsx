@@ -1,13 +1,10 @@
 import { FunctionComponent, useEffect, useRef } from "react";
 import { getChordAsString } from "~/utils/getChordAsString";
-import {
-  getNotesChordAlternatives,
-  NotesChordAlternatives,
-} from "~/utils/getNotesChordAlternatives";
+import { getNotesChordAlternatives } from "~/utils/getNotesChordAlternatives";
 import { Chord } from "chordsheetjs";
 
 import { getChordInformation } from "../utils/getChordInformation";
-import ChordChart from "./ChordChart";
+import ChordChart2 from "./ChordChart2";
 import { Button } from "./ui/button";
 import {
   Drawer,
@@ -73,32 +70,21 @@ const ChordTab: FunctionComponent<Props> = ({
           {allChords.map((item, index) => {
             const chordName = getChordAsString(item);
             const selectedChordName = getChordAsString(selectedChord);
+            const isSelected = chordName === selectedChordName;
 
-            let position: string[] = [];
-            if (guitarChords.hasOwnProperty(chordName)) {
-              const chordObj = guitarChords[chordName].find(() => true);
-              if (chordObj) {
-                position = chordObj.positions;
-              }
-            }
+            const guitarChord = guitarChords[chordName]?.[0];
+            // const position = guitarChord?.positions || [];
 
-            const selected = chordName === selectedChordName;
-
-            let notesChordAlternatives: NotesChordAlternatives = {
-              chordNotes: [],
-              chordNames: [],
-              chordIntervals: [],
-              rootNote: undefined,
-              bassNote: undefined,
-            };
-            if (showPiano) {
-              notesChordAlternatives = getNotesChordAlternatives(
-                chordName,
-                // 'C°7(addM7,11,b13)',
-                getChordInformation,
-                true
-              );
-            }
+            // 'C°7(addM7,11,b13)',
+            const notesChordAlternatives = showPiano
+              ? getNotesChordAlternatives(chordName, getChordInformation, true)
+              : {
+                  chordNotes: [],
+                  chordNames: [],
+                  chordIntervals: [],
+                  rootNote: undefined,
+                  bassNote: undefined,
+                };
 
             return (
               <div
@@ -108,9 +94,9 @@ const ChordTab: FunctionComponent<Props> = ({
                     columnRefs.current[index] = el;
                   }
                 }}
-                className={`m-2 p-2 ${selected ? "border-2 border-cyan-500" : ""}`}>
+                className={`${isSelected ? "border-2 border-cyan-500" : ""}`}>
                 {showPiano ? (
-                  <div className="flex flex-col">
+                  <div className="m-2 flex flex-col p-2">
                     <div className="flex justify-between font-semibold">
                       {notesChordAlternatives?.chordNotes.map(note => (
                         <div key={note} className="w-8 text-center">
@@ -147,8 +133,8 @@ const ChordTab: FunctionComponent<Props> = ({
                   </div>
                 ) : (
                   <>
-                    <ChordChart width={100} height={120} chord={position} />
-                    <p className="m-6 text-sm">{chordName}</p>
+                    <ChordChart2 width={100} height={120} chord={guitarChord} />
+                    <p className="text-center text-sm">{chordName}</p>
                   </>
                 )}
               </div>

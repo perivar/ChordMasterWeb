@@ -15,6 +15,9 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@fontsource-variable/montserrat": "^5.1.0",
+    "@fontsource-variable/roboto-mono": "^5.1.0",
+    "@fontsource-variable/roboto-slab": "^5.1.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-collapsible": "^1.1.0",
@@ -34,6 +37,8 @@
     "@remix-run/react": "2.12.1",
     "@remix-run/serve": "2.12.1",
     "@tanstack/react-table": "^8.20.5",
+    "@techies23/react-chords": "^1.0.2",
+    "@tombatossals/chords-db": "https://github.com/tombatossals/chords-db",
     "@tonaljs/tonal": "^4.10.0",
     "add": "^2.0.6",
     "chord-symbol": "^4.0.0",
@@ -76,7 +81,7 @@
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "remix-development-tools": "^4.6.0",
-    "tailwindcss": "^3.4.12",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.6.0",
     "vite": "^5.4.6",

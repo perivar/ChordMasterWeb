@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   json,
@@ -8,18 +9,12 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from "@remix-run/react";
+import clsx from "clsx";
 import {
   PreventFlashOnWrongTheme,
   ThemeProvider,
   useTheme,
 } from "remix-themes";
-
-import { themeSessionResolver } from "./theme.sessions.server";
-
-import "./tailwind.css";
-
-import { useEffect } from "react";
-import clsx from "clsx";
 
 import ConfirmProvider from "./components/layout/confirm-provider";
 import LoadingIndicator from "./components/LoadingIndicator";
@@ -36,6 +31,16 @@ import { isSessionValid } from "./fb.sessions.server";
 import useFirebaseUser from "./hooks/useFirebaseUser";
 import { IAuthUser } from "./hooks/useFirestore";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
+import { themeSessionResolver } from "./theme.sessions.server";
+
+import "@fontsource-variable/montserrat/wght.css";
+import "@fontsource-variable/roboto-mono/wght.css";
+import "@fontsource-variable/roboto-slab/wght.css";
+import "./tailwind.css";
+
+// export const links: LinksFunction = () => {
+//   // return fontLinks;
+// };
 
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
 

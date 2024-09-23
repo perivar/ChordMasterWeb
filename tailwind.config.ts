@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { fontFamily } from 'tailwindcss/defaultTheme'
 
 const config = {
   darkMode: ["class"],
@@ -18,6 +19,12 @@ const config = {
       },
     },
     extend: {
+      // To add the fonts, add in root.tsx, like import "@fontsource-variable/montserrat/wght.css";
+      fontFamily: {
+        sans: ["Montserrat Variable", ...fontFamily.sans],
+        mono: ["Roboto Mono Variable", ...fontFamily.mono],
+        serif: ["Roboto Slab Variable", ...fontFamily.serif],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

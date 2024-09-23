@@ -1287,6 +1287,21 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.8.tgz#21a907684723bbbaa5f0974cf7730bd797eb8e62"
   integrity sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==
 
+"@fontsource-variable/montserrat@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/montserrat/-/montserrat-5.1.0.tgz#627c3b570be6389170784563628a27173788474b"
+  integrity sha512-1bloVBKJx/ABBmF+/VzhJZDLzaDNUxw/8Pt5AOgfKL6N3t1fAhwtJBb1gdqU7ABckSNLsKf572A5Inv9YneRug==
+
+"@fontsource-variable/roboto-mono@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/roboto-mono/-/roboto-mono-5.1.0.tgz#c2d89761b8b32527500028b44af48b3e3e86f18b"
+  integrity sha512-87USlDpEi7dS/ayPXwf/08vdgJKEYxdQmuZk5kCzWBtumimdwWlA9Vh36TCtYqFC+dGgDxPX/4PJK+0lxkEd5A==
+
+"@fontsource-variable/roboto-slab@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/roboto-slab/-/roboto-slab-5.1.0.tgz#5431da2056c925741339efd5a6dce70dcbad5fa7"
+  integrity sha512-yDXymBKjK3CPrtaS8WbT9kOIWeSl3N5xaW8odaXOPZk9vhbWe/fO9e4VUG8T7ZYRR+RoRtwNWZ7gE4a5lqEIIQ==
+
 "@google-cloud/firestore@^7.7.0":
   version "7.10.0"
   resolved "https://registry.yarnpkg.com/@google-cloud/firestore/-/firestore-7.10.0.tgz#fc434f6da583aba48d5532ce322e8c03af1978f8"
@@ -2761,6 +2776,18 @@
   resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.20.5.tgz#3974f0b090bed11243d4107283824167a395cf1d"
   integrity sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==
 
+"@techies23/react-chords@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@techies23/react-chords/-/react-chords-1.0.2.tgz#a21cde4f19044ad536c0a61b5e4a78bb2f8c14b8"
+  integrity sha512-wcCwb1KWt7M101Oqgx7uhk1j8klPqAkbeL5NMGaW8H/YbpC+VJBnroz3mqAFG099V/i3TZJCnljj0bfWpRPs0A==
+  dependencies:
+    react "^18.3.1"
+    react-dom "^18.3.1"
+
+"@tombatossals/chords-db@https://github.com/tombatossals/chords-db":
+  version "0.5.1"
+  resolved "https://github.com/tombatossals/chords-db#d793536e63d664913939c800c36d3d09e57d861f"
+
 "@tonaljs/abc-notation@^4.8.0":
   version "4.9.0"
   resolved "https://registry.yarnpkg.com/@tonaljs/abc-notation/-/abc-notation-4.9.0.tgz#f9066f48153eb2bb48693a902d6c9e20d386bc1b"
@@ -4046,9 +4073,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001646:
-  version "1.0.30001662"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001662.tgz#3574b22dfec54a3f3b6787331da1040fe8e763ec"
-  integrity sha512-sgMUVwLmGseH8ZIrm1d51UbrhqMCH3jvS7gF/M6byuHOnKyLOBL7W8yz5V02OHwgLGA36o/AFhWzzh4uc5aqTA==
+  version "1.0.30001663"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001663.tgz#1529a723505e429fdfd49532e9fc42273ba7fed7"
+  integrity sha512-o9C3X27GLKbLeTYZ6HBOLU1tsAcBZsLis28wrVzddShCS16RujjHp9GDHKZqrB3meE0YjhawvMFsGb/igqiPzA==
 
 ccount@^2.0.0:
   version "2.0.1"
@@ -9603,10 +9630,10 @@ tailwindcss-animate@^1.0.7:
   resolved "https://registry.yarnpkg.com/tailwindcss-animate/-/tailwindcss-animate-1.0.7.tgz#318b692c4c42676cc9e67b19b78775742388bef4"
   integrity sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==
 
-tailwindcss@^3.4.12:
-  version "3.4.12"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.4.12.tgz#fd3b67c6d2c04d9d7bfa13e3fc70ccef9fef0455"
-  integrity sha512-Htf/gHj2+soPb9UayUNci/Ja3d8pTmu9ONTfh4QY8r3MATTZOzmv6UYWF7ZwikEIC8okpfqmGqrmDehua8mF8w==
+tailwindcss@^3.4.13:
+  version "3.4.13"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.4.13.tgz#3d11e5510660f99df4f1bfb2d78434666cb8f831"
+  integrity sha512-KqjHOJKogOUt5Bs752ykCeiwvi0fKVkr5oqsFNt/8px/tA8scFPIlkygsf6jXrfCqGHz7VflA6+yytWuM+XhFw==
   dependencies:
     "@alloc/quick-lru" "^5.2.0"
     arg "^5.0.2"

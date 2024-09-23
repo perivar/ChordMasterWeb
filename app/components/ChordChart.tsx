@@ -11,7 +11,7 @@ interface Props {
 const ChordChart: FunctionComponent<Props> = ({
   width = 100,
   height = 120,
-  showTuning = false,
+  showTuning = false, // whether to show the tuning letters
   tuning = ["E", "A", "D", "G", "B", "E"],
   chord,
 }) => {
