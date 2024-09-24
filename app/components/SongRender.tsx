@@ -88,20 +88,21 @@ const SongRender = (props: Props) => {
   // Function to render a single ChordLyricsPair (handling both chords and lyrics)
   const renderChordLyricsPair = (item: ChordLyricsPair, key: string) => {
     let { lyrics } = item;
-    if (lyrics && lyrics.length <= item.chords.length) {
-      lyrics = lyrics + " ".repeat(item.chords.length - lyrics.length + 1);
+    const chordName = item.chords;
+    if (lyrics && lyrics.length <= chordName.length) {
+      lyrics = lyrics + " ".repeat(chordName.length - lyrics.length + 1);
     }
 
     return (
       <div className="column" key={key}>
-        {item.chords ? (
+        {chordName ? (
           <div
             role="button"
             tabIndex={0}
             onKeyDown={() => {}}
             className="chord"
-            onClick={() => handleChordClick(item.chords)}>
-            {item.chords}
+            onClick={() => handleChordClick(chordName)}>
+            {chordName}
           </div>
         ) : (
           <div className="chord"></div>

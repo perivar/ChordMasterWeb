@@ -1,13 +1,16 @@
 import { FunctionComponent } from "react";
 import Chord from "@techies23/react-chords";
 
+import { ChordElement, ChordPosition } from "./ChordTab";
+
 interface Props {
   height?: number;
   width?: number;
-  chord: {
-    positions: string[]; // ['5', '7']
-    fingerings: string[][]; // [ ['0', '0'], ['1', '1'] ]
-  };
+  // chord: {
+  //   positions: string[]; // ['5', '7']
+  //   fingerings: string[][]; // [ ['0', '0'], ['1', '1'] ]
+  // };
+  chord?: ChordElement;
   showTuning?: boolean;
   tuning?: string[];
 }
@@ -55,7 +58,26 @@ const ChordChart2: FunctionComponent<Props> = ({
     capo: true, // whether the barres overlaps the whole fretboard
     baseFret: undefined, // fret to start (number), normally undefined
   };
-  const chord2 = convertChord(chord);
+  // const chord2 = convertChord(chord);
+
+  // Find the position with the lowest baseFret or return a default chord if not found
+  const defaultChordPosition: ChordPosition = {
+    frets: [],
+    fingers: [],
+    baseFret: 1,
+    barres: [],
+    capo: false,
+    midi: [],
+  };
+  const chord2 = chord
+    ? (chord.positions.reduce<ChordPosition | undefined>((lowest, current) => {
+        if (!lowest || current.baseFret < lowest.baseFret) {
+          return current;
+        }
+        return lowest;
+      }, undefined) ?? defaultChordPosition)
+    : defaultChordPosition;
+
   const instrument = {
     strings: 6,
     fretsOnChord: 4,

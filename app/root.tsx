@@ -38,10 +38,6 @@ import "@fontsource-variable/roboto-mono/wght.css";
 import "@fontsource-variable/roboto-slab/wght.css";
 import "./tailwind.css";
 
-// export const links: LinksFunction = () => {
-//   // return fontLinks;
-// };
-
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
 
 // Return the theme and the session from the session storage using the loader

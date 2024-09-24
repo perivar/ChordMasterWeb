@@ -39,7 +39,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
-import ChordTab, { ChordsData } from "~/components/ChordTab";
+import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SelectPlaylist from "~/components/SelectPlaylist";
@@ -59,9 +59,13 @@ export async function loader() {
   // better? : https://github.com/T-vK/chord-collection
   // newer? : https://github.com/tombatossals/chords-db and https://tombatossals.github.io/react-chords/
   // https://github.com/techies23/react-chords
+  // const chordsData = (await readDataFile(
+  //   "public/assets/chords/chords.json"
+  // )) as ChordsData;
+
   const chordsData = (await readDataFile(
-    "public/assets/chords/chords.json"
-  )) as ChordsData;
+    "public/assets/chords/guitar.json"
+  )) as GuitarChords;
 
   const headers = { "Cache-Control": "max-age=86400" }; // One day
 

@@ -14,6 +14,7 @@ import {
   DrawerTitle,
 } from "./ui/drawer";
 
+// chords.json
 export interface ChordsData {
   [index: string]: {
     positions: string[]; // ['5', '7']
@@ -21,14 +22,105 @@ export interface ChordsData {
   }[];
 }
 
+// guitar.json
+export interface ChordPosition {
+  frets: number[];
+  fingers: number[];
+  baseFret: number;
+  barres?: number[];
+  capo?: boolean;
+  midi: number[];
+}
+
+export interface ChordElement {
+  key: string;
+  suffix: string;
+  positions: ChordPosition[];
+}
+
+interface Chords {
+  [key: string]: ChordElement[];
+}
+
+interface Tunings {
+  standard: string[];
+}
+
+interface Main {
+  strings: number;
+  fretsOnChord: number;
+  name: string;
+  numberOfChords: number;
+}
+
+export interface GuitarChords {
+  main: Main;
+  tunings: Tunings;
+  keys: string[];
+  suffixes: string[];
+  chords: Chords;
+}
+
 interface Props {
-  guitarChords: ChordsData;
+  // guitarChords: ChordsData;
+  guitarChords: GuitarChords;
   showPiano: boolean;
   selectedChord: Chord | null | undefined;
   allChords: Chord[];
   onPressClose: () => void;
   closeLabel: string;
 }
+
+/**
+ * Appends "4" to suspended chords (e.g. "Asus" -> "Asus4", "Dsus/F#" -> "Dsus4/F#")
+ * @param chordName - The name of the chord (e.g., "Asus", "Dsus/F#")
+ * @returns The corrected chord name with "4" appended to suspended chords if necessary
+ */
+const fixSuspendedChordName = (chordName: string): string => {
+  // Split the chord into its base and bass note parts (if any)
+  const [baseChord, bassNote] = chordName.split("/");
+
+  // Check if the base chord contains "sus" and is missing "2" or "4"
+  if (/sus(?!2|4)/.test(baseChord)) {
+    // Append "4" if no specific suspension is mentioned
+    return bassNote ? `${baseChord}4/${bassNote}` : `${baseChord}4`;
+  }
+
+  // Return the original chord name if no changes are needed
+  return chordName;
+};
+
+const getChordMap = (jsonData: GuitarChords) => {
+  // Initialize an empty Map
+  const chordMap = new Map<string, ChordElement>();
+
+  // Iterate over the keys (C, C#, etc.)
+  for (const key in jsonData.chords) {
+    // Iterate over each chord (which contains key and suffix)
+    jsonData.chords[key].forEach(chord => {
+      // Construct the combination of key + suffix
+      let combinedKey;
+      if (chord.suffix === "major") {
+        // If the suffix is "major", just use the key (e.g., "C" instead of "Cmajor")
+        combinedKey = chord.key;
+      } else if (chord.suffix === "minor") {
+        // If the suffix is "minor", use "m" (e.g., "Cm" instead of "Cminor")
+        combinedKey = `${chord.key}m`;
+      } else if (chord.suffix === "aug") {
+        // If the suffix is "aug", use "+" (e.g., "C+" instead of "Caug")
+        combinedKey = `${chord.key}+`;
+      } else {
+        // For all other suffixes, use the full key + suffix (e.g., "Cdim7")
+        combinedKey = `${chord.key}${chord.suffix}`;
+      }
+
+      // Add this combination as the key in the map, with the chord data as the value
+      chordMap.set(combinedKey.toLowerCase(), chord);
+    });
+  }
+
+  return chordMap;
+};
 
 const ChordTab: FunctionComponent<Props> = ({
   guitarChords,
@@ -58,6 +150,8 @@ const ChordTab: FunctionComponent<Props> = ({
 
   if (!selectedChord) return null;
 
+  const chordMap = getChordMap(guitarChords);
+
   return (
     <Drawer open={!!selectedChord} onOpenChange={onPressClose}>
       <DrawerContent>
@@ -72,19 +166,17 @@ const ChordTab: FunctionComponent<Props> = ({
             const selectedChordName = getChordAsString(selectedChord);
             const isSelected = chordName === selectedChordName;
 
-            const guitarChord = guitarChords[chordName]?.[0];
-            // const position = guitarChord?.positions || [];
+            let guitarChordLookup = chordName;
+            // guitarChordLookup = getChordSymbol(guitarChordLookup);
+            guitarChordLookup = fixSuspendedChordName(guitarChordLookup);
+
+            // const guitarChord = guitarChords[guitarChordLookup]?.[0];
+            const guitarChord = chordMap.get(guitarChordLookup.toLowerCase());
 
             // 'C°7(addM7,11,b13)',
             const notesChordAlternatives = showPiano
               ? getNotesChordAlternatives(chordName, getChordInformation, true)
-              : {
-                  chordNotes: [],
-                  chordNames: [],
-                  chordIntervals: [],
-                  rootNote: undefined,
-                  bassNote: undefined,
-                };
+              : undefined;
 
             return (
               <div
@@ -134,7 +226,7 @@ const ChordTab: FunctionComponent<Props> = ({
                 ) : (
                   <>
                     <ChordChart2 width={100} height={120} chord={guitarChord} />
-                    <p className="text-center text-sm">{chordName}</p>
+                    <p className="text-center text-sm">{guitarChordLookup}</p>
                   </>
                 )}
               </div>
