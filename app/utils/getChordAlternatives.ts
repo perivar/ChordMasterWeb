@@ -1,4 +1,4 @@
-import { Chord as ChordTonal } from "@tonaljs/tonal";
+import { Chord as ChordTonal } from "tonal";
 
 export interface ChordAlternatives {
   chordNames: string[];

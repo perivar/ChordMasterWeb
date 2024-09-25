@@ -57,9 +57,6 @@ const processChord = (item: Item, processor: (parsedChord: Chord) => Chord) => {
       const parsedChord = ChordSheetJS.Chord.parse(item.chords);
 
       if (parsedChord) {
-        // TODO: fix bug in the opensheetjs 7.6.0 release related to bass notes
-        // fixChordMinorBassIssue(parsedChord);
-
         const processedChord = processor(parsedChord);
 
         // return a ChordLyricsPair where the chords have been processed
@@ -74,6 +71,7 @@ const processChord = (item: Item, processor: (parsedChord: Chord) => Chord) => {
     // commentSong = transformSong(commentSong, processor);
     // item.content = new ChordProFormatter().format(commentSong);
   } else if (item instanceof ChordSheetJS.Tag && item.name) {
+    // ignore
   } else {
     console.log(
       "processChord -> neither chord, tag or comment:",
@@ -96,8 +94,27 @@ const transformSong = (
   return song;
 };
 
-export const transposeSong = (song: Song, transposeDelta: number) =>
-  transformSong(song, chord => chord.transpose(transposeDelta));
+export const transposeSong = (song: Song, transposeDelta: number) => {
+  const transformedSong = transformSong(song, chord => {
+    let transformedChord = chord.transpose(transposeDelta);
+
+    // Normalizes the chord root and bass notes:
+    // Fb becomes E
+    // Cb becomes B
+    // B# becomes C
+    // E# becomes F
+    // Besides that it normalizes the suffix if `normalizeSuffix` is `true`.
+    // For example, `sus2` becomes `2`, `sus4` becomes `sus`.
+    // All suffix normalizations can be found in `src/normalize_mappings/suffix-mapping.txt`.
+    transformedChord = transformedChord.normalize(null, {
+      normalizeSuffix: false,
+    });
+
+    return transformedChord;
+  });
+
+  return transformedSong;
+};
 
 export const getChords = (song: Song): Chord[] => {
   const allChords: Chord[] = [];

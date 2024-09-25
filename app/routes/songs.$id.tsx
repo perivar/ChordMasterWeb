@@ -59,9 +59,6 @@ export async function loader() {
   // better? : https://github.com/T-vK/chord-collection
   // newer? : https://github.com/tombatossals/chords-db and https://tombatossals.github.io/react-chords/
   // https://github.com/techies23/react-chords
-  // const chordsData = (await readDataFile(
-  //   "public/assets/chords/chords.json"
-  // )) as ChordsData;
 
   const chordsData = (await readDataFile(
     "public/assets/chords/guitar.json"

@@ -1,10 +1,10 @@
-import { Chord as ChordTonal, Note as NoteTonal } from "@tonaljs/tonal";
+import { Chord as ChordTonal, Note as NoteTonal } from "tonal";
 
 import { ChordInformation } from "./getChordInformation";
 
 export const getChordInformationTonal = (value: string): ChordInformation => {
   let isChord: boolean = false;
-  const chordName: string = value;
+  let chordName: string = value;
 
   let notes: string[] = [];
   let intervals: string[] = [];
@@ -13,25 +13,33 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
 
   let error: unknown;
 
-  // store chord name in note string
-  let noteString = value;
-
   try {
-    // @tonaljs does not support base notes, so extract from string before using
-    // retrieve potential base note from chord
-    if (noteString.includes("/")) {
-      const split = noteString.split("/");
-      noteString = split[0];
-      bassNote = split[1];
-    }
-
     // get notes for this chord
-    const chordTonal = ChordTonal.get(noteString);
+    const chordTonal = ChordTonal.get(chordName);
     if (!chordTonal.empty) {
       isChord = true;
-      rootNote = chordTonal.tonic ?? undefined;
-      notes = chordTonal.notes ?? [];
-      intervals = chordTonal.intervals ?? [];
+      rootNote = chordTonal.root;
+      bassNote = chordTonal.bass;
+      notes = chordTonal.notes;
+      intervals = chordTonal.intervals;
+
+      // Construct the chordName using aliases, tonic, and bass note
+      const { aliases, tonic, symbol, bass } = chordTonal;
+
+      if (aliases?.[0]) {
+        // If alias exists, construct the name using tonic + alias
+        chordName = `${tonic}${aliases[0]}`;
+
+        // Append the bass note if it exists
+        if (bass) {
+          chordName += `/${bass}`;
+        }
+      } else {
+        // Otherwise, use the symbol
+        chordName = `${symbol}`;
+      }
+
+      chordName = chordSymbolUltimateGuitarRenderer(chordName);
     }
 
     // normalize note names
@@ -54,4 +62,13 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
     notes,
     error,
   };
+};
+
+const chordSymbolUltimateGuitarRenderer = (chordName: string) => {
+  return chordName
+    .replace(/[(), ]/g, "") // Remove unwanted characters like parentheses, commas, and spaces
+    .replace(/mM(?!aj)/g, "mMaj") // Ensure "mM" gets replaced with "mMaj" only when it's not already "mMaj"
+    .replace(/M(?!aj)/g, "Maj") // Replace isolated "M" with "Maj" (unless it's already "Maj")
+    .replace(/Maj(?!\d)/g, "") // Remove "Maj" unless it is followed by a number
+    .replace("°", "dim"); // Replace the degree symbol with "dim"
 };

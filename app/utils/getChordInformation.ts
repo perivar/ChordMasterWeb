@@ -82,10 +82,10 @@ export const getChordInformation = (value: string): ChordInformation => {
 
 const chordSymbolUltimateGuitarRenderer = (chord: Chord) => {
   chord.formatted.symbol = chord.formatted.symbol
-    .replace(/[(), ]/g, "")
-    .replace(/mM(?!aj)/g, "mMaj")
-    .replace(/M(?!aj)/g, "Maj")
-    .replace("°", "dim");
+    .replace(/[(), ]/g, "") // Remove unwanted characters like parentheses, commas, and spaces
+    .replace(/mM(?!aj)/g, "mMaj") // Ensure "mM" gets replaced with "mMaj" only when it's not already "mMaj"
+    .replace(/M(?!aj)/g, "Maj") // Replace isolated "M" with "Maj" (unless it's already "Maj")
+    .replace("°", "dim"); // Replace the degree symbol with "dim"
 
   return chord;
 };

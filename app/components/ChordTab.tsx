@@ -1,6 +1,11 @@
 import { FunctionComponent, useEffect, useRef } from "react";
 import { getChordAsString } from "~/utils/getChordAsString";
-import { getNotesChordAlternatives } from "~/utils/getNotesChordAlternatives";
+import { getChordInformationTonal } from "~/utils/getChordInformationTonal";
+import { getChordSymbolTonal } from "~/utils/getChordSymbolTonal";
+import {
+  getNotesChordAlternatives,
+  NotesChordAlternatives,
+} from "~/utils/getNotesChordAlternatives";
 import { Chord } from "chordsheetjs";
 
 import { getChordInformation } from "../utils/getChordInformation";
@@ -15,19 +20,24 @@ import {
 } from "./ui/drawer";
 
 // chords.json
-export interface ChordsData {
-  [index: string]: {
-    positions: string[]; // ['5', '7']
-    fingerings: string[][]; // [ ['0', '0'], ['1', '1'] ]
-  }[];
-}
+// export interface ChordsData {
+//   [index: string]: {
+//     positions: string[]; // ['5', '7']
+//     fingerings: string[][]; // [ ['0', '0'], ['1', '1'] ]
+//   }[];
+// }
 
 // guitar.json
 export interface ChordPosition {
+  // which fret is which finger at. 1 - 4 or, 0 = open, -1 = non-used
   frets: number[];
+  // fingers 0 - 4
   fingers: number[];
+  // fret to start (number), normally undefined
   baseFret: number;
+  // which fret is the barre? (2-4)
   barres?: number[];
+  // whether the barres overlaps the whole fretboard
   capo?: boolean;
   midi: number[];
 }
@@ -62,7 +72,6 @@ export interface GuitarChords {
 }
 
 interface Props {
-  // guitarChords: ChordsData;
   guitarChords: GuitarChords;
   showPiano: boolean;
   selectedChord: Chord | null | undefined;
@@ -71,55 +80,102 @@ interface Props {
   closeLabel: string;
 }
 
-/**
- * Appends "4" to suspended chords (e.g. "Asus" -> "Asus4", "Dsus/F#" -> "Dsus4/F#")
- * @param chordName - The name of the chord (e.g., "Asus", "Dsus/F#")
- * @returns The corrected chord name with "4" appended to suspended chords if necessary
- */
-const fixSuspendedChordName = (chordName: string): string => {
-  // Split the chord into its base and bass note parts (if any)
-  const [baseChord, bassNote] = chordName.split("/");
-
-  // Check if the base chord contains "sus" and is missing "2" or "4"
-  if (/sus(?!2|4)/.test(baseChord)) {
-    // Append "4" if no specific suspension is mentioned
-    return bassNote ? `${baseChord}4/${bassNote}` : `${baseChord}4`;
-  }
-
-  // Return the original chord name if no changes are needed
-  return chordName;
-};
-
 const getChordMap = (jsonData: GuitarChords) => {
   // Initialize an empty Map
   const chordMap = new Map<string, ChordElement>();
+
+  // Helper function to handle sharp/flat equivalences
+  const addChordToMap = (chord: ChordElement, key: string, suffix: string) => {
+    const combinedKey = `${key}${suffix}`;
+    const combinedKeyNew = getChordSymbolTonal(combinedKey);
+    chordMap.set(combinedKeyNew, chord);
+  };
+
+  // Mapping of flats to sharps
+  // https://github.com/tombatossals/chords-db/issues/24
+  // The database has only registered the flat chords, as they are the same as the sharp of the anterior key:
+  // A# = Bb, D# = Eb, G# = Ab
+  const flatToSharpMap: Record<string, string> = {
+    Bb: "A#",
+    Eb: "D#",
+    Ab: "G#",
+  };
 
   // Iterate over the keys (C, C#, etc.)
   for (const key in jsonData.chords) {
     // Iterate over each chord (which contains key and suffix)
     jsonData.chords[key].forEach(chord => {
-      // Construct the combination of key + suffix
-      let combinedKey;
-      if (chord.suffix === "major") {
-        // If the suffix is "major", just use the key (e.g., "C" instead of "Cmajor")
-        combinedKey = chord.key;
-      } else if (chord.suffix === "minor") {
-        // If the suffix is "minor", use "m" (e.g., "Cm" instead of "Cminor")
-        combinedKey = `${chord.key}m`;
-      } else if (chord.suffix === "aug") {
-        // If the suffix is "aug", use "+" (e.g., "C+" instead of "Caug")
-        combinedKey = `${chord.key}+`;
-      } else {
-        // For all other suffixes, use the full key + suffix (e.g., "Cdim7")
-        combinedKey = `${chord.key}${chord.suffix}`;
-      }
+      // Sort the chord positions by baseFret
+      chord.positions.sort((a, b) => a.baseFret - b.baseFret);
 
-      // Add this combination as the key in the map, with the chord data as the value
-      chordMap.set(combinedKey.toLowerCase(), chord);
+      // Add the original chord
+      addChordToMap(chord, chord.key, chord.suffix);
+
+      // If the chord key is a flat (Bb, Eb, Ab), add the corresponding sharp equivalent
+      if (flatToSharpMap[chord.key]) {
+        const sharpEquivalent = flatToSharpMap[chord.key];
+        addChordToMap(chord, sharpEquivalent, chord.suffix);
+      }
     });
   }
 
   return chordMap;
+};
+
+const renderPianoChord = (
+  notesChordAlternatives: NotesChordAlternatives | undefined
+) => {
+  if (!notesChordAlternatives) return null;
+
+  return (
+    <div className="m-2 flex flex-col p-2">
+      {/* Piano Notes */}
+      <div className="flex justify-between font-semibold">
+        {notesChordAlternatives.chordNotes.map(note => (
+          <div key={note} className="w-8 text-center">
+            <p className="text-base">{note}</p>
+          </div>
+        ))}
+        {notesChordAlternatives.bassNote && (
+          <div className="w-8 text-center">
+            <p className="text-base">/{notesChordAlternatives.bassNote}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Piano Intervals */}
+      <div className="flex justify-between">
+        {notesChordAlternatives.chordIntervals.map(interval => (
+          <div key={interval} className="w-8 text-center">
+            <p className="text-sm">{interval}</p>
+          </div>
+        ))}
+        {notesChordAlternatives.bassNote && <div className="w-8 text-center" />}
+      </div>
+
+      {/* Piano Chord Names */}
+      <div className="text-center">
+        {notesChordAlternatives.chordNames.map(chord => (
+          <p key={chord} className="text-sm text-blue-500">
+            {chord}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const renderGuitarChord = (
+  guitarChord: ChordElement | undefined,
+  guitarChordLookup: string
+) => {
+  return (
+    <>
+      {/* Guitar Chord Chart */}
+      <ChordChart2 chord={guitarChord} />
+      <p className="text-center text-sm">{guitarChordLookup}</p>
+    </>
+  );
 };
 
 const ChordTab: FunctionComponent<Props> = ({
@@ -167,13 +223,22 @@ const ChordTab: FunctionComponent<Props> = ({
             const isSelected = chordName === selectedChordName;
 
             let guitarChordLookup = chordName;
-            // guitarChordLookup = getChordSymbol(guitarChordLookup);
-            guitarChordLookup = fixSuspendedChordName(guitarChordLookup);
+            const lookupChordInfo = getChordInformationTonal(chordName);
 
-            // const guitarChord = guitarChords[guitarChordLookup]?.[0];
-            const guitarChord = chordMap.get(guitarChordLookup.toLowerCase());
+            let guitarChord: ChordElement | undefined = undefined;
+            if (lookupChordInfo.isChord) {
+              guitarChord = chordMap.get(lookupChordInfo.chordName);
+              guitarChordLookup = lookupChordInfo.chordName;
+            }
+            if (!guitarChord && lookupChordInfo.chordName.includes("/")) {
+              // lookup again without the bassNote
+              const split = lookupChordInfo.chordName.split("/");
+              const chordNameNoBass = split[0];
+              guitarChord = chordMap.get(chordNameNoBass);
+              guitarChordLookup = chordNameNoBass;
+            }
 
-            // 'C°7(addM7,11,b13)',
+            // Get piano alternatives only if showPiano is true
             const notesChordAlternatives = showPiano
               ? getNotesChordAlternatives(chordName, getChordInformation, true)
               : undefined;
@@ -187,48 +252,9 @@ const ChordTab: FunctionComponent<Props> = ({
                   }
                 }}
                 className={`${isSelected ? "border-2 border-cyan-500" : ""}`}>
-                {showPiano ? (
-                  <div className="m-2 flex flex-col p-2">
-                    <div className="flex justify-between font-semibold">
-                      {notesChordAlternatives?.chordNotes.map(note => (
-                        <div key={note} className="w-8 text-center">
-                          <p className="text-base">{note}</p>
-                        </div>
-                      ))}
-                      {notesChordAlternatives?.bassNote && (
-                        <div
-                          key={notesChordAlternatives.bassNote}
-                          className="w-8">
-                          <p className="text-base">
-                            /{notesChordAlternatives.bassNote}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex justify-between">
-                      {notesChordAlternatives?.chordIntervals.map(interval => (
-                        <div key={interval} className="w-8 text-center">
-                          <p className="text-sm">{interval}</p>
-                        </div>
-                      ))}
-                      {notesChordAlternatives?.bassNote && (
-                        <div className="w-8 text-center" />
-                      )}
-                    </div>
-                    <div className="text-center">
-                      {notesChordAlternatives?.chordNames.map(chord => (
-                        <p key={chord} className="text-sm text-blue-500">
-                          {chord}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <ChordChart2 width={100} height={120} chord={guitarChord} />
-                    <p className="text-center text-sm">{guitarChordLookup}</p>
-                  </>
-                )}
+                {showPiano
+                  ? renderPianoChord(notesChordAlternatives)
+                  : renderGuitarChord(guitarChord, guitarChordLookup)}
               </div>
             );
           })}
