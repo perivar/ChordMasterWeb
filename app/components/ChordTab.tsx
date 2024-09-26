@@ -9,7 +9,7 @@ import {
 import { Chord } from "chordsheetjs";
 
 import { getChordInformation } from "../utils/getChordInformation";
-import ChordChart2 from "./ChordChart2";
+import ChordChart from "./ChordChart";
 import { Button } from "./ui/button";
 import {
   Drawer,
@@ -91,14 +91,16 @@ const getChordMap = (jsonData: GuitarChords) => {
     chordMap.set(combinedKeyNew, chord);
   };
 
-  // Mapping of flats to sharps
+  // Mapping of flats to sharps, and the other way around
   // https://github.com/tombatossals/chords-db/issues/24
   // The database has only registered the flat chords, as they are the same as the sharp of the anterior key:
   // A# = Bb, D# = Eb, G# = Ab
-  const flatToSharpMap: Record<string, string> = {
-    Bb: "A#",
+  const equivalentMap: Record<string, string> = {
+    "C#": "Db",
+    "F#": "Gb",
     Eb: "D#",
     Ab: "G#",
+    Bb: "A#",
   };
 
   // Iterate over the keys (C, C#, etc.)
@@ -112,9 +114,9 @@ const getChordMap = (jsonData: GuitarChords) => {
       addChordToMap(chord, chord.key, chord.suffix);
 
       // If the chord key is a flat (Bb, Eb, Ab), add the corresponding sharp equivalent
-      if (flatToSharpMap[chord.key]) {
-        const sharpEquivalent = flatToSharpMap[chord.key];
-        addChordToMap(chord, sharpEquivalent, chord.suffix);
+      if (equivalentMap[chord.key]) {
+        const equivalent = equivalentMap[chord.key];
+        addChordToMap(chord, equivalent, chord.suffix);
       }
     });
   }
@@ -172,7 +174,7 @@ const renderGuitarChord = (
   return (
     <>
       {/* Guitar Chord Chart */}
-      <ChordChart2 chord={guitarChord} />
+      <ChordChart chord={guitarChord} />
       <p className="text-center text-sm">{guitarChordLookup}</p>
     </>
   );

@@ -26,7 +26,7 @@ import {
   setState,
   useAppContext,
 } from "./context/AppContext";
-import { UserProvider } from "./context/UserContext";
+import { UserProvider, useUser } from "./context/UserContext";
 import { isSessionValid } from "./fb.sessions.server";
 import useFirebaseUser from "./hooks/useFirebaseUser";
 import { IAuthUser } from "./hooks/useFirestore";
@@ -125,7 +125,7 @@ function InnerLayout({
 }
 
 export default function App() {
-  const data = useRouteLoaderData<typeof loader>("root");
+  // const data = useRouteLoaderData<typeof loader>("root");
 
   useFirebaseUser();
 
@@ -133,7 +133,7 @@ export default function App() {
 
   // TODO: For some reason this just does not work when switching users
   // have to use the user from the loaderdata
-  // const { user } = useUser();
+  const { user } = useUser();
 
   // In order to avoid the Error: useAppContext must be used within a AppProvider
   const {
@@ -166,10 +166,10 @@ export default function App() {
     };
 
     // Check if a user exists
-    if (data?.user) {
+    if (user) {
       // check if the state exists in local storage
       // if not, it does not exist or has expired
-      const persistedState = loadStateFromLocalStorage(data.user);
+      const persistedState = loadStateFromLocalStorage(user);
 
       if (persistedState) {
         // If a persisted state exists, update the app's state
@@ -179,7 +179,7 @@ export default function App() {
         loadData();
       }
     }
-  }, [data?.user]);
+  }, [user]);
 
   if (isLoading) {
     return <LoadingIndicator />;
