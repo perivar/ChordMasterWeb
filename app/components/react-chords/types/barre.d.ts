@@ -3,8 +3,9 @@ declare module "BarreModule" {
     frets: number[];
     barre: number;
     capo?: boolean;
-    lite: boolean;
     finger: number; // 0 | 1 | 2 | 3 | 4 | 5;
+    lite?: boolean;
+    dark?: boolean;
   };
 
   type FretXPositionType = {

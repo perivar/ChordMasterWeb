@@ -102,9 +102,8 @@ export default function SongView() {
   const [scrollSpeed, setScrollSpeed] = useState<number>(0);
   const [selectedChord, setSelectedChord] = useState<Chord | null>(null);
   const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
-  const [showPiano, setShowPiano] = useState(false);
+  const [showPiano, setShowPiano] = useState(true);
 
-  // read using the cache hook
   useEffect(() => {
     if (!songs) return;
 
@@ -244,9 +243,13 @@ export default function SongView() {
               <ChordTab
                 guitarChords={data.chords}
                 showPiano={showPiano}
-                onPressClose={() => setSelectedChord(null)}
+                onShowChange={setShowPiano}
+                showChangeLabel={
+                  showPiano ? "Show Guitar Tabs" : "Show Piano Notes"
+                }
                 selectedChord={selectedChord}
                 allChords={songProps.chords}
+                onPressClose={() => setSelectedChord(null)}
                 closeLabel={"Close"}
               />
               <SelectPlaylist

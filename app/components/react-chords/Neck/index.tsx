@@ -61,11 +61,12 @@ const Neck: React.FC<NeckProps> = ({
   baseFret = 1,
   capo,
   lite = false,
+  dark = false,
 }) => {
   return (
     <g>
       <path
-        stroke="#444"
+        stroke={dark ? "#ccc" : "#444"}
         strokeWidth="0.25"
         strokeLinecap="square"
         strokeLinejoin="round"
@@ -73,7 +74,7 @@ const Neck: React.FC<NeckProps> = ({
       />
       {baseFret === 1 ? (
         <path
-          stroke="#444"
+          stroke={dark ? "#ccc" : "#444"}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -82,7 +83,7 @@ const Neck: React.FC<NeckProps> = ({
       ) : (
         <text
           fontSize="0.25rem"
-          fill="#444"
+          fill={dark ? "#ccc" : "#444"}
           fontFamily="Verdana"
           x={getBarreOffset(strings, frets, baseFret, capo)}
           y="8">
@@ -95,7 +96,7 @@ const Neck: React.FC<NeckProps> = ({
             <text
               key={index}
               fontSize="0.3rem"
-              fill="#444"
+              fill={dark ? "#ccc" : "#444"}
               fontFamily="Verdana"
               textAnchor="middle"
               x={offsets[strings].x + index * 10}

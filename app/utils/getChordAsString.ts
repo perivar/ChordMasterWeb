@@ -1,5 +1,7 @@
 import { Chord } from "chordsheetjs";
 
+import { getChordSymbol } from "./getChordSymbol";
+
 export const getChordAsString = (chord: Chord) => {
-  return chord.toString();
+  return getChordSymbol(chord.toString());
 };

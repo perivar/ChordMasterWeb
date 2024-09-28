@@ -1,4 +1,5 @@
 import { FunctionComponent } from "react";
+import { useTheme } from "remix-themes";
 
 import { ChordElement, ChordPosition } from "./ChordTab";
 import Chord from "./react-chords";
@@ -14,6 +15,8 @@ const ChordChart: FunctionComponent<Props> = ({
   tuning = ["E", "A", "D", "G", "B", "E"],
   lite = false, // defaults to false if omitted
 }) => {
+  const [theme, _] = useTheme();
+
   const instrument = {
     strings: 6,
     fretsOnChord: 4,
@@ -37,7 +40,12 @@ const ChordChart: FunctionComponent<Props> = ({
 
   return (
     <div className="min-w-36">
-      <Chord chord={chordElement} instrument={instrument} lite={lite} />
+      <Chord
+        chord={chordElement}
+        instrument={instrument}
+        lite={lite}
+        dark={theme === "dark"}
+      />
     </div>
   );
 };

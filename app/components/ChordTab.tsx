@@ -19,27 +19,14 @@ import {
   DrawerTitle,
 } from "./ui/drawer";
 
-// chords.json
-// export interface ChordsData {
-//   [index: string]: {
-//     positions: string[]; // ['5', '7']
-//     fingerings: string[][]; // [ ['0', '0'], ['1', '1'] ]
-//   }[];
-// }
-
 // guitar.json
 export interface ChordPosition {
-  // which fret is which finger at. 1 - 4 or, 0 = open, -1 = non-used
-  frets: number[];
-  // fingers 0 - 4
-  fingers: number[];
-  // fret to start (number), normally undefined
-  baseFret: number;
-  // which fret is the barre? (2-4)
-  barres?: number[];
-  // whether the barres overlaps the whole fretboard
-  capo?: boolean;
-  midi: number[];
+  frets: number[]; // which fret is which finger at: 1 - 4 or, 0 = open, -1 = non-used
+  fingers?: number[]; // fingers: 1 - 4 or 0 = no finger
+  baseFret: number; // which fret do we start with, normally 1
+  barres?: number[]; // one or more fingers is pressed onto multiple strings, 1 - 4
+  capo?: boolean; // whether the barres overlaps the whole fretboard
+  midi: number[]; // mini notes
 }
 
 export interface ChordElement {
@@ -74,6 +61,8 @@ export interface GuitarChords {
 interface Props {
   guitarChords: GuitarChords;
   showPiano: boolean;
+  onShowChange: (checked: boolean) => void;
+  showChangeLabel: string;
   selectedChord: Chord | null | undefined;
   allChords: Chord[];
   onPressClose: () => void;
@@ -132,14 +121,14 @@ const renderPianoChord = (
   return (
     <div className="m-2 flex flex-col p-2">
       {/* Piano Notes */}
-      <div className="flex justify-between font-semibold">
+      <div className="flex justify-between font-semibold dark:text-gray-300">
         {notesChordAlternatives.chordNotes.map(note => (
           <div key={note} className="w-8 text-center">
             <p className="text-base">{note}</p>
           </div>
         ))}
         {notesChordAlternatives.bassNote && (
-          <div className="w-8 text-center">
+          <div className="w-8 text-center dark:text-gray-300">
             <p className="text-base">/{notesChordAlternatives.bassNote}</p>
           </div>
         )}
@@ -148,7 +137,7 @@ const renderPianoChord = (
       {/* Piano Intervals */}
       <div className="flex justify-between">
         {notesChordAlternatives.chordIntervals.map(interval => (
-          <div key={interval} className="w-8 text-center">
+          <div key={interval} className="w-8 text-center dark:text-gray-300">
             <p className="text-sm">{interval}</p>
           </div>
         ))}
@@ -183,6 +172,8 @@ const renderGuitarChord = (
 const ChordTab: FunctionComponent<Props> = ({
   guitarChords,
   showPiano,
+  onShowChange,
+  showChangeLabel,
   selectedChord,
   allChords,
   onPressClose,
@@ -196,12 +187,15 @@ const ChordTab: FunctionComponent<Props> = ({
         chord => chord.toString() === selectedChord.toString()
       );
 
+      // Delay scroll until DOM is updated
       if (columnRefs.current[index]) {
-        columnRefs.current[index].scrollIntoView({
-          behavior: "smooth", // For smooth scrolling
-          block: "nearest", // Scroll to the nearest block position
-          inline: "start", // Scroll horizontally
-        });
+        setTimeout(() => {
+          columnRefs.current[index].scrollIntoView({
+            behavior: "smooth", // For smooth scrolling
+            block: "nearest", // Scroll to the nearest block position
+            inline: "start", // Scroll horizontally
+          });
+        }, 0); // Delay by 0ms to ensure it's called after the DOM update
       }
     }
   }, [selectedChord, allChords]);
@@ -214,8 +208,15 @@ const ChordTab: FunctionComponent<Props> = ({
     <Drawer open={!!selectedChord} onOpenChange={onPressClose}>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{selectedChord.toString()}</DrawerTitle>
-          <DrawerDescription />
+          <DrawerTitle />
+          <DrawerDescription>
+            <Button
+              onClick={() => onShowChange(!showPiano)}
+              variant="link"
+              className="w-full">
+              {showChangeLabel}
+            </Button>
+          </DrawerDescription>
         </DrawerHeader>
 
         <div className="flex flex-row overflow-x-auto">
@@ -242,7 +243,11 @@ const ChordTab: FunctionComponent<Props> = ({
 
             // Get piano alternatives only if showPiano is true
             const notesChordAlternatives = showPiano
-              ? getNotesChordAlternatives(chordName, getChordInformation, true)
+              ? getNotesChordAlternatives(
+                  guitarChordLookup,
+                  getChordInformation,
+                  true
+                )
               : undefined;
 
             return (

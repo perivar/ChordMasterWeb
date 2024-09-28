@@ -3,7 +3,7 @@ import { DotType, OffsetsProp } from "DotModule";
 
 const positions = {
   string: [50, 40, 30, 20, 10, 0],
-  fret: [-4, 6.5, 18, 30, 42, 54],
+  fret: [-4.5, 6.5, 18, 30, 42, 54],
   finger: [-3, 8, 19.5, 31.5, 43.5],
 };
 
@@ -26,11 +26,12 @@ const Dot: React.FC<DotType> = ({
   finger,
   strings,
   lite = false,
+  dark = false,
 }) =>
   fret === -1 ? (
     <text
-      fontSize="0.7rem"
-      fill="#444"
+      fontSize="0.6rem"
+      fill={dark ? "#ccc" : "#444"}
       fontFamily="Verdana"
       textAnchor="middle"
       x={getStringPosition(string, strings)}
@@ -41,8 +42,8 @@ const Dot: React.FC<DotType> = ({
     <g>
       <circle
         strokeWidth="0.25"
-        stroke="#444"
-        fill={fret === 0 ? "transparent" : "#444"}
+        stroke={dark ? "#ccc" : "#444"}
+        fill={fret === 0 ? "transparent" : dark ? "#ccc" : "#444"}
         cx={getStringPosition(string, strings)}
         cy={positions.fret[fret]}
         r={fret === 0 ? radius["open"] : radius["fret"]}
@@ -52,7 +53,7 @@ const Dot: React.FC<DotType> = ({
           fontSize="3pt"
           fontFamily="Verdana"
           textAnchor="middle"
-          fill="white"
+          fill={dark ? "#000" : "#fff"}
           x={getStringPosition(string, strings)}
           y={positions.finger[fret]}>
           {finger}

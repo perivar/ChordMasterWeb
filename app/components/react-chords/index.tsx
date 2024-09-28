@@ -10,7 +10,12 @@ const onlyDots = (chord: ChordType) =>
     .map((f, index) => ({ position: index, value: f }))
     .filter(f => !chord.barres || chord.barres.indexOf(f.value) === -1);
 
-const Chord: React.FC<ChordProps> = ({ chord, instrument, lite = false }) => {
+const Chord: React.FC<ChordProps> = ({
+  chord,
+  instrument,
+  lite = false,
+  dark = false,
+}) => {
   return chord ? (
     <svg
       width="100%"
@@ -26,6 +31,7 @@ const Chord: React.FC<ChordProps> = ({ chord, instrument, lite = false }) => {
           fretsOnChord={instrument.fretsOnChord}
           baseFret={chord.baseFret}
           lite={lite}
+          dark={dark}
         />
 
         {chord.barres &&
@@ -37,6 +43,7 @@ const Chord: React.FC<ChordProps> = ({ chord, instrument, lite = false }) => {
               finger={chord.fingers?.[chord.frets.indexOf(barre)] ?? 0}
               frets={chord.frets}
               lite={lite}
+              dark={dark}
             />
           ))}
 
@@ -48,6 +55,7 @@ const Chord: React.FC<ChordProps> = ({ chord, instrument, lite = false }) => {
             strings={instrument.strings}
             finger={chord.fingers?.[fret.position] ?? 0}
             lite={lite}
+            dark={dark}
           />
         ))}
       </g>

@@ -19,5 +19,6 @@ declare module "ChordModule" {
     chord: ChordType;
     instrument: InstrumentType;
     lite?: boolean;
+    dark?: boolean;
   };
 }

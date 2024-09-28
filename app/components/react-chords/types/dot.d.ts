@@ -4,7 +4,8 @@ declare module "DotModule" {
     fret: number;
     finger: number; // 0 | 1 | 2 | 3 | 4 | 5;
     strings: number;
-    lite: boolean;
+    lite?: boolean;
+    dark?: boolean;
   };
 
   interface OffsetsProp {
