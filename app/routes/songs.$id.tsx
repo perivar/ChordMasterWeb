@@ -43,7 +43,7 @@ import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SelectPlaylist from "~/components/SelectPlaylist";
-import SongRender from "~/components/SongRender";
+import SongRender, { FONT_SIZES } from "~/components/SongRender";
 import SongTransformer from "~/components/SongTransformer";
 import styles from "~/styles/chordsheetjs.css?url";
 
@@ -69,9 +69,8 @@ export async function loader() {
   return json({ chords: chordsData }, { headers });
 }
 
-export const MIN_FONT_SIZE = 14;
-export const MAX_FONT_SIZE = 24;
-export const FONT_SIZE_STEP = 2;
+export const MIN_FONT_SIZE = 12;
+export const MAX_FONT_SIZE = 26;
 
 export default function SongView() {
   const navigate = useNavigate();
@@ -184,26 +183,35 @@ export default function SongView() {
     setSelectedChord(null);
   };
 
-  const changeFontSize = async (amount: number) => {
-    const newFontSize = clamp(fontSize + amount, MIN_FONT_SIZE, MAX_FONT_SIZE);
-    setFontSize(newFontSize);
+  const changeFontSizeIndex = async (amount: number) => {
+    const currentIndex = FONT_SIZES.indexOf(fontSize);
+    const newIndex = currentIndex + amount;
 
-    if (songIdParam && song) {
-      await setSongPreferences(songIdParam, { fontSize: newFontSize });
+    // Check bounds to ensure the new index is valid
+    if (newIndex >= 0 && newIndex < FONT_SIZES.length) {
+      let newFontSize = FONT_SIZES[newIndex];
 
-      // update the song in redux with the preferences
-      const newSong = { ...song };
-      newSong.fontSize = newFontSize;
-      dispatch(editSong(newSong));
+      // Ensure that newFontSize does not exceed the min and max limits
+      newFontSize = clamp(newFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE);
+      setFontSize(newFontSize);
+
+      if (songIdParam && song) {
+        await setSongPreferences(songIdParam, { fontSize: newFontSize });
+
+        // update the song in redux with the preferences
+        const newSong = { ...song };
+        newSong.fontSize = newFontSize;
+        dispatch(editSong(newSong));
+      }
     }
   };
 
   const increaseFontSize = async () => {
-    await changeFontSize(FONT_SIZE_STEP);
+    await changeFontSizeIndex(1); // Increment the font size index
   };
 
   const decreaseFontSize = async () => {
-    await changeFontSize(-FONT_SIZE_STEP);
+    await changeFontSizeIndex(-1); // Decrement the font size index
   };
 
   if (!content) {
@@ -224,8 +232,7 @@ export default function SongView() {
         <SongTransformer
           chordProSong={content}
           transposeDelta={transpose}
-          showTabs={showTabs}
-          fontSize={fontSize}>
+          showTabs={showTabs}>
           {songProps => (
             <div className="flex flex-col pb-6 pl-6 font-mono">
               <SongRender
@@ -234,6 +241,7 @@ export default function SongView() {
                   onClickChord(songProps.chords, chordString)
                 }
                 song={songProps.transformedSong}
+                fontSize={fontSize}
                 scrollSpeed={scrollSpeed}
               />
               <LinkButton

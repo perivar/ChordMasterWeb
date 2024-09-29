@@ -17,11 +17,32 @@ interface Props {
   onPressChord?: (chord: string) => void;
   onPressArtist?: () => void;
   scrollSpeed?: number;
+  fontSize?: number;
 }
+
+// Mapping font size numbers to Tailwind text classes
+export const FONT_SIZE_MAPPING: Record<number, string> = {
+  12: "text-xs", // 12px
+  14: "text-sm", // 14px
+  16: "text-base", // 16px
+  18: "text-lg", // 18px
+  20: "text-xl", // 20px
+  22: "text-2xl", // 24px
+  24: "text-3xl", // 30px
+  26: "text-4xl", // 36px
+  28: "text-5xl", // 48px
+  30: "text-6xl", // 60px
+  32: "text-7xl", // 72px
+  34: "text-8xl", // 96px
+  36: "text-9xl", // 128px
+};
+
+// Available font sizes as an array for easier manipulation
+export const FONT_SIZES = Object.keys(FONT_SIZE_MAPPING).map(Number);
 
 // Main component for rendering the chord sheet
 const SongRender = (props: Props) => {
-  const song = props.song;
+  const { song, scrollSpeed = 0, fontSize = 14 } = props;
 
   const isStartOfTabs = (line: Line) => {
     return line.items.some(
@@ -265,7 +286,7 @@ const SongRender = (props: Props) => {
   };
 
   return (
-    <div className="chord-sheet">
+    <div className={`chord-sheet ${FONT_SIZE_MAPPING[fontSize]}`}>
       <div>{renderSong()}</div>
     </div>
   );

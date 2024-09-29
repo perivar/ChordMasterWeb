@@ -1,13 +1,13 @@
 .chord-sheet {
-  @apply font-mono text-sm;
+  @apply font-mono;
 }
 
 .title {
-  @apply text-[20px];
+  @apply font-extrabold;
 }
 
 .artist {
-  @apply block font-bold cursor-pointer mb-2;
+  @apply block font-light cursor-pointer mb-2 text-muted-foreground;
 }
 
 .meta-label {
@@ -19,7 +19,7 @@
 }
 
 .comment {
-  @apply text-primary font-bold mt-6 block;
+  @apply text-primary font-semibold mt-6 block;
 }
 
 .row {

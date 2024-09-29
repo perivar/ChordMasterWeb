@@ -25,7 +25,6 @@ interface Props {
   chordSheetSong?: string;
   transposeDelta?: number;
   showTabs?: boolean;
-  fontSize?: number;
   children(props: SongProps): JSX.Element;
 }
 
@@ -163,7 +162,7 @@ export const getChords = (song: Song): Chord[] => {
 };
 
 const SongTransformer: FunctionComponent<Props> = props => {
-  const { showTabs = true, transposeDelta = 0, fontSize = 14 } = props;
+  const { showTabs = true, transposeDelta = 0 } = props;
 
   let { chordProSong } = props;
 
