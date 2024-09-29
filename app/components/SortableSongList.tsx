@@ -1,24 +1,16 @@
 // https://v0.dev/chat/RVaUfCf5axe
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@remix-run/react";
 import {
   ColumnDef,
-  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ChevronDown,
-  ChevronUp,
-  Edit,
-  MoreHorizontal,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -29,18 +21,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Input } from "~/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 
-import { DataTablePagination } from "./DataTablePagination";
 import { useConfirm } from "./layout/confirm-provider";
+import SortableList from "./SortableList";
 
 interface ListItem {
   id?: string;
@@ -56,56 +39,53 @@ export default function SortableSongList<T extends ListItem>({
   allItems,
 }: ListProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [itemFilter, setItemFilter] = useState("");
   const [songs, setSongs] = useState<T[]>(allItems);
   const confirm = useConfirm();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (itemFilter !== "") {
-      const filteredItems = allItems.filter(
-        s =>
-          s.title.toLowerCase().includes(itemFilter) ||
-          s.artist.name.toLowerCase().includes(itemFilter)
-      );
-      setSongs(filteredItems);
-    } else {
-      // reset query
-      setSongs(allItems);
-    }
-  }, [allItems, itemFilter]);
+  const onFilterChange = useMemo(
+    () => (itemFilter: string) => {
+      if (itemFilter !== "") {
+        const filteredItems = allItems.filter(
+          s =>
+            s.title.toLowerCase().includes(itemFilter.toLowerCase()) ||
+            s.artist.name.toLowerCase().includes(itemFilter.toLowerCase())
+        );
+        setSongs(filteredItems);
+      } else {
+        // reset query
+        setSongs(allItems);
+      }
+    },
+    [allItems]
+  );
 
-  const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const filterQuery = e.target.value;
-    setItemFilter(filterQuery);
-  };
+  const columns = useMemo<ColumnDef<T>[]>(() => {
+    const handleEdit = async (id: string | undefined) => {
+      return navigate(`/songs/${id}/edit`);
+    };
 
-  const handleEdit = async (id: string | undefined) => {
-    return navigate(`/songs/${id}/edit`);
-  };
+    const handleDelete = async (
+      id: string | undefined,
+      songTitle: string | undefined
+    ) => {
+      try {
+        await confirm({
+          title: `Delete Song (${songTitle})`,
+          description: "Are you sure you want to permanently delete it?",
+        });
 
-  const handleDelete = async (
-    id: string | undefined,
-    songTitle: string | undefined
-  ) => {
-    try {
-      await confirm({
-        title: `Delete Song (${songTitle})`,
-        description: "Are you sure you want to permanently delete it?",
-      });
+        // Here you can add the logic to delete the item after confirmation
+        // Example: await deleteItem(id);
 
-      // Here you can add the logic to delete the item after confirmation
-      // Example: await deleteItem(id);
+        console.log(`Deleted item with id: ${id}`);
+      } catch (_err) {
+        // If the user cancels the confirmation, handle the rejection here
+        console.log(`Delete operation was cancelled (id: ${id})`);
+      }
+    };
 
-      console.log(`Deleted item with id: ${id}`);
-    } catch (_err) {
-      // If the user cancels the confirmation, handle the rejection here
-      console.log(`Delete operation was cancelled (id: ${id})`);
-    }
-  };
-
-  const columns = useMemo<ColumnDef<T>[]>(
-    () => [
+    return [
       {
         accessorKey: "title",
         header: "Song Title",
@@ -171,9 +151,8 @@ export default function SortableSongList<T extends ListItem>({
           );
         },
       },
-    ],
-    []
-  );
+    ];
+  }, [confirm, navigate]);
 
   const table = useReactTable({
     data: songs,
@@ -192,91 +171,5 @@ export default function SortableSongList<T extends ListItem>({
     },
   });
 
-  return (
-    <>
-      <div className="container mx-auto">
-        <div className="flex justify-center">
-          <div className="relative w-full max-w-md py-2">
-            <Input
-              placeholder="Search"
-              value={itemFilter}
-              onChange={handleFilterChange}
-              className="w-full pr-10"
-            />
-            {itemFilter && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0"
-                onClick={_ => setItemFilter("")}>
-                <X className="size-4 text-muted-foreground" />
-                <span className="sr-only">Clear filter</span>
-              </Button>
-            )}
-          </div>
-        </div>
-        <Table className="w-full">
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={`flex items-center space-x-2 ${
-                          header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : ""
-                        }`}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={header.column.getToggleSortingHandler()}
-                        onClick={header.column.getToggleSortingHandler()}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {{
-                          asc: <ChevronUp className="ml-2 size-4" />,
-                          desc: <ChevronDown className="ml-2 size-4" />,
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-
-        <DataTablePagination table={table} />
-      </div>
-    </>
-  );
+  return <SortableList table={table} onFilterChange={onFilterChange} />;
 }

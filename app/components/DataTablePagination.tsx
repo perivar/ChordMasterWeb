@@ -1,4 +1,4 @@
-import { Table } from "@tanstack/react-table";
+import { Table as TanTable } from "@tanstack/react-table";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -16,7 +16,7 @@ import {
 } from "./ui/select";
 
 interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+  table: TanTable<TData>;
 }
 
 export function DataTablePagination<TData>({

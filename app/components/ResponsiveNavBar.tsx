@@ -6,11 +6,9 @@ import { Theme, useTheme } from "remix-themes";
 import { Button } from "~/components/ui/button";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
 import {
@@ -35,42 +33,14 @@ export default function ResponsiveNavBar() {
     setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
   };
 
-  const navBrand = "Remix + Shadcn";
+  const navBrand = "ChordMaster";
 
   const navItems = [
-    {
-      title: "Features",
-      items: [
-        {
-          title: "Analytics",
-          to: "#analytics",
-          description: "View detailed analytics",
-        },
-        {
-          title: "Security",
-          to: "#security",
-          description: "Keep your data safe",
-        },
-        {
-          title: "Automation",
-          to: "#automation",
-          description: "Automate your workflow",
-        },
-      ],
-    },
-    {
-      title: "Resources",
-      items: [
-        { title: "Blog", to: "#blog", description: "Read our latest news" },
-        {
-          title: "Documentation",
-          to: "#docs",
-          description: "Learn how to use our product",
-        },
-        { title: "Help Center", to: "#help", description: "Get support" },
-      ],
-    },
+    { title: "Playlists", to: "/playlists" },
+    { title: "Artists", to: "/artists" },
     { title: "Songs", to: "/songs" },
+    { title: "Online Search", to: "/online" },
+    { title: "Settings", to: "/settings" },
     { title: "Login", to: "/login" },
   ];
 
@@ -86,39 +56,13 @@ export default function ResponsiveNavBar() {
             <NavigationMenuList>
               {navItems.map((item, index) => (
                 <NavigationMenuItem key={index}>
-                  {item.items ? (
-                    <>
-                      <NavigationMenuTrigger>
+                  <NavigationMenuLink asChild>
+                    <Link to={item.to}>
+                      <div className={navigationMenuTriggerStyle()}>
                         {item.title}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                          {item.items.map((subItem, subIndex) => (
-                            <li key={subIndex} className="row-span-3">
-                              <NavigationMenuLink asChild>
-                                <Link to={subItem.to}>
-                                  <div className="mb-2 mt-4 text-lg font-medium">
-                                    {subItem.title}
-                                  </div>
-                                  <p className="text-sm leading-tight text-muted-foreground">
-                                    {subItem.description}
-                                  </p>
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </>
-                  ) : (
-                    <NavigationMenuLink asChild>
-                      <Link to={item.to}>
-                        <div className={navigationMenuTriggerStyle()}>
-                          {item.title}
-                        </div>
-                      </Link>
-                    </NavigationMenuLink>
-                  )}
+                      </div>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
             </NavigationMenuList>
@@ -144,22 +88,11 @@ export default function ResponsiveNavBar() {
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
-                {navItems.map((item, index) =>
-                  item.items ? (
-                    <div key={index} className="flex flex-col space-y-3">
-                      <h4 className="font-semibold">{item.title}</h4>
-                      {item.items.map((subItem, subIndex) => (
-                        <Link key={subIndex} to={subItem.to}>
-                          <span className="ml-4">{subItem.title}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <Link key={index} to={item.to}>
-                      <h4 className="font-semibold">{item.title}</h4>
-                    </Link>
-                  )
-                )}
+                {navItems.map((item, index) => (
+                  <Link key={index} to={item.to}>
+                    <h4 className="font-semibold">{item.title}</h4>
+                  </Link>
+                ))}
               </div>
             </div>
           </SheetContent>

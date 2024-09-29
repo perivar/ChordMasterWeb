@@ -1,4 +1,4 @@
-// app/routes/artists._index.tsx
+// app/routes/playlists._index.tsx
 
 import { useMemo, useState } from "react";
 import { MetaFunction } from "@remix-run/node";
@@ -13,8 +13,8 @@ import {
 } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
-import useArtists from "~/hooks/useArtists";
-import { IArtist } from "~/hooks/useFirestore";
+import { IPlaylist } from "~/hooks/useFirestore";
+import usePlaylists from "~/hooks/usePlaylists";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -26,14 +26,14 @@ import {
 import SortableList from "~/components/SortableList";
 
 export const meta: MetaFunction = () => [
-  { title: "Artists" },
-  { name: "description", content: "View Artists" },
+  { title: "Playlists" },
+  { name: "description", content: "View Playlists" },
 ];
 
-export default function ArtistsView() {
+export default function PlaylistsView() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const allItems = useArtists();
-  const [artists, setArtists] = useState<IArtist[]>(allItems);
+  const allItems = usePlaylists();
+  const [playlists, setPlaylists] = useState<IPlaylist[]>(allItems);
 
   const onFilterChange = useMemo(
     () => (itemFilter: string) => {
@@ -41,24 +41,24 @@ export default function ArtistsView() {
         const filteredItems = allItems.filter(s =>
           s.name.toLowerCase().includes(itemFilter)
         );
-        setArtists(filteredItems);
+        setPlaylists(filteredItems);
       } else {
         // reset query
-        setArtists(allItems);
+        setPlaylists(allItems);
       }
     },
     [allItems]
   );
 
-  const columns = useMemo<ColumnDef<IArtist>[]>(
+  const columns = useMemo<ColumnDef<IPlaylist>[]>(
     () => [
       {
         accessorKey: "name",
-        header: "Artist",
+        header: "Playlist",
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
-              <Link to={`/artists/${row.original.id}`}>
+              <Link to={`/playlists/${row.original.id}`}>
                 {row.original.name}
               </Link>
             </div>
@@ -80,7 +80,9 @@ export default function ArtistsView() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem>
-                    <Link to={`/artists/${row.original.id}`}>Go To Artist</Link>
+                    <Link to={`/playlists/${row.original.id}`}>
+                      Go To Playlist
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -93,7 +95,7 @@ export default function ArtistsView() {
   );
 
   const table = useReactTable({
-    data: artists,
+    data: playlists,
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
