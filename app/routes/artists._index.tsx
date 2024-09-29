@@ -3,7 +3,6 @@
 import { MetaFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => [
-  
   { title: "Artists" },
   { name: "description", content: "View Artists" },
 ];

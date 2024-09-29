@@ -1,7 +1,7 @@
 // https://v0.dev/chat/RVaUfCf5axe
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import {
   ColumnDef,
   flexRender,
@@ -59,6 +59,7 @@ export default function SortableSongList<T extends ListItem>({
   const [itemFilter, setItemFilter] = useState("");
   const [songs, setSongs] = useState<T[]>(allItems);
   const confirm = useConfirm();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (itemFilter !== "") {
@@ -80,9 +81,7 @@ export default function SortableSongList<T extends ListItem>({
   };
 
   const handleEdit = async (id: string | undefined) => {
-    console.log(`Edit item with id: ${id}`);
-
-    // Implement edit functionality here
+    return navigate(`/songs/${id}/edit`);
   };
 
   const handleDelete = async (
