@@ -7,11 +7,11 @@ import {
   NotesChordAlternatives,
 } from "~/utils/getNotesChordAlternatives";
 import { Chord } from "chordsheetjs";
-import { X } from "lucide-react";
 import { Midi } from "tonal";
 
 import { getChordInformation } from "../utils/getChordInformation";
 import ChordChart from "./ChordChart";
+import { MyDrawer } from "./MyDrawer";
 import { Button } from "./ui/button";
 
 // guitar.json
@@ -153,7 +153,7 @@ const renderPianoChord = (
   const cornerRadius = 3; // Adjust for more or less rounding
 
   return (
-    <div className="mx-2 mt-4 flex min-w-48 flex-col">
+    <div className="flex min-w-52 flex-col p-3">
       <svg
         width="100%"
         xmlns="http://www.w3.org/2000/svg"
@@ -213,7 +213,7 @@ const renderPianoChord = (
                 height={70}
                 fill={isNotePressed(key) ? "#30819c" : "black"} // Highlight pressed keys
                 stroke="#000"
-                strokeWidth={1}
+                strokeWidth={0.5}
                 rx={cornerRadius}
                 ry={cornerRadius}
               />
@@ -261,9 +261,9 @@ const renderPianoChord = (
         </div>
 
         {/* Piano Chord Names */}
-        <div className="text-center">
+        <div className="pt-2 text-center">
           {notesChordAlternatives.chordNames.map(chord => (
-            <p key={chord} className="text-sm text-blue-500">
+            <p key={chord} className="text-sm">
               {chord}
             </p>
           ))}
@@ -308,9 +308,9 @@ const ChordTab: FunctionComponent<Props> = ({
       if (columnRefs.current[index]) {
         setTimeout(() => {
           columnRefs.current[index].scrollIntoView({
-            behavior: "smooth", // For smooth scrolling
+            behavior: "auto", // Use "smooth" for smooth scrolling
             block: "nearest", // Scroll to the nearest block position
-            inline: "start", // Scroll horizontally
+            inline: "center", // Scroll horizontally
           });
         }, 0); // Delay by 0ms to ensure it's called after the DOM update
       }
@@ -322,115 +322,72 @@ const ChordTab: FunctionComponent<Props> = ({
   const chordMap = getChordMap(guitarChords);
 
   return (
-    <>
-      {selectedChord && (
-        <>
-          {/* Backdrop (optional, non-blocking scroll) */}
-          <div
-            className="fixed inset-0 bg-black/25 transition-opacity duration-300"
-            style={{ zIndex: 999 }}
-            onClick={onPressClose}
-            role="none"
-          />
+    <MyDrawer open={!!selectedChord} onOpenChange={onPressClose}>
+      {/* Toggle Button */}
+      <Button
+        onClick={() => onShowChange(!showPiano)}
+        variant="link"
+        className="w-full">
+        {showChangeLabel}
+      </Button>
 
-          {/* Custom Drawer */}
-          <div
-            className="fixed inset-x-0 bottom-0 w-full translate-y-0 rounded-t-xl border-t bg-background shadow-lg transition-transform duration-300 ease-in-out"
-            style={{
-              zIndex: 1000,
-              // height: "calc(50%)",
-              maxHeight: "vh",
-            }}
-            role="tab"
-            tabIndex={-1} /* Ensure the drawer is focusable for keydown event */
-            onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
-              if (event.key === "Escape") {
-                onPressClose();
-              }
-            }} /* Close on Esc */
-          >
-            <div className="flex h-full flex-col">
-              <div className="grow overflow-y-auto">
-                <div className="flex items-center justify-between border-b">
-                  {/* Toggle Button */}
-                  <Button
-                    onClick={() => onShowChange(!showPiano)}
-                    variant="link"
-                    className="w-full font-sans">
-                    {showChangeLabel}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={onPressClose}>
-                    <X className="size-6" />
-                  </Button>
-                </div>
+      {/* Scrollable Chord Area */}
+      <div className="flex flex-row overflow-x-auto">
+        {allChords.map((item, index) => {
+          const chordName = getChordAsString(item);
+          const selectedChordName = getChordAsString(selectedChord);
+          const isSelected = chordName === selectedChordName;
 
-                {/* Scrollable Chord Area */}
-                <div className="flex flex-row overflow-x-auto">
-                  {allChords.map((item, index) => {
-                    const chordName = getChordAsString(item);
-                    const selectedChordName = getChordAsString(selectedChord);
-                    const isSelected = chordName === selectedChordName;
+          let guitarChordLookup = chordName;
+          const lookupChordInfo = getChordInformationTonal(chordName);
 
-                    let guitarChordLookup = chordName;
-                    const lookupChordInfo = getChordInformationTonal(chordName);
+          let guitarChord: ChordElement | undefined = undefined;
+          if (lookupChordInfo.isChord) {
+            guitarChord = chordMap.get(lookupChordInfo.chordName);
+            guitarChordLookup = lookupChordInfo.chordName;
+          }
+          if (!guitarChord && lookupChordInfo.chordName.includes("/")) {
+            // lookup again without the bassNote
+            const split = lookupChordInfo.chordName.split("/");
+            const chordNameNoBass = split[0];
+            guitarChord = chordMap.get(chordNameNoBass);
+            guitarChordLookup = chordNameNoBass;
+          }
 
-                    let guitarChord: ChordElement | undefined = undefined;
-                    if (lookupChordInfo.isChord) {
-                      guitarChord = chordMap.get(lookupChordInfo.chordName);
-                      guitarChordLookup = lookupChordInfo.chordName;
-                    }
-                    if (
-                      !guitarChord &&
-                      lookupChordInfo.chordName.includes("/")
-                    ) {
-                      // lookup again without the bassNote
-                      const split = lookupChordInfo.chordName.split("/");
-                      const chordNameNoBass = split[0];
-                      guitarChord = chordMap.get(chordNameNoBass);
-                      guitarChordLookup = chordNameNoBass;
-                    }
+          // Get piano alternatives only if showPiano is true
+          const notesChordAlternatives = showPiano
+            ? getNotesChordAlternatives(
+                guitarChordLookup,
+                getChordInformation,
+                true
+              )
+            : undefined;
 
-                    // Get piano alternatives only if showPiano is true
-                    const notesChordAlternatives = showPiano
-                      ? getNotesChordAlternatives(
-                          guitarChordLookup,
-                          getChordInformation,
-                          true
-                        )
-                      : undefined;
-
-                    return (
-                      <div
-                        key={index}
-                        ref={el => {
-                          if (el) {
-                            columnRefs.current[index] = el;
-                          }
-                        }}
-                        className={`p-2 ${
-                          isSelected ? "border-2 border-cyan-500" : ""
-                        }`}>
-                        {showPiano
-                          ? renderPianoChord(notesChordAlternatives)
-                          : renderGuitarChord(guitarChord, guitarChordLookup)}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Close Button */}
-              <Button
-                onClick={onPressClose}
-                variant="outline"
-                className="m-2 p-2 font-sans">
-                {closeLabel}
-              </Button>
+          return (
+            <div
+              key={index}
+              ref={el => {
+                if (el) {
+                  columnRefs.current[index] = el;
+                }
+              }}
+              className={`${isSelected ? "border-2 border-cyan-500" : ""}`}>
+              {showPiano
+                ? renderPianoChord(notesChordAlternatives)
+                : renderGuitarChord(guitarChord, guitarChordLookup)}
             </div>
-          </div>
-        </>
-      )}
-    </>
+          );
+        })}
+      </div>
+
+      {/* Close Button */}
+      <Button
+        onClick={onPressClose}
+        variant="outline"
+        className="m-2 p-2 font-sans">
+        {closeLabel}
+      </Button>
+    </MyDrawer>
   );
 };
 

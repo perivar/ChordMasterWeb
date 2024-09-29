@@ -40,7 +40,7 @@ const ChordChart: FunctionComponent<Props> = ({
   const chordElement = chord?.positions[0] ?? defaultChordPosition;
 
   return (
-    <div className="min-w-48">
+    <div className="min-w-52">
       <Chord
         chord={chordElement}
         instrument={instrument}

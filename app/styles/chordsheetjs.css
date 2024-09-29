@@ -7,7 +7,7 @@
 }
 
 .artist {
-  @apply block font-normal cursor-pointer mb-2 text-muted-foreground;
+  @apply block font-normal cursor-pointer hover:underline mb-2 text-muted-foreground;
 }
 
 .meta-label {
