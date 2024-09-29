@@ -27,7 +27,6 @@ const ChordChart: FunctionComponent<Props> = ({
     },
   };
 
-  // Find the position with the lowest baseFret or return a default chord if not found
   const defaultChordPosition: ChordPosition = {
     frets: [],
     fingers: [],
@@ -35,11 +34,13 @@ const ChordChart: FunctionComponent<Props> = ({
     barres: [],
     capo: false,
     midi: [],
+    notes: [],
   };
+  // Find the position with the lowest baseFret or return a default chord if not found
   const chordElement = chord?.positions[0] ?? defaultChordPosition;
 
   return (
-    <div className="min-w-36">
+    <div className="min-w-48">
       <Chord
         chord={chordElement}
         instrument={instrument}

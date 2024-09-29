@@ -60,9 +60,12 @@ const Neck: React.FC<NeckProps> = ({
   fretsOnChord,
   baseFret = 1,
   capo,
+  notes,
   lite = false,
   dark = false,
 }) => {
+  let noteIndex = 0; // Initialize noteIndex outside the map function
+
   return (
     <g>
       <path
@@ -92,18 +95,38 @@ const Neck: React.FC<NeckProps> = ({
       )}
       {!lite && (
         <g>
-          {tuning.slice().map((note, index) => (
-            <text
-              key={index}
-              fontSize="0.3rem"
-              fill={dark ? "#ccc" : "#444"}
-              fontFamily="Verdana"
-              textAnchor="middle"
-              x={offsets[strings].x + index * 10}
-              y="53">
-              {note}
-            </text>
-          ))}
+          {tuning.slice().map((note, index) => {
+            // if we have notes, use this instead of the tuning
+            if (notes) {
+              // Check if the frets array at this index is not -1, then print the corresponding note from the notes array
+              return frets[index] !== -1 ? (
+                <text
+                  key={index}
+                  fontSize="0.3rem"
+                  fill={dark ? "#ccc" : "#444"}
+                  fontFamily="Verdana"
+                  textAnchor="middle"
+                  x={offsets[strings].x + index * 10}
+                  y="53">
+                  {notes[noteIndex++]}
+                </text>
+              ) : null;
+            } else {
+              // use tuning
+              return (
+                <text
+                  key={index}
+                  fontSize="0.3rem"
+                  fill={dark ? "#ccc" : "#444"}
+                  fontFamily="Verdana"
+                  textAnchor="middle"
+                  x={offsets[strings].x + index * 10}
+                  y="53">
+                  {note}
+                </text>
+              );
+            }
+          })}
         </g>
       )}
     </g>
