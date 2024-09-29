@@ -228,7 +228,7 @@ export default function SongView() {
         </Button>
       </div>
       {/* Main content (song sheet) */}
-      <div className="size-full">
+      <div className="size-full pb-96">
         <SongTransformer
           chordProSong={content}
           transposeDelta={transpose}

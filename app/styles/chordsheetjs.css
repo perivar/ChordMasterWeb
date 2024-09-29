@@ -38,6 +38,10 @@
   @apply text-red-500;
 }
 
+.chord:hover {
+  @apply underline;
+}
+
 .chord:not(:last-child) {
   padding-right: 10px; /* Custom padding */
 }
