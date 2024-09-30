@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { MetaFunction } from "@remix-run/node";
-import { useParams } from "@remix-run/react";
+import { Link, useParams } from "@remix-run/react";
 import { GripVertical, Music } from "lucide-react";
 
 import { ISong } from "~/hooks/useFirestore";
@@ -42,6 +42,9 @@ export default function PlaylistView() {
   const renderOverlay = (song: ISong) => (
     <Card className="border-2 border-primary">
       <CardContent className="flex items-center p-4">
+        <div className="mr-2 cursor-move p-2">
+          <GripVertical className="text-gray-400" />
+        </div>
         <Music className="mr-2" />
         <div>
           <div className="font-semibold">{song.title}</div>
@@ -60,23 +63,30 @@ export default function PlaylistView() {
         items={songs}
         getId={song => song.id as UniqueIdentifier}
         onReorder={handleReorder}
-        renderItem={(song, isDragging, attributes, listeners) => (
-          <Card className={`mb-2 `}>
-            {/* ${isDragging ? "border-2 border-primary" : ""} */}
-            <CardContent className="flex items-center p-4">
-              <div
-                className="mr-2 cursor-move p-2"
-                {...attributes}
-                {...listeners}>
-                <GripVertical className="text-gray-400" />
-              </div>
-              <Music className="mr-2" />
-              <div>
-                <div className="font-semibold">{song.title}</div>
-                <div className="text-sm text-gray-500">{song.artist.name}</div>
-              </div>
-            </CardContent>
-          </Card>
+        renderItem={(song, isDragging) => (
+          <DraggableList.Item id={song.id as UniqueIdentifier}>
+            <Card className={`mb-2 `}>
+              {/* ${isDragging ? "border-2 border-primary" : ""} */}
+              <CardContent className="flex items-center p-4">
+                <div className="mr-2 cursor-move p-2">
+                  <DraggableList.DragHandle>
+                    <GripVertical className="text-gray-400" />
+                  </DraggableList.DragHandle>
+                </div>
+                <Music className="mr-2" />
+                <div>
+                  <div className="font-semibold">
+                    <Link to={`/songs/${song.id}`}>{song.title}</Link>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    <Link to={`/artists/${song.artist.id}`}>
+                      {song.artist.name}
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </DraggableList.Item>
         )}
         renderOverlay={renderOverlay}
       />
