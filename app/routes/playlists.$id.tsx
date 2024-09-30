@@ -67,22 +67,24 @@ export default function PlaylistView() {
           <DraggableList.Item id={song.id as UniqueIdentifier}>
             <Card className={`mb-2 `}>
               {/* ${isDragging ? "border-2 border-primary" : ""} */}
-              <CardContent className="flex items-center p-4">
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center">
+                  <Music className="mr-4" />
+                  <div>
+                    <div className="font-semibold">
+                      <Link to={`/songs/${song.id}`}>{song.title}</Link>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      <Link to={`/artists/${song.artist.id}`}>
+                        {song.artist.name}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
                 <div className="mr-2 cursor-move p-2">
                   <DraggableList.DragHandle>
                     <GripVertical className="text-gray-400" />
                   </DraggableList.DragHandle>
-                </div>
-                <Music className="mr-2" />
-                <div>
-                  <div className="font-semibold">
-                    <Link to={`/songs/${song.id}`}>{song.title}</Link>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    <Link to={`/artists/${song.artist.id}`}>
-                      {song.artist.name}
-                    </Link>
-                  </div>
                 </div>
               </CardContent>
             </Card>
