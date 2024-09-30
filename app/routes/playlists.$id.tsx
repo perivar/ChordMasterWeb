@@ -1,16 +1,15 @@
-// app/routes/artists.$id.tsx
+// app/routes/playlists.$id.tsx
 
 import { useState } from "react";
-import { UniqueIdentifier } from "@dnd-kit/core";
 import { MetaFunction } from "@remix-run/node";
 import { Link, useParams } from "@remix-run/react";
-import { GripVertical, Music } from "lucide-react";
+import { Edit2Icon } from "lucide-react";
 
 import { ISong } from "~/hooks/useFirestore";
 import usePlaylists from "~/hooks/usePlaylists";
 import useSongs from "~/hooks/useSongs";
-import { Card, CardContent } from "~/components/ui/card";
-import { DraggableList } from "~/components/DraggableList";
+import { Button } from "~/components/ui/button";
+import SortableSongList from "~/components/SortableSongList";
 
 export const meta: MetaFunction = () => [
   { title: "Playlist" },
@@ -34,64 +33,24 @@ export default function PlaylistView() {
 
   const [songs, _setSongs] = useState<ISong[]>(playlistSongs ?? []);
 
-  const handleReorder = (newOrder: ISong[]) => {
-    console.log("New Order: ", newOrder);
-    // Handle updating the new song order in your state/store
-  };
-
-  const renderOverlay = (song: ISong) => (
-    <Card className="border-2 border-primary">
-      <CardContent className="flex items-center p-4">
-        <div className="mr-2 cursor-move p-2">
-          <GripVertical className="text-gray-400" />
-        </div>
-        <Music className="mr-2" />
-        <div>
-          <div className="font-semibold">{song.title}</div>
-          <div className="text-sm text-gray-500">{song.artist.name}</div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   if (!songs) return null;
 
   return (
     <div className="container mx-auto my-6">
-      {/* <SortableSongList allItems={songs} /> */}
-      <DraggableList<ISong>
-        items={songs}
-        getId={song => song.id as UniqueIdentifier}
-        onReorder={handleReorder}
-        renderItem={(song, _isDragging) => (
-          <DraggableList.Item id={song.id as UniqueIdentifier}>
-            <Card className={`mb-2 `}>
-              {/* ${isDragging ? "border-2 border-primary" : ""} */}
-              <CardContent className="flex items-center justify-between p-4">
-                <div className="flex items-center">
-                  <Music className="mr-4" />
-                  <div>
-                    <div className="font-semibold">
-                      <Link to={`/songs/${song.id}`}>{song.title}</Link>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      <Link to={`/artists/${song.artist.id}`}>
-                        {song.artist.name}
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                <div className="mr-2 cursor-move p-2">
-                  <DraggableList.DragHandle>
-                    <GripVertical className="text-gray-400" />
-                  </DraggableList.DragHandle>
-                </div>
-              </CardContent>
-            </Card>
-          </DraggableList.Item>
-        )}
-        renderOverlay={renderOverlay}
-      />
+      <div className="mb-2 flex flex-col items-center">
+        <div className="flex flex-row items-center">
+          <div className="text-center text-xl">{playlist?.name}</div>
+          <div className="ml-4">
+            <Button asChild size="sm" variant="outline">
+              <Link to={`/playlists/${playlist?.id}/edit`}>
+                <Edit2Icon className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <SortableSongList allItems={songs} />
     </div>
   );
 }
