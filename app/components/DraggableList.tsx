@@ -25,6 +25,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+// see: https://docs.dndkit.com/presets/sortable
+// see: https://codesandbox.io/s/dnd-kit-sortable-starter-template-22x1ix
+
 // Generic interface that accepts any type `T`
 interface DraggableListProps<T> {
   items: T[];

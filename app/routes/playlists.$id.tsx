@@ -32,7 +32,7 @@ export default function PlaylistView() {
     .map(id => allSongs.find(s => s.id === id))
     .filter(notUndefined);
 
-  const [songs, setSongs] = useState<ISong[]>(playlistSongs ?? []);
+  const [songs, _setSongs] = useState<ISong[]>(playlistSongs ?? []);
 
   const handleReorder = (newOrder: ISong[]) => {
     console.log("New Order: ", newOrder);
@@ -63,7 +63,7 @@ export default function PlaylistView() {
         items={songs}
         getId={song => song.id as UniqueIdentifier}
         onReorder={handleReorder}
-        renderItem={(song, isDragging) => (
+        renderItem={(song, _isDragging) => (
           <DraggableList.Item id={song.id as UniqueIdentifier}>
             <Card className={`mb-2 `}>
               {/* ${isDragging ? "border-2 border-primary" : ""} */}
