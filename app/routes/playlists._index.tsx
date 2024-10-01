@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -11,9 +11,10 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { deletePlaylistReducer, useAppContext } from "~/context/AppContext";
+import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 
-import { IPlaylist } from "~/hooks/useFirestore";
+import useFirestore, { IPlaylist } from "~/hooks/useFirestore";
 import usePlaylists from "~/hooks/usePlaylists";
 import { Button } from "~/components/ui/button";
 import {
@@ -21,8 +22,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { useConfirm } from "~/components/layout/confirm-provider";
 import SortableList from "~/components/SortableList";
 
 export const meta: MetaFunction = () => [
@@ -34,6 +37,11 @@ export default function PlaylistsView() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const allItems = usePlaylists();
   const [playlists, setPlaylists] = useState<IPlaylist[]>(allItems);
+  const navigate = useNavigate();
+  const confirm = useConfirm();
+  const { dispatch } = useAppContext();
+
+  const { deletePlaylist } = useFirestore();
 
   const onFilterChange = useMemo(
     () => (itemFilter: string) => {
@@ -50,8 +58,34 @@ export default function PlaylistsView() {
     [allItems]
   );
 
-  const columns = useMemo<ColumnDef<IPlaylist>[]>(
-    () => [
+  const columns = useMemo<ColumnDef<IPlaylist>[]>(() => {
+    const handleEdit = async (id: string | undefined) => {
+      return navigate(`/playlists/${id}/edit`);
+    };
+
+    const handleDelete = async (
+      id: string | undefined,
+      playlistName: string | undefined
+    ) => {
+      try {
+        await confirm({
+          title: `Delete Playlist (${playlistName})`,
+          description: "Are you sure you want to permanently delete it?",
+        });
+
+        if (id) {
+          await deletePlaylist(id);
+          dispatch(deletePlaylistReducer(id));
+
+          console.log(`Deleted item with id: ${id}`);
+        }
+      } catch (_err) {
+        // If the user cancels the confirmation, handle the rejection here
+        console.log(`Delete operation was cancelled (id: ${id})`);
+      }
+    };
+
+    return [
       {
         accessorKey: "name",
         header: "Playlist",
@@ -84,15 +118,27 @@ export default function PlaylistsView() {
                       Go To Playlist
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleEdit(row.original.id)}>
+                    <Edit className="mr-2 size-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleDelete(row.original.id, row.original.name)
+                    }>
+                    <Trash2 className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           );
         },
       },
-    ],
-    []
-  );
+    ];
+  }, []);
 
   const table = useReactTable({
     data: playlists,

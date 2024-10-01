@@ -51,7 +51,7 @@ export const ConfirmProvider = ({
 
   // State to manage resolve and reject for dialog
   const [resolveReject, setResolveReject] = useState<
-    [() => void, () => void] | []
+    [() => void, (reason?: unknown) => void] | []
   >([]);
 
   const [resolve, reject] = resolveReject;
@@ -71,7 +71,9 @@ export const ConfirmProvider = ({
 
   // Handler for the cancel button
   const handleCancel = useCallback(() => {
-    if (reject) reject();
+    if (reject) {
+      reject(new Error("User canceled the dialog"));
+    }
     handleClose();
   }, [reject, handleClose]);
 

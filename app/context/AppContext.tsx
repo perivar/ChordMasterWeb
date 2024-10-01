@@ -110,19 +110,19 @@ const appSlice = createSlice({
     setSongs(state, action: PayloadAction<ISong[]>) {
       state.songs = action.payload;
     },
-    addSong(state, action: PayloadAction<ISong>) {
-      state.songs = addSongToArray(state.songs, action.payload);
-    },
     addOrUpdateSongs(state, action: PayloadAction<ISong[]>) {
       state.songs = addOrUpdateSongsInArray(state.songs, action.payload);
     },
-    addOrUpdateSong(state, action: PayloadAction<ISong>) {
+    addSongReducer(state, action: PayloadAction<ISong>) {
+      state.songs = addSongToArray(state.songs, action.payload);
+    },
+    addOrUpdateSongReducer(state, action: PayloadAction<ISong>) {
       state.songs = addOrUpdateSongInArray(state.songs, action.payload);
     },
-    editSong(state, action: PayloadAction<ISong>) {
+    editSongReducer(state, action: PayloadAction<ISong>) {
       state.songs = editSongInArray(state.songs, action.payload);
     },
-    deleteSong(state, action: PayloadAction<string>) {
+    deleteSongReducer(state, action: PayloadAction<string>) {
       state.songs = deleteSongFromArray(state.songs, action.payload);
     },
 
@@ -130,19 +130,19 @@ const appSlice = createSlice({
     setArtists(state, action: PayloadAction<IArtist[]>) {
       state.artists = action.payload;
     },
-    addArtist(state, action: PayloadAction<IArtist>) {
-      state.artists = addArtistToArray(state.artists, action.payload);
-    },
     addOrUpdateArtists(state, action: PayloadAction<IArtist[]>) {
       state.artists = addOrUpdateArtistsInArray(state.artists, action.payload);
     },
-    addOrUpdateArtist(state, action: PayloadAction<IArtist>) {
+    addArtistReducer(state, action: PayloadAction<IArtist>) {
+      state.artists = addArtistToArray(state.artists, action.payload);
+    },
+    addOrUpdateArtistReducer(state, action: PayloadAction<IArtist>) {
       state.artists = addOrUpdateArtistInArray(state.artists, action.payload);
     },
-    editArtist(state, action: PayloadAction<IArtist>) {
+    editArtistReducer(state, action: PayloadAction<IArtist>) {
       state.artists = editArtistInArray(state.artists, action.payload);
     },
-    deleteArtist(state, action: PayloadAction<string>) {
+    deleteArtistReducer(state, action: PayloadAction<string>) {
       state.artists = deleteArtistFromArray(state.artists, action.payload);
     },
 
@@ -150,25 +150,25 @@ const appSlice = createSlice({
     setPlaylists(state, action: PayloadAction<IPlaylist[]>) {
       state.playlists = action.payload;
     },
-    addPlaylist(state, action: PayloadAction<IPlaylist>) {
-      state.playlists = addPlaylistToArray(state.playlists, action.payload);
-    },
     addOrUpdatePlaylists(state, action: PayloadAction<IPlaylist[]>) {
       state.playlists = addOrUpdatePlaylistsInArray(
         state.playlists,
         action.payload
       );
     },
-    addOrUpdatePlaylist(state, action: PayloadAction<IPlaylist>) {
+    addPlaylistReducer(state, action: PayloadAction<IPlaylist>) {
+      state.playlists = addPlaylistToArray(state.playlists, action.payload);
+    },
+    addOrUpdatePlaylistReducer(state, action: PayloadAction<IPlaylist>) {
       state.playlists = addOrUpdatePlaylistInArray(
         state.playlists,
         action.payload
       );
     },
-    editPlaylist(state, action: PayloadAction<IPlaylist>) {
+    editPlaylistReducer(state, action: PayloadAction<IPlaylist>) {
       state.playlists = editPlaylistInArray(state.playlists, action.payload);
     },
-    deletePlaylist(state, action: PayloadAction<string>) {
+    deletePlaylistReducer(state, action: PayloadAction<string>) {
       state.playlists = deletePlaylistFromArray(
         state.playlists,
         action.payload
@@ -214,25 +214,25 @@ const appSlice = createSlice({
 // Export actions for use in components
 export const {
   setSongs,
-  addSong,
   addOrUpdateSongs,
-  editSong,
-  deleteSong,
-  addOrUpdateSong,
+  addSongReducer,
+  editSongReducer,
+  deleteSongReducer,
+  addOrUpdateSongReducer,
 
   setArtists,
-  addArtist,
   addOrUpdateArtists,
-  editArtist,
-  deleteArtist,
-  addOrUpdateArtist,
+  addArtistReducer,
+  editArtistReducer,
+  deleteArtistReducer,
+  addOrUpdateArtistReducer,
 
   setPlaylists,
-  addPlaylist,
   addOrUpdatePlaylists,
-  editPlaylist,
-  deletePlaylist,
-  addOrUpdatePlaylist,
+  addPlaylistReducer,
+  editPlaylistReducer,
+  deletePlaylistReducer,
+  addOrUpdatePlaylistReducer,
 
   // config
   setAppConfig,

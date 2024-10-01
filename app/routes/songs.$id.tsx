@@ -9,7 +9,7 @@ import {
   useNavigate,
   useParams,
 } from "@remix-run/react";
-import { editSong, useAppContext } from "~/context/AppContext";
+import { editSongReducer, useAppContext } from "~/context/AppContext";
 import { readDataFile } from "~/files.server";
 import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
@@ -138,7 +138,7 @@ export default function SongView() {
       // update the song in redux with the preferences
       const newSong = { ...song };
       newSong.showTablature = value;
-      dispatch(editSong(newSong));
+      dispatch(editSongReducer(newSong));
     }
   };
 
@@ -169,7 +169,7 @@ export default function SongView() {
       // update the song in redux with the preferences
       const newSong = { ...song };
       newSong.transposeAmount = amount;
-      dispatch(editSong(newSong));
+      dispatch(editSongReducer(newSong));
     }
   };
 
@@ -201,7 +201,7 @@ export default function SongView() {
         // update the song in redux with the preferences
         const newSong = { ...song };
         newSong.fontSize = newFontSize;
-        dispatch(editSong(newSong));
+        dispatch(editSongReducer(newSong));
       }
     }
   };

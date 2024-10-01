@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { LinksFunction, MetaFunction } from "@remix-run/node";
 import { Form, useNavigate, useParams } from "@remix-run/react";
 import {
-  addOrUpdateArtist,
-  addOrUpdateSong,
+  addOrUpdateArtistReducer,
+  addOrUpdateSongReducer,
   useAppContext,
 } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
@@ -142,7 +142,7 @@ export default function SongEdit() {
       artistDb = artists[0];
     } else {
       artistDb = await addNewArtist(artistName);
-      await dispatch(addOrUpdateArtist(artistDb));
+      await dispatch(addOrUpdateArtistReducer(artistDb));
     }
 
     if (songIdParam) {
@@ -164,7 +164,7 @@ export default function SongEdit() {
         // console.log('SongEdit -> editSong:', updatedSong);
         songIdParam = updatedSong.id;
 
-        await dispatch(addOrUpdateSong(updatedSong));
+        await dispatch(addOrUpdateSongReducer(updatedSong));
       } catch (e) {
         if (e instanceof Error) {
           setError(e.message);
@@ -195,7 +195,7 @@ export default function SongEdit() {
         // console.log('SongEdit -> addNewSong:', newSong);
         songIdParam = newSong.id;
 
-        await dispatch(addOrUpdateSong(newSong));
+        await dispatch(addOrUpdateSongReducer(newSong));
       } catch (e) {
         if (e instanceof Error) {
           setError(e.message);
