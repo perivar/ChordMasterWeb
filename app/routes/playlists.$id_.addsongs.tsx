@@ -58,8 +58,8 @@ export default function PlaylistAddSongs() {
   );
 
   const columns = useMemo<ColumnDef<ISong>[]>(() => {
-    const onSelectSong = async (id: string, title: string) => {
-      console.log("Selecting song:", title);
+    const onSelectSong = async (id: string, _title: string) => {
+      // console.log("Selecting song:", title);
       const song = allSongs.find(s => s.id === id);
       if (song && song.id && playlist && playlist.id) {
         if (hasPlaylistContainsSong(playlist.id, song.id)) {
@@ -144,7 +144,7 @@ export default function PlaylistAddSongs() {
                 {isInPlaylist ? (
                   <Check className="text-green-500" />
                 ) : (
-                  <Plus className="cursor-pointer text-blue-500" />
+                  <Plus className="text-blue-500" />
                 )}
               </Button>
             </div>
@@ -152,7 +152,13 @@ export default function PlaylistAddSongs() {
         },
       },
     ];
-  }, [playlist]);
+  }, [
+    allSongs,
+    hasPlaylistContainsSong,
+    playlist,
+    playlistAddSong,
+    playlistRemoveSong,
+  ]);
 
   const table = useReactTable({
     data: songs,

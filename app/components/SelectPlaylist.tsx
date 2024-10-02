@@ -3,7 +3,7 @@ import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { setPlaylists, useAppContext } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
 import { addPlaylistToArray } from "~/utils/arrayUtilities";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 import useFirestore from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
@@ -28,24 +28,26 @@ const SelectPlaylist: FunctionComponent<Props> = ({
 }) => {
   const { hasPlaylistContainsSong, playlistRemoveSong, playlistAddSong } =
     useFirestoreMethods();
-  const playlists = usePlaylists();
+  const allPlaylists = usePlaylists();
 
   const { addNewPlaylist } = useFirestore();
   const { state, dispatch } = useAppContext();
   const { user } = useUser();
 
   const [showInput, setShowInput] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [newPlaylistName, setNewPlaylistName] = useState("");
 
   const onSelectPlaylist = async (id: string) => {
     console.log("Selecting playlist:", id);
-    const playlist = playlists.find(a => a.id === id);
+    const playlist = allPlaylists.find(a => a.id === id);
 
-    if (songId && playlist) {
-      if (hasPlaylistContainsSong(playlist.id!, songId)) {
-        await playlistRemoveSong(playlist.id!, songId);
+    if (songId && playlist && playlist.id) {
+      if (hasPlaylistContainsSong(playlist.id, songId)) {
+        await playlistRemoveSong(playlist.id, songId);
       } else {
-        await playlistAddSong(playlist.id!, songId);
+        await playlistAddSong(playlist.id, songId);
       }
     }
   };
@@ -71,11 +73,21 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   };
 
   const handleCreatePlaylist = async () => {
-    if (newPlaylistName) {
-      await addPlaylist(newPlaylistName, []);
+    try {
+      if (newPlaylistName) {
+        await addPlaylist(newPlaylistName, []);
 
-      setNewPlaylistName("");
-      setShowInput(false);
+        setNewPlaylistName("");
+        setShowInput(false);
+      } else {
+        throw new Error("Empty name not allowed");
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        throw e;
+      }
     }
   };
 
@@ -88,12 +100,12 @@ const SelectPlaylist: FunctionComponent<Props> = ({
       <DialogContent className="space-y-4 p-6">
         <h3 className="text-lg font-medium">Select Playlist</h3>
 
-        <ScrollArea className="h-[200px] space-y-2">
-          {playlists.length > 0 ? (
-            playlists.map(playlist => (
+        <ScrollArea className="h-[200px]">
+          {allPlaylists.length > 0 ? (
+            allPlaylists.map(playlist => (
               <div
                 key={playlist.id}
-                className="flex items-center justify-between rounded-md border border-border p-2">
+                className="mr-2 flex items-center justify-between rounded-md border border-border p-2">
                 <span>{playlist.name}</span>
                 <Checkbox
                   checked={hasPlaylistContainsSong(playlist.id!, songId!)}
@@ -114,13 +126,17 @@ const SelectPlaylist: FunctionComponent<Props> = ({
               onChange={e => setNewPlaylistName(e.target.value)}
               placeholder="New Playlist Name"
             />
+            {/* Display error if exists */}
+            {error && <p className="mt-1 text-destructive">{error}</p>}{" "}
             <Button onClick={handleCreatePlaylist} variant="secondary">
-              <Plus className="mr-2" /> Create Playlist
+              <PlusIcon className="size-4" />
+              <span className="ml-2 hidden sm:block">Create Playlist</span>
             </Button>
           </div>
         ) : (
           <Button onClick={() => setShowInput(true)} variant="outline">
-            <Plus className="mr-2" /> New Playlist
+            <PlusIcon className="size-4" />
+            <span className="ml-2 hidden sm:block">New Playlist</span>
           </Button>
         )}
 

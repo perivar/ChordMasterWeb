@@ -83,6 +83,9 @@ export default function PlaylistView() {
         if (hasPlaylistContainsSong(playlist.id, song.id)) {
           try {
             await playlistRemoveSong(playlist.id, song.id);
+
+            // goBack
+            navigate(-1);
           } catch (e) {
             if (e instanceof Error) {
               setError(e.message);

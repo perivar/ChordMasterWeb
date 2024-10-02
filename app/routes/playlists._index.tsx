@@ -41,12 +41,13 @@ export const meta: MetaFunction = () => [
 
 export default function PlaylistsView() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const allItems = usePlaylists();
-  const [playlists, setPlaylists] = useState<IPlaylist[]>(allItems);
   const navigate = useNavigate();
   const confirm = useConfirm();
   const { dispatch } = useAppContext();
   const { user } = useUser();
+
+  const allItems = usePlaylists();
+  const [playlists, setPlaylists] = useState<IPlaylist[]>(allItems);
 
   const [showAddPlaylistModal, setShowAddPlaylistModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,6 +122,8 @@ export default function PlaylistsView() {
           dispatch(deletePlaylistReducer(id));
 
           console.log(`Deleted item with id: ${id}`);
+
+          navigate(`/playlists`); // TODO: this does not work!
         }
       } catch (_err) {
         // If the user cancels the confirmation, handle the rejection here
@@ -181,7 +184,7 @@ export default function PlaylistsView() {
         },
       },
     ];
-  }, []);
+  }, [confirm, deletePlaylist, dispatch, navigate]);
 
   const table = useReactTable({
     data: playlists,
@@ -203,11 +206,12 @@ export default function PlaylistsView() {
   return (
     <div className="container mx-auto my-6">
       <div className="mb-2 flex w-full flex-row items-center justify-between">
+        <div className="flex-1"></div>
         <div className="flex-1 text-center text-xl">Playlists</div>
-        <div>
+        <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
           <Button size="sm" onClick={() => setShowAddPlaylistModal(true)}>
-            <PlusIcon className="mr-2 size-4 " />
-            Add Playlist
+            <PlusIcon className="size-4 " />
+            <span className="ml-2 hidden sm:block">Add Playlist</span>
           </Button>
         </div>
       </div>
