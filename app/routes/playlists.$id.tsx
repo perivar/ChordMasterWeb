@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { MetaFunction } from "@remix-run/node";
 import { Link, useParams } from "@remix-run/react";
-import { Edit2Icon } from "lucide-react";
+import { Edit2Icon, PlusIcon } from "lucide-react";
 
 import { ISong } from "~/hooks/useFirestore";
 import usePlaylists from "~/hooks/usePlaylists";
@@ -37,16 +37,24 @@ export default function PlaylistView() {
 
   return (
     <div className="container mx-auto my-6">
-      <div className="mb-2 flex flex-col items-center">
-        <div className="flex flex-row items-center">
-          <div className="text-center text-xl">{playlist?.name}</div>
-          <div className="ml-4">
-            <Button asChild size="sm" variant="outline">
-              <Link to={`/playlists/${playlist?.id}/edit`}>
-                <Edit2Icon className="size-4" />
-              </Link>
-            </Button>
-          </div>
+      <div className="mb-2 flex w-full flex-row items-center justify-between gap-2">
+        <div className="flex-1 text-center text-xl">{playlist?.name}</div>
+        <div>
+          <Button asChild size="sm">
+            <Link to={`/playlists/${playlist?.id}/edit`}>
+              <Edit2Icon className="mr-2 size-4" />
+              Edit Playlist
+            </Link>
+          </Button>
+        </div>
+
+        <div>
+          <Button asChild size="sm">
+            <Link to={`/playlists/${playlist?.id}/addsongs`}>
+              <PlusIcon className="mr-2 size-4" />
+              Add Songs
+            </Link>
+          </Button>
         </div>
       </div>
 

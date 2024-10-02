@@ -11,8 +11,13 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { deletePlaylistReducer, useAppContext } from "~/context/AppContext";
-import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import {
+  addOrUpdatePlaylistReducer,
+  deletePlaylistReducer,
+  useAppContext,
+} from "~/context/AppContext";
+import { useUser } from "~/context/UserContext";
+import { Edit, MoreHorizontal, PlusIcon, Trash2 } from "lucide-react";
 
 import useFirestore, { IPlaylist } from "~/hooks/useFirestore";
 import usePlaylists from "~/hooks/usePlaylists";
@@ -27,6 +32,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { useConfirm } from "~/components/layout/confirm-provider";
 import SortableList from "~/components/SortableList";
+import { TextInputModal } from "~/components/TextInputModal";
 
 export const meta: MetaFunction = () => [
   { title: "Playlists" },
@@ -40,8 +46,12 @@ export default function PlaylistsView() {
   const navigate = useNavigate();
   const confirm = useConfirm();
   const { dispatch } = useAppContext();
+  const { user } = useUser();
 
-  const { deletePlaylist } = useFirestore();
+  const [showAddPlaylistModal, setShowAddPlaylistModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { deletePlaylist, addNewPlaylist } = useFirestore();
 
   const onFilterChange = useMemo(
     () => (itemFilter: string) => {
@@ -57,6 +67,39 @@ export default function PlaylistsView() {
     },
     [allItems]
   );
+
+  const onSubmit = async (playlistName: string) => {
+    try {
+      if (playlistName === "") {
+        throw new Error("Empty name not allowed");
+      }
+
+      if (user && user.uid) {
+        const playlist = await addNewPlaylist(
+          {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+          },
+          playlistName,
+          []
+        );
+
+        console.log("onSubmit -> addNewPlaylist:", playlist.id);
+
+        await dispatch(addOrUpdatePlaylistReducer(playlist));
+
+        setShowAddPlaylistModal(false);
+        // setPlaylists(Playlist.getAll());
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        throw e;
+      }
+    }
+  };
 
   const columns = useMemo<ColumnDef<IPlaylist>[]>(() => {
     const handleEdit = async (id: string | undefined) => {
@@ -158,7 +201,31 @@ export default function PlaylistsView() {
   });
 
   return (
-    <div className="my-6">
+    <div className="container mx-auto my-6">
+      <div className="mb-2 flex w-full flex-row items-center justify-between">
+        <div className="flex-1 text-center text-xl">Playlists</div>
+        <div>
+          <Button size="sm" onClick={() => setShowAddPlaylistModal(true)}>
+            <PlusIcon className="mr-2 size-4 " />
+            Add Playlist
+          </Button>
+        </div>
+      </div>
+
+      <TextInputModal
+        error={error}
+        enabled={showAddPlaylistModal}
+        dialogTitle={"Add Playlist"}
+        onDismiss={() => {
+          setError(null);
+          setShowAddPlaylistModal(false);
+        }}
+        dismissButtonTitle={"Cancel"}
+        onSubmit={onSubmit}
+        submitButtonTitle={"Create"}
+        placeholder={"Playlist Name"}
+      />
+
       <SortableList table={table} onFilterChange={onFilterChange} />
     </div>
   );

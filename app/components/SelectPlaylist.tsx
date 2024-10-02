@@ -11,7 +11,7 @@ import usePlaylists from "~/hooks/usePlaylists";
 
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
-import { DialogContent } from "./ui/dialog";
+import { DialogContent, DialogHeader } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 
@@ -81,8 +81,10 @@ const SelectPlaylist: FunctionComponent<Props> = ({
 
   return (
     <Dialog open={show} onOpenChange={onPressClose}>
-      <DialogTitle></DialogTitle>
-      <DialogDescription></DialogDescription>
+      <DialogHeader>
+        <DialogTitle></DialogTitle>
+        <DialogDescription></DialogDescription>
+      </DialogHeader>
       <DialogContent className="space-y-4 p-6">
         <h3 className="text-lg font-medium">Select Playlist</h3>
 
