@@ -91,14 +91,21 @@ const SelectPlaylist: FunctionComponent<Props> = ({
     }
   };
 
+  const handleClose = () => {
+    onPressClose();
+    setShowInput(false);
+    setError(null);
+  };
+
   return (
-    <Dialog open={show} onOpenChange={onPressClose}>
-      <DialogHeader>
-        <DialogTitle></DialogTitle>
-        <DialogDescription></DialogDescription>
-      </DialogHeader>
+    <Dialog open={show} onOpenChange={handleClose}>
       <DialogContent className="space-y-4 p-6">
-        <h3 className="text-lg font-medium">Select Playlist</h3>
+        <DialogHeader>
+          <DialogTitle>
+            <h3 className="text-lg font-medium">Select Playlist</h3>
+          </DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
 
         <ScrollArea className="h-[200px]">
           {allPlaylists.length > 0 ? (
@@ -141,10 +148,10 @@ const SelectPlaylist: FunctionComponent<Props> = ({
         )}
 
         <div className="flex justify-end space-x-2">
-          <Button variant="ghost" onClick={onPressClose}>
+          <Button variant="ghost" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={onPressClose} variant="default">
+          <Button onClick={handleClose} variant="default">
             Save
           </Button>
         </div>

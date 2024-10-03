@@ -63,7 +63,7 @@ export default function SongEdit() {
   const [mode, setMode] = useState<"CHORD_PRO" | "CHORD_SHEET">("CHORD_PRO");
 
   useEffect(() => {
-    if (songIdParam) {
+    if (songIdParam && songIdParam !== "new") {
       loadSongData(songIdParam);
     }
   }, [songIdParam]);
@@ -108,7 +108,7 @@ export default function SongEdit() {
   };
 
   const handleSaveSong = async () => {
-    if (title.trim() === "") return setError("Invalit Title");
+    if (title.trim() === "") return setError("Invalid Title");
     if (artist.trim() === "") return setError("Invalid Artist");
     if (content.trim() === "") return setError("Invalid Content");
 
@@ -145,7 +145,7 @@ export default function SongEdit() {
       await dispatch(addOrUpdateArtistReducer(artistDb));
     }
 
-    if (songIdParam) {
+    if (songIdParam && songIdParam !== "new") {
       try {
         const updatedSong = await editSong(
           songIdParam,
@@ -205,7 +205,7 @@ export default function SongEdit() {
       }
     }
 
-    navigate(`/songs/${params.id}`);
+    navigate(`/songs/${songIdParam}`);
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

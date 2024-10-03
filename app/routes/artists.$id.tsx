@@ -18,7 +18,7 @@ export default function ArtistView() {
   const artistSongs = songs.filter(s => s.artist.id === artistIdParam);
 
   return (
-    <div className="my-6">
+    <div className="container mx-auto my-6">
       <SortableSongList allItems={artistSongs} />
     </div>
   );

@@ -9,7 +9,7 @@ interface MyDrawerProps {
   open: boolean;
   onOpenChange: () => void;
   children: React.ReactNode;
-  className?: string | undefined;
+  className?: string;
 }
 
 // This is a non-locking drawer

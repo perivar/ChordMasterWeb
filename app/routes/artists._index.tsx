@@ -110,7 +110,7 @@ export default function ArtistsView() {
   });
 
   return (
-    <div className="my-6">
+    <div className="container mx-auto my-6">
       <SortableList table={table} onFilterChange={onFilterChange} />
     </div>
   );

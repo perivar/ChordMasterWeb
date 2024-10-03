@@ -45,8 +45,6 @@ export default function PlaylistView() {
     .map(id => allSongs.find(s => s.id === id))
     .filter(notUndefined);
 
-  // const [songs, _setSongs] = useState<ISong[]>(playlistSongs ?? []);
-
   const [error, setError] = useState<string | null>(null);
 
   const { editPlaylist } = useFirestore();

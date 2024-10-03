@@ -10,8 +10,10 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { deleteSongReducer, useAppContext } from "~/context/AppContext";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 
+import useFirestore, { ISong } from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -25,23 +27,17 @@ import {
 import { useConfirm } from "./layout/confirm-provider";
 import SortableList from "./SortableList";
 
-interface ListItem {
-  id?: string;
-  title: string;
-  artist: { id?: string; name: string };
+interface ListProps {
+  allItems: ISong[];
 }
 
-interface ListProps<T extends ListItem> {
-  allItems: T[];
-}
-
-export default function SortableSongList<T extends ListItem>({
-  allItems,
-}: ListProps<T>) {
+export default function SortableSongList({ allItems }: ListProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [songs, setSongs] = useState<T[]>(allItems);
+  const [songs, setSongs] = useState<ISong[]>(allItems);
   const confirm = useConfirm();
   const navigate = useNavigate();
+  const { deleteSong } = useFirestore();
+  const { dispatch } = useAppContext();
 
   const onFilterChange = useMemo(
     () => (itemFilter: string) => {
@@ -60,7 +56,7 @@ export default function SortableSongList<T extends ListItem>({
     [allItems]
   );
 
-  const columns = useMemo<ColumnDef<T>[]>(() => {
+  const columns = useMemo<ColumnDef<ISong>[]>(() => {
     const handleEdit = async (id: string | undefined) => {
       return navigate(`/songs/${id}/edit`);
     };
@@ -75,10 +71,11 @@ export default function SortableSongList<T extends ListItem>({
           description: "Are you sure you want to permanently delete it?",
         });
 
-        // Here you can add the logic to delete the item after confirmation
-        // Example: await deleteItem(id);
-
-        console.log(`Deleted item with id: ${id}`);
+        if (id) {
+          await deleteSong(id);
+          dispatch(deleteSongReducer(id));
+          console.log(`Deleted item with id: ${id}`);
+        }
       } catch (_err) {
         // If the user cancels the confirmation, handle the rejection here
         console.log(`Delete operation was cancelled (id: ${id})`);
