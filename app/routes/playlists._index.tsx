@@ -18,6 +18,7 @@ import {
 } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
 import { Edit, MoreHorizontal, PlusIcon, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useFirestore, { IPlaylist } from "~/hooks/useFirestore";
 import usePlaylists from "~/hooks/usePlaylists";
@@ -40,6 +41,7 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function PlaylistsView() {
+  const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -72,7 +74,7 @@ export default function PlaylistsView() {
   const onSubmit = async (playlistName: string) => {
     try {
       if (playlistName === "") {
-        throw new Error("Empty name not allowed");
+        throw new Error(t("empty_name_not_allowed"));
       }
 
       if (user && user.uid) {
@@ -113,8 +115,8 @@ export default function PlaylistsView() {
     ) => {
       try {
         await confirm({
-          title: `Delete Playlist (${playlistName})`,
-          description: "Are you sure you want to permanently delete it?",
+          title: `${t("playlist_delete")} (${playlistName})`,
+          description: t("delete_permanently_are_you_sure"),
         });
 
         if (id) {
@@ -123,7 +125,7 @@ export default function PlaylistsView() {
 
           console.log(`Deleted item with id: ${id}`);
 
-          navigate(`/playlists`); // TODO: this does not work!
+          navigate(`/playlists`);
         }
       } catch (_err) {
         // If the user cancels the confirmation, handle the rejection here
@@ -134,7 +136,7 @@ export default function PlaylistsView() {
     return [
       {
         accessorKey: "name",
-        header: "Playlist",
+        header: t("playlist_name"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
@@ -158,16 +160,16 @@ export default function PlaylistsView() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                   <DropdownMenuItem>
                     <Link to={`/playlists/${row.original.id}`}>
-                      Go To Playlist
+                      {t("go_to_playlist")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleEdit(row.original.id)}>
                     <Edit className="mr-2 size-4" />
-                    Edit
+                    {t("edit")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -175,7 +177,7 @@ export default function PlaylistsView() {
                       handleDelete(row.original.id, row.original.name)
                     }>
                     <Trash2 className="mr-2 size-4" />
-                    Delete
+                    {t("delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -207,11 +209,11 @@ export default function PlaylistsView() {
     <div className="container mx-auto my-6">
       <div className="mb-2 flex w-full flex-row items-center justify-between">
         <div className="flex-1"></div>
-        <div className="flex-1 text-center text-xl">Playlists</div>
+        <div className="flex-1 text-center text-xl">{t("playlists")}</div>
         <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
           <Button size="sm" onClick={() => setShowAddPlaylistModal(true)}>
             <PlusIcon className="size-4 " />
-            <span className="ml-2 hidden sm:block">Add Playlist</span>
+            <span className="ml-2 hidden sm:block">{t("add_playlist")}</span>
           </Button>
         </div>
       </div>
@@ -219,18 +221,22 @@ export default function PlaylistsView() {
       <TextInputModal
         error={error}
         enabled={showAddPlaylistModal}
-        dialogTitle={"Add Playlist"}
+        dialogTitle={t("add_playlist")}
         onDismiss={() => {
           setError(null);
           setShowAddPlaylistModal(false);
         }}
-        dismissButtonTitle={"Cancel"}
+        dismissButtonTitle={t("permission_button_negative")}
         onSubmit={onSubmit}
-        submitButtonTitle={"Create"}
-        placeholder={"Playlist Name"}
+        submitButtonTitle={t("permission_button_positive")}
+        placeholder={t("playlist_name")}
       />
 
-      <SortableList table={table} onFilterChange={onFilterChange} />
+      <SortableList
+        table={table}
+        onFilterChange={onFilterChange}
+        placeholder={t("search")}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   useRouteLoaderData,
 } from "@remix-run/react";
 import clsx from "clsx";
@@ -38,12 +39,32 @@ import "@fontsource-variable/roboto-mono/wght.css";
 import "@fontsource-variable/roboto-slab/wght.css";
 import "./tailwind.css";
 
+import { useTranslation } from "react-i18next";
+import { useChangeLanguage } from "remix-i18next/react";
+
+import i18next, { localeCookie } from "./i18n/i18n.server";
+
+// dark mode
 // https://gist.github.com/keepforever/43c5cfa72cad8b1dad2f3982fe81b576?permalink_comment_id=5117253#gistcomment-5117253
+
+// i18n
+// https://sergiodxa.com/tutorials/add-i18n-to-a-remix-vite-app
+
+export const handle = {
+  // In the handle export, we can add a i18n key with namespaces our route
+  // will need to load. This key can be a single string or an array of strings.
+  // TIP: In most cases, you should set this to your defaultNS from your i18n config
+  // or if you did not set one, set it to the i18next default namespace "translation"
+  i18n: "common",
+};
 
 // Return the theme and the session from the session storage using the loader
 export async function loader({ request }: LoaderFunctionArgs) {
   // get theme
   const { getTheme } = await themeSessionResolver(request);
+
+  // get locale
+  const locale = await i18next.getLocale(request); // get the locale
 
   // check if we are authenticated, and if we are, return the claims and the user
   const userSession = await isSessionValid(request);
@@ -69,21 +90,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
         "",
     };
   }
-  return json({ theme: getTheme(), decodedClaims, user });
+  return json(
+    { theme: getTheme(), locale, decodedClaims, user },
+    { headers: { "Set-Cookie": await localeCookie.serialize(locale) } }
+  );
 }
 
 // It defines the overall page structure (header, footer, etc.) and renders children
 export function Layout({ children }: { children: React.ReactNode }) {
-  const data = useRouteLoaderData<typeof loader>("root");
+  const loaderData = useRouteLoaderData<typeof loader>("root");
 
   return (
     <ThemeProvider
-      specifiedTheme={data?.theme ?? null}
+      specifiedTheme={loaderData?.theme ?? null}
       themeAction="/action/set-theme">
       <UserProvider>
         <AppProvider>
           <ConfirmProvider>
-            <InnerLayout ssrTheme={Boolean(data?.theme)}>
+            <InnerLayout
+              ssrTheme={Boolean(loaderData?.theme)}
+              locale={loaderData?.locale}>
               {children}
             </InnerLayout>
           </ConfirmProvider>
@@ -96,15 +122,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 // In order to avoid the Error: useTheme must be used within a ThemeProvider
 function InnerLayout({
   ssrTheme,
+  locale,
   children,
 }: {
   ssrTheme: boolean;
+  locale?: string;
   children: React.ReactNode;
 }) {
   const [theme] = useTheme();
+  const { i18n } = useTranslation();
 
   return (
-    <html lang="en" className={clsx(theme)}>
+    <html lang={locale ?? "en"} dir={i18n.dir()} className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -125,14 +154,13 @@ function InnerLayout({
 }
 
 export default function App() {
-  // const data = useRouteLoaderData<typeof loader>("root");
+  const { locale } = useLoaderData<typeof loader>();
+  useChangeLanguage(locale); // Change i18next language if locale changes
 
   useFirebaseUser();
 
   const { dispatch } = useAppContext();
 
-  // TODO: For some reason this just does not work when switching users
-  // have to use the user from the loaderdata
   const { user } = useUser();
 
   // In order to avoid the Error: useAppContext must be used within a AppProvider

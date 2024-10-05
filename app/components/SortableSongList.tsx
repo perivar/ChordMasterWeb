@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { deleteSongReducer, useAppContext } from "~/context/AppContext";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
@@ -32,6 +33,7 @@ interface ListProps {
 }
 
 export default function SortableSongList({ allItems }: ListProps) {
+  const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [songs, setSongs] = useState<ISong[]>(allItems);
   const confirm = useConfirm();
@@ -67,8 +69,8 @@ export default function SortableSongList({ allItems }: ListProps) {
     ) => {
       try {
         await confirm({
-          title: `Delete Song (${songTitle})`,
-          description: "Are you sure you want to permanently delete it?",
+          title: `${t("song_delete")} (${songTitle})`,
+          description: t("delete_permanently_are_you_sure"),
         });
 
         if (id) {
@@ -85,7 +87,7 @@ export default function SortableSongList({ allItems }: ListProps) {
     return [
       {
         accessorKey: "title",
-        header: "Song Title",
+        header: t("song_title"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
@@ -101,7 +103,7 @@ export default function SortableSongList({ allItems }: ListProps) {
       },
       {
         accessorKey: "artist.name",
-        header: "Artist",
+        header: t("artist_name"),
         cell: ({ row }) => (
           <div className="hidden md:table-cell">
             <Link to={`/artists/${row.original.artist.id}`}>
@@ -126,13 +128,13 @@ export default function SortableSongList({ allItems }: ListProps) {
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem>
                     <Link to={`/artists/${row.original.artist.id}`}>
-                      Go To Artist
+                      {t("go_to_artist")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleEdit(row.original.id)}>
                     <Edit className="mr-2 size-4" />
-                    Edit
+                    {t("edit")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -140,7 +142,7 @@ export default function SortableSongList({ allItems }: ListProps) {
                       handleDelete(row.original.id, row.original.title)
                     }>
                     <Trash2 className="mr-2 size-4" />
-                    Delete
+                    {t("delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -168,5 +170,11 @@ export default function SortableSongList({ allItems }: ListProps) {
     },
   });
 
-  return <SortableList table={table} onFilterChange={onFilterChange} />;
+  return (
+    <SortableList
+      table={table}
+      onFilterChange={onFilterChange}
+      placeholder={t("search")}
+    />
+  );
 }

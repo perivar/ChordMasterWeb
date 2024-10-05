@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useArtists from "~/hooks/useArtists";
 import { IArtist } from "~/hooks/useFirestore";
@@ -31,6 +32,7 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function ArtistsView() {
+  const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
   const allItems = useArtists();
   const [artists, setArtists] = useState<IArtist[]>(allItems);
@@ -54,7 +56,7 @@ export default function ArtistsView() {
     () => [
       {
         accessorKey: "name",
-        header: "Artist",
+        header: t("artist_name"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
@@ -78,9 +80,11 @@ export default function ArtistsView() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                   <DropdownMenuItem>
-                    <Link to={`/artists/${row.original.id}`}>Go To Artist</Link>
+                    <Link to={`/artists/${row.original.id}`}>
+                      {t("go_to_artist")}
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -111,7 +115,11 @@ export default function ArtistsView() {
 
   return (
     <div className="container mx-auto my-6">
-      <SortableList table={table} onFilterChange={onFilterChange} />
+      <SortableList
+        table={table}
+        onFilterChange={onFilterChange}
+        placeholder={t("search")}
+      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Check, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ISong } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
@@ -25,6 +26,7 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function PlaylistAddSongs() {
+  const { t } = useTranslation();
   const allSongs = useSongs();
   const params = useParams();
   const playlistIdParam = params?.id;
@@ -89,7 +91,7 @@ export default function PlaylistAddSongs() {
     return [
       {
         accessorKey: "title",
-        header: "Song Title",
+        header: t("song_title"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
@@ -105,7 +107,7 @@ export default function PlaylistAddSongs() {
       },
       {
         accessorKey: "artist.name",
-        header: "Artist",
+        header: t("artist_name"),
         cell: ({ row }) => (
           <div className="hidden md:table-cell">
             <Link to={`/artists/${row.original.artist.id}`}>
@@ -117,7 +119,7 @@ export default function PlaylistAddSongs() {
       {
         // Last column for the icon
         id: "action", // Add an id for custom columns without accessorKey
-        header: "Add to Playlist",
+        header: t("add_to_playlist"),
         cell: ({ row }) => {
           if (
             !playlist ||
@@ -158,6 +160,7 @@ export default function PlaylistAddSongs() {
     playlist,
     playlistAddSong,
     playlistRemoveSong,
+    t,
   ]);
 
   const table = useReactTable({
@@ -184,7 +187,11 @@ export default function PlaylistAddSongs() {
       {error && (
         <div className="m-6 text-center text-sm text-red-600">{error}</div>
       )}
-      <SortableList table={table} onFilterChange={onFilterChange} />
+      <SortableList
+        table={table}
+        onFilterChange={onFilterChange}
+        placeholder={t("search")}
+      />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useUser } from "~/context/UserContext";
+import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import EmptyListMessage from "~/components/EmptyListMessage";
@@ -24,6 +25,7 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function OnlineSearchView() {
+  const { t } = useTranslation();
   const [limitCount] = useState<number | undefined>(undefined); // 20
   const [invertOwner] = useState(true); // change the behavior to the exact opposite, only get songs that the userId does not own
   const [onlyPublished] = useState(true); // only include published songs
@@ -86,7 +88,7 @@ export default function OnlineSearchView() {
     return [
       {
         accessorKey: "title",
-        header: "Song Title",
+        header: t("song_title"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">
@@ -99,7 +101,7 @@ export default function OnlineSearchView() {
       },
       {
         accessorKey: "artist.name",
-        header: "Artist",
+        header: t("artist_name"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">{row.original.artist.name}</div>
@@ -127,7 +129,7 @@ export default function OnlineSearchView() {
   });
 
   if (!allSongs) {
-    return <EmptyListMessage message={"Artist or Song not found"} />;
+    return <EmptyListMessage message={t("artist_or_song_not_found")} />;
   }
 
   if (isLoading) {
@@ -136,7 +138,11 @@ export default function OnlineSearchView() {
 
   return (
     <div className="container mx-auto my-6">
-      <SortableList table={table} onFilterChange={onFilterChange} />
+      <SortableList
+        table={table}
+        onFilterChange={onFilterChange}
+        placeholder={t("search")}
+      />
     </div>
   );
 }

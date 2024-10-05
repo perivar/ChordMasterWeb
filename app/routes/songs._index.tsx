@@ -3,6 +3,7 @@
 import type { MetaFunction } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
 import { PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
@@ -13,6 +14,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function SongsView() {
+  const { t } = useTranslation();
   const songs = useSongs();
   const navigate = useNavigate();
 
@@ -24,11 +26,11 @@ export default function SongsView() {
     <div className="container mx-auto my-6">
       <div className="mb-2 flex w-full flex-row items-center justify-between">
         <div className="flex-1"></div>
-        <div className="flex-1 text-center text-xl">Songs</div>
+        <div className="flex-1 text-center text-xl">{t("songs")}</div>
         <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
           <Button size="sm" onClick={addNewSong}>
             <PlusIcon className="size-4 " />
-            <span className="ml-2 hidden sm:block">Add Song</span>
+            <span className="ml-2 hidden sm:block">{t("add_song")}</span>
           </Button>
         </div>
       </div>

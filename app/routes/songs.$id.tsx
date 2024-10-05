@@ -23,6 +23,7 @@ import {
   Minus,
   Plus,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
 import useFirestore, { ISong } from "~/hooks/useFirestore";
@@ -73,6 +74,7 @@ export const MIN_FONT_SIZE = 12;
 export const MAX_FONT_SIZE = 26;
 
 export default function SongView() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const params = useParams();
   const songIdParam = params.id;
@@ -215,7 +217,7 @@ export default function SongView() {
   };
 
   if (!content) {
-    return <LoadingIndicator title={"No content."} />;
+    return <LoadingIndicator title={t("no_content_found")} />;
   }
 
   return (
@@ -284,16 +286,18 @@ export default function SongView() {
 
         <SheetContent
           side="right"
-          className="flex w-56 flex-col space-y-4 p-4 md:w-56">
+          className="flex w-60 flex-col space-y-4 p-4 md:w-60">
           <SheetHeader>
-            <SheetTitle>Edit Settings</SheetTitle>
+            <SheetTitle>{t("settings")}</SheetTitle>
             <SheetDescription></SheetDescription>
           </SheetHeader>
 
           {/* Settings Section */}
           <div className="grid grid-cols-2 items-center gap-4">
             {/* Transpose Section */}
-            <h3 className="text-nowrap text-sm font-medium">Transpose</h3>
+            <h3 className="text-nowrap text-sm font-medium">
+              {t("transpose")}
+            </h3>
             <div className="flex justify-end space-x-2">
               <Button onClick={transposeDown} size="sm" variant="outline">
                 <Minus className="size-4" />
@@ -307,7 +311,9 @@ export default function SongView() {
             </div>
 
             {/* Font Size Section */}
-            <h3 className="text-nowrap text-sm font-medium">Font Size</h3>
+            <h3 className="text-nowrap text-sm font-medium">
+              {t("text_size")}
+            </h3>
             <div className="flex justify-end space-x-2">
               <Button onClick={decreaseFontSize} size="sm" variant="outline">
                 <ChevronDown className="size-4" />
@@ -324,7 +330,7 @@ export default function SongView() {
             <Label
               htmlFor="show-tablature"
               className="text-nowrap text-sm font-medium">
-              Show Tablature
+              {t("show_tabs_by_default")}
             </Label>
             <div className="flex justify-end">
               <Switch
@@ -338,7 +344,7 @@ export default function SongView() {
             <Label
               htmlFor="show-pageturner"
               className="text-nowrap text-sm font-medium">
-              Show Page Turner
+              {t("enable_page_turner_by_default")}
             </Label>
             <div className="flex justify-end">
               <Switch
@@ -352,7 +358,7 @@ export default function SongView() {
             <Label
               htmlFor="chord-type"
               className="text-nowrap text-sm font-medium">
-              {showPiano ? "Piano Notes" : "Guitar Tabs"}
+              {showPiano ? t("show_notes") : t("show_tabs")}
             </Label>
             <div className="flex justify-end">
               <Switch
@@ -364,7 +370,7 @@ export default function SongView() {
 
             {/* Add to Playlist Section */}
             <Label className="text-nowrap text-sm font-medium">
-              Add to Playlist
+              {t("add_to_playlist")}
             </Label>
             <div className="flex justify-end">
               <Button

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { MetaFunction } from "@remix-run/node";
-import { Link, useParams } from "@remix-run/react";
+import { Link, useNavigate, useParams } from "@remix-run/react";
 import { deletePlaylistReducer, useAppContext } from "~/context/AppContext";
 import { Edit2Icon, PlusIcon, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import usePlaylists from "~/hooks/usePlaylists";
@@ -19,8 +20,10 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function PlaylistView() {
+  const { t } = useTranslation();
   const allSongs = useSongs();
   const params = useParams();
+  const navigate = useNavigate();
   const playlistIdParam = params?.id;
   const allPlaylists = usePlaylists();
   const confirm = useConfirm();
@@ -45,15 +48,16 @@ export default function PlaylistView() {
   ) => {
     try {
       await confirm({
-        title: `Delete Playlist (${playlistName})`,
-        description: "Are you sure you want to permanently delete it?",
+        title: `${t("playlist_delete")} (${playlistName})`,
+        description: t("delete_permanently_are_you_sure"),
       });
 
       if (id) {
         await deletePlaylist(id);
         dispatch(deletePlaylistReducer(id));
 
-        console.log(`Deleted item with id: ${id}`);
+        console.log(`Deleted playlist with id: ${id}`);
+        navigate(`/playlists`);
       }
     } catch (_err) {
       // If the user cancels the confirmation, handle the rejection here
@@ -72,7 +76,7 @@ export default function PlaylistView() {
             variant="destructive"
             onClick={() => handleDelete(playlist?.id, playlist?.name)}>
             <Trash2 className="size-4" />
-            <span className="ml-2 hidden sm:block">Delete Playlist</span>
+            <span className="ml-2 hidden sm:block">{t("playlist_delete")}</span>
           </Button>
         </div>
         <div className="flex-1 text-center text-xl">{playlist?.name}</div>
@@ -80,13 +84,13 @@ export default function PlaylistView() {
           <Button asChild size="sm">
             <Link to={`/playlists/${playlist?.id}/edit`}>
               <Edit2Icon className="size-4" />
-              <span className="ml-2 hidden sm:block">Edit Playlist</span>
+              <span className="ml-2 hidden sm:block">{t("playlist_edit")}</span>
             </Link>
           </Button>
           <Button asChild size="sm">
             <Link to={`/playlists/${playlist?.id}/addsongs`}>
               <PlusIcon className="size-4" />
-              <span className="ml-2 hidden sm:block">Add Songs</span>
+              <span className="ml-2 hidden sm:block">{t("add_songs")}</span>
             </Link>
           </Button>
         </div>

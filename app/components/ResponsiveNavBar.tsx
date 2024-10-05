@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@remix-run/react";
 import { Command, Menu, Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Theme, useTheme } from "remix-themes";
 
 import { Button } from "~/components/ui/button";
@@ -25,6 +26,8 @@ export default function ResponsiveNavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setMounted] = useState(false); // To check if the component has mounted
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     setMounted(true); // Now the component is mounted
   }, []);
@@ -33,15 +36,15 @@ export default function ResponsiveNavBar() {
     setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
   };
 
-  const navBrand = "ChordMaster";
+  const navBrand = t("title");
 
   const navItems = [
-    { title: "Playlists", to: "/playlists" },
-    { title: "Artists", to: "/artists" },
-    { title: "Songs", to: "/songs" },
-    { title: "Online Search", to: "/online" },
-    { title: "Settings", to: "/settings" },
-    { title: "Login", to: "/login" },
+    { title: t("playlists"), to: "/playlists" },
+    { title: t("artists"), to: "/artists" },
+    { title: t("songs"), to: "/songs" },
+    { title: t("online_search"), to: "/online" },
+    { title: t("settings"), to: "/settings" },
+    { title: t("login"), to: "/login" },
   ];
 
   return (

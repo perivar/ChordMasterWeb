@@ -12,6 +12,7 @@ import { useUser } from "~/context/UserContext";
 import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter";
 import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
 import ChordSheetJS from "chordsheetjs";
+import { useTranslation } from "react-i18next";
 
 import useFirestore, { IArtist } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
@@ -33,6 +34,7 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function SongEdit() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const params = useParams();
   let songIdParam = params?.id;

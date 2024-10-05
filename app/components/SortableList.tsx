@@ -24,11 +24,13 @@ interface ListItem {
 interface ListProps<T extends ListItem> {
   table: TanTable<T>;
   onFilterChange: (itemFilter: string) => void;
+  placeholder?: string;
 }
 
 export default function SortableList<T extends ListItem>({
   table,
   onFilterChange,
+  placeholder = "Search",
 }: ListProps<T>) {
   const [itemFilter, setItemFilter] = useState("");
 
@@ -46,7 +48,7 @@ export default function SortableList<T extends ListItem>({
       <div className="flex justify-center">
         <div className="relative w-full max-w-md py-2">
           <Input
-            placeholder="Search"
+            placeholder={placeholder}
             value={itemFilter}
             onChange={handleFilterChange}
             className="w-full pr-10"

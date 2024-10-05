@@ -10,6 +10,7 @@ import {
   useAppContext,
 } from "~/context/AppContext";
 import { GripVertical, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
@@ -28,6 +29,7 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function PlaylistView() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const allSongs = useSongs();
   const params = useParams();
@@ -73,8 +75,8 @@ export default function PlaylistView() {
 
     try {
       await confirm({
-        title: `Remove "${song.title}" from Playlist?`,
-        description: "Are you sure you want to remove the song?",
+        title: `${t("playlist_remove_from")} (${song.title})?`,
+        description: `${t("playlist_remove_are_you_sure")}?`,
       });
 
       if (song && song.id && playlist && playlist.id) {
@@ -186,7 +188,7 @@ export default function PlaylistView() {
         <Form id="edit-playlist-form" onSubmit={onSubmit}>
           <div className="flex items-center justify-between gap-4">
             <Button type="button" variant="outline" onClick={handleCancel}>
-              Cancel
+              {t("permission_button_negative")}
             </Button>
 
             <div className="w-1/3 max-w-sm">
@@ -201,7 +203,7 @@ export default function PlaylistView() {
               />
             </div>
 
-            <Button type="submit">Save</Button>
+            <Button type="submit">{t("save")}</Button>
           </div>
         </Form>
       </div>
