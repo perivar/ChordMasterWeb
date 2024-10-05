@@ -61,7 +61,7 @@ export function DataTablePagination<TData>({
             className="hidden size-8 p-0 lg:flex"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}>
-            <span className="sr-only">{t("go to first page")}</span>
+            <span className="sr-only">{t("go_to_first_page")}</span>
             <ChevronsLeft className="size-4" />
           </Button>
           <Button
@@ -69,7 +69,7 @@ export function DataTablePagination<TData>({
             className="size-8 p-0"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}>
-            <span className="sr-only">{t("go to previous page")}</span>
+            <span className="sr-only">{t("go_to_previous_page")}</span>
             <ChevronLeftIcon className="size-4" />
           </Button>
           <Button
@@ -77,7 +77,7 @@ export function DataTablePagination<TData>({
             className="size-8 p-0"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}>
-            <span className="sr-only">{t("go to next page")}</span>
+            <span className="sr-only">{t("go_to_next_page")}</span>
             <ChevronRightIcon className="size-4" />
           </Button>
           <Button
@@ -85,7 +85,7 @@ export function DataTablePagination<TData>({
             className="hidden size-8 p-0 lg:flex"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}>
-            <span className="sr-only">{t("go to last page")}</span>
+            <span className="sr-only">{t("go_to_last_page")}</span>
             <ChevronsRight className="size-4" />
           </Button>
         </div>

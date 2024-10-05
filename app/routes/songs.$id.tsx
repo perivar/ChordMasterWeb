@@ -255,12 +255,12 @@ export default function SongView() {
                 showPiano={showPiano}
                 onShowChange={setShowPiano}
                 showChangeLabel={
-                  showPiano ? "Show Guitar Tabs" : "Show Piano Notes"
+                  showPiano ? t("show_guitar_tabs") : t("show_piano_notes")
                 }
                 selectedChord={selectedChord}
                 allChords={songProps.chords}
                 onPressClose={() => setSelectedChord(null)}
-                closeLabel={"Close"}
+                closeLabel={t("close")}
               />
               <SelectPlaylist
                 songId={songIdParam}
@@ -330,7 +330,7 @@ export default function SongView() {
             <Label
               htmlFor="show-tablature"
               className="text-nowrap text-sm font-medium">
-              {t("show_tabs_by_default")}
+              {showTabs ? t("show_tabs_by_default") : t("hide_tabs_by_default")}
             </Label>
             <div className="flex justify-end">
               <Switch
@@ -344,7 +344,9 @@ export default function SongView() {
             <Label
               htmlFor="show-pageturner"
               className="text-nowrap text-sm font-medium">
-              {t("enable_page_turner_by_default")}
+              {showPageTurner
+                ? t("enable_page_turner_by_default")
+                : t("disable_page_turner_by_default")}
             </Label>
             <div className="flex justify-end">
               <Switch
@@ -358,7 +360,7 @@ export default function SongView() {
             <Label
               htmlFor="chord-type"
               className="text-nowrap text-sm font-medium">
-              {showPiano ? t("show_notes") : t("show_tabs")}
+              {showPiano ? t("show_piano_notes") : t("show_guitar_tabs")}
             </Label>
             <div className="flex justify-end">
               <Switch

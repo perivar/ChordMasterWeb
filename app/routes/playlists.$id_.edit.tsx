@@ -181,9 +181,7 @@ export default function PlaylistView() {
 
   return (
     <div className="container mx-auto my-6 max-w-4xl">
-      {error && (
-        <div className="m-6 text-center text-sm text-red-600">{error}</div>
-      )}
+      {error && <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>}
       <div className="mb-6">
         <Form id="edit-playlist-form" onSubmit={onSubmit}>
           <div className="flex items-center justify-between gap-4">

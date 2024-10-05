@@ -290,7 +290,7 @@ export default function SongEdit() {
 
   return (
     <div className="mx-auto grid w-full p-4">
-      {error && <div className="mb-4 text-lg text-red-500">{error}</div>}
+      {error && <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>}
 
       <Form id="edit-form">
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">

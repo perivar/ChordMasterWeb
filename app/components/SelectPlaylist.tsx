@@ -4,6 +4,7 @@ import { setPlaylists, useAppContext } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
 import { addPlaylistToArray } from "~/utils/arrayUtilities";
 import { PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import useFirestore from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
@@ -26,6 +27,7 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   songId,
   onPressClose,
 }) => {
+  const { t } = useTranslation();
   const { hasPlaylistContainsSong, playlistRemoveSong, playlistAddSong } =
     useFirestoreMethods();
   const allPlaylists = usePlaylists();
@@ -80,7 +82,7 @@ const SelectPlaylist: FunctionComponent<Props> = ({
         setNewPlaylistName("");
         setShowInput(false);
       } else {
-        throw new Error("Empty name not allowed");
+        throw new Error(t("empty_name_not_allowed"));
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -102,7 +104,7 @@ const SelectPlaylist: FunctionComponent<Props> = ({
       <DialogContent className="space-y-4 p-6">
         <DialogHeader>
           <DialogTitle>
-            <h3 className="text-lg font-medium">Select Playlist</h3>
+            <h3 className="text-lg font-medium">{t("playlist_select")}</h3>
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
@@ -121,7 +123,7 @@ const SelectPlaylist: FunctionComponent<Props> = ({
               </div>
             ))
           ) : (
-            <p>No playlists available</p>
+            <p>{t("playlists_not_found")}</p>
           )}
         </ScrollArea>
 
@@ -131,28 +133,34 @@ const SelectPlaylist: FunctionComponent<Props> = ({
             <Input
               value={newPlaylistName}
               onChange={e => setNewPlaylistName(e.target.value)}
-              placeholder="New Playlist Name"
+              placeholder={t("playlist_new_name")}
             />
             {/* Display error if exists */}
-            {error && <p className="mt-1 text-destructive">{error}</p>}{" "}
+            {error && (
+              <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>
+            )}
             <Button onClick={handleCreatePlaylist} variant="secondary">
               <PlusIcon className="size-4" />
-              <span className="ml-2 hidden sm:block">Create Playlist</span>
+              <span className="ml-2 hidden sm:block">
+                {t("playlist_create")}
+              </span>
             </Button>
           </div>
         ) : (
           <Button onClick={() => setShowInput(true)} variant="outline">
             <PlusIcon className="size-4" />
-            <span className="ml-2 hidden sm:block">New Playlist</span>
+            <span className="ml-2 hidden sm:block">
+              {t("create_new_playlist")}
+            </span>
           </Button>
         )}
 
         <div className="flex justify-end space-x-2">
           <Button variant="ghost" onClick={handleClose}>
-            Cancel
+            {t("permission_button_negative")}
           </Button>
           <Button onClick={handleClose} variant="default">
-            Save
+            {t("save")}
           </Button>
         </div>
       </DialogContent>

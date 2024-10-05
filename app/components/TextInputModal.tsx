@@ -54,7 +54,9 @@ export const TextInputModal: React.FC<TextInputModalProps> = ({
             placeholder={placeholder}
           />
           {/* Display error if exists */}
-          {error && <p className="mt-1 text-destructive">{error}</p>}{" "}
+          {error && (
+            <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>
+          )}{" "}
         </div>
 
         <DialogFooter>

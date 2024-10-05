@@ -184,9 +184,7 @@ export default function PlaylistAddSongs() {
 
   return (
     <div className="my-6">
-      {error && (
-        <div className="m-6 text-center text-sm text-red-600">{error}</div>
-      )}
+      {error && <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>}
       <SortableList
         table={table}
         onFilterChange={onFilterChange}
