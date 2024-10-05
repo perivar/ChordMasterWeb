@@ -125,7 +125,7 @@ export default function SortableSongList({ allItems }: ListProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                   <DropdownMenuItem>
                     <Link to={`/artists/${row.original.artist.id}`}>
                       {t("go_to_artist")}

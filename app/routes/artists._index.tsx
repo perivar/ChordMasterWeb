@@ -115,6 +115,10 @@ export default function ArtistsView() {
 
   return (
     <div className="container mx-auto my-6">
+      <div className="mb-3 mt-7 flex w-full flex-row items-center">
+        <div className="flex-1 text-center text-xl">{t("artists")}</div>
+      </div>
+
       <SortableList
         table={table}
         onFilterChange={onFilterChange}
