@@ -15,6 +15,7 @@ export default {
   // The default namespace of i18next is "translation", but you can customize it
   defaultNS: "translation",
 
+  // If using a backend instead of bundling the resource file, uncomment this, and comment out the resources
   // backend: { loadPath: resolve("./app/i18n/locales/{{lng}}/{{ns}}.json") },
 
   // These are the translation files we created, `translation` is the namespace

@@ -11,19 +11,28 @@ import {
 import { useUser } from "~/context/UserContext";
 import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter";
 import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
+import { getChordAlternatives } from "~/utils/getChordAlternatives";
+import { getChordSymbol } from "~/utils/getChordSymbol";
 import ChordSheetJS from "chordsheetjs";
+import {
+  BracketsIcon,
+  ListMusicIcon,
+  Music2Icon,
+  ReplaceIcon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import useFirestore, { IArtist } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Textarea } from "~/components/ui/textarea";
+import { useConfirm } from "~/components/layout/confirm-provider";
 import LoadingIndicator from "~/components/LoadingIndicator";
+import { TextInputModal } from "~/components/TextInputModal";
 import styles from "~/styles/chordsheetjs.css?url";
 
 export const meta: MetaFunction = () => [
@@ -34,10 +43,12 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function SongEdit() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const params = useParams();
   let songIdParam = params?.id;
+
+  const { t } = useTranslation();
+  const confirm = useConfirm();
 
   const { dispatch } = useAppContext();
   const { user } = useUser();
@@ -51,18 +62,26 @@ export default function SongEdit() {
   const [sourceUrl, setSourceUrl] = useState("");
 
   const [error, setError] = useState<string | null>();
-  const { addNewSong, editSong, getArtistsByName, addNewArtist } =
-    useFirestore();
-  const { isLoading, loadSongData } = useFirestoreMethods();
+  const [mode, setMode] = useState<"CHORD_PRO" | "CHORD_SHEET">("CHORD_PRO");
 
   const [isReplaceModalOpen, setReplaceModalOpen] = useState(false);
   const [replaceFromText, setReplaceFromText] = useState("");
   const [replaceWithText, setReplaceWithText] = useState("");
-  const [isChordModalOpen, setChordModalOpen] = useState(false);
+
+  const [isAddChordNotesModalOpen, setAddChordNotesModalOpen] = useState(false);
+  const [addChordNotesText, setAddChordNotesText] = useState("");
+
+  const [isAddChordModalOpen, setAddChordModalOpen] = useState(false);
   const [addChordText, setAddChordText] = useState("");
 
-  // const [activeTab, setActiveTab] = useState("chordpro");
-  const [mode, setMode] = useState<"CHORD_PRO" | "CHORD_SHEET">("CHORD_PRO");
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const [selectedText, setSelectedText] = useState<string>();
+
+  const [isChordsFieldFocused, setIsChordsFieldFocused] = useState(false);
+
+  const { addNewSong, editSong, getArtistsByName, addNewArtist } =
+    useFirestore();
+  const { isLoading, loadSongData } = useFirestoreMethods();
 
   useEffect(() => {
     if (songIdParam && songIdParam !== "new") {
@@ -81,6 +100,39 @@ export default function SongEdit() {
     }
   }, [song]);
 
+  useEffect(() => {
+    // console.log(`Selection ${selection.start} to ${selection.end}`);
+
+    if (selection && selection.start !== selection.end) {
+      const selText = content.slice(selection.start, selection.end);
+      // console.log(
+      //   `Selected text from ${selection.start} to ${selection.end} is ${selText}`
+      // );
+
+      setSelectedText(selText);
+    } else {
+      setSelectedText(undefined);
+    }
+  }, [selection]);
+
+  const doEncloseInBrackets = () => {
+    if (selectedText) {
+      // Enclose the selected chord in brackets
+      const newContent =
+        content.slice(0, selection.start) + // Get content before the selection
+        "[" +
+        selectedText +
+        "]" + // Enclose selected text in brackets
+        content.slice(selection.end); // Get content after the selection
+
+      // Update the content state
+      setContent(newContent);
+
+      // Unselect by resetting the selection
+      setSelection({ start: 0, end: 0 });
+    }
+  };
+
   const removeMetaTags = (text: string) => {
     text = text.replace(/{title:[^}]+}\n?/g, "");
     text = text.replace(/{t:[^}]+}\n?/g, "");
@@ -89,7 +141,6 @@ export default function SongEdit() {
     return text;
   };
 
-  // ------
   const handleReplaceText = () => {
     if (replaceFromText) {
       const newContent = content.split(replaceFromText).join(replaceWithText);
@@ -98,21 +149,74 @@ export default function SongEdit() {
     }
   };
 
+  const handleAddChordNotes = () => {
+    if (addChordNotesText) {
+      setAddChordNotesModalOpen(false);
+
+      if (selection && selection.start && selection.end) {
+        // lookup alternative chord names
+        const chordNotes = addChordNotesText.split(/[\s,.]/).filter(Boolean);
+        // console.log('chordNotes', chordNotes);
+
+        // lookup alternative chord names
+        const alternatives = getChordAlternatives(chordNotes);
+        const chordNames = alternatives.chordNames;
+        // console.log('chordNames', chordNames);
+
+        if (chordNames && chordNames.length > 0) {
+          let chordText = chordNames[0]; // choose the first
+
+          // make sure the chord name is formatted well
+          chordText = getChordSymbol(chordText);
+
+          const chordPro = content;
+
+          if (mode === "CHORD_PRO") {
+            // enclose the chord in brackets
+            chordText = "[" + chordText + "]";
+          }
+
+          // const newContent =
+          //   chordPro.substring(0, selection.start) +
+          //   chordText +
+          //   chordPro.substring(selection.end, chordPro.length);
+
+          const newContent =
+            content.slice(0, selection.start) +
+            chordText +
+            content.slice(selection.end);
+
+          setContent(newContent);
+        } else {
+          setError(
+            `Aborting since we did not find a chord matching ${chordNotes.join(
+              " "
+            )}`
+          );
+        }
+      }
+    } else {
+      setError("Missing addChordNotesText");
+    }
+  };
+
   const handleAddChord = () => {
     if (addChordText) {
-      // const newContent =
-      //   content.slice(0, selection.start) +
-      //   `[${addChordText}]` +
-      //   content.slice(selection.end);
-      // setContent(newContent);
-      setChordModalOpen(false);
+      const newContent =
+        content.slice(0, selection.start) +
+        `[${addChordText}]` +
+        content.slice(selection.end);
+      setContent(newContent);
+      setAddChordModalOpen(false);
+    } else {
+      setError("Missing addChordText");
     }
   };
 
   const handleSaveSong = async () => {
-    if (title.trim() === "") return setError("Invalid Title");
-    if (artist.trim() === "") return setError("Invalid Artist");
-    if (content.trim() === "") return setError("Invalid Content");
+    if (title.trim() === "") return setError(t("invalid_title"));
+    if (artist.trim() === "") return setError(t("invalid_artist"));
+    if (content.trim() === "") return setError(t("invalid_content"));
 
     const artistName = artist.trim();
     const songTitle = title.trim();
@@ -295,40 +399,40 @@ export default function SongEdit() {
       <Form id="edit-form">
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="song-title">Song Title</Label>
+            <Label htmlFor="song-title">{t("song_title")}</Label>
             <Input
               id="song-title"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="Enter song title"
+              placeholder={t("enter_song_title")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="artist-name">Artist Name</Label>
+            <Label htmlFor="artist-name">{t("artist_name")}</Label>
             <Input
               id="artist-name"
               value={artist}
               onChange={e => setArtist(e.target.value)}
-              placeholder="Enter artist name"
+              placeholder={t("enter_artist_name")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="source-label">Source Label</Label>
+            <Label htmlFor="source-label">{t("source_label")}</Label>
             <Input
               id="source-label"
               value={sourceLabel}
               onChange={e => setSourceLabel(e.target.value)}
-              placeholder="Enter source label"
+              placeholder={t("enter_source_label")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="source-url">Source URL</Label>
+            <Label htmlFor="source-url">{t("source_url")}</Label>
             <Input
               id="source-url"
               type="url"
               value={sourceUrl}
               onChange={e => setSourceUrl(e.target.value)}
-              placeholder="Enter source URL"
+              placeholder={t("enter_source_url")}
             />
           </div>
         </div>
@@ -345,56 +449,122 @@ export default function SongEdit() {
             <TabsTrigger
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               value="chords-over-lyrics">
-              Chords Over Lyrics
+              {t("chords_over_lyrics")}
             </TabsTrigger>
           </TabsList>
+
+          <div className="mt-3 flex flex-row space-x-2">
+            {!selectedText && isChordsFieldFocused && (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => setAddChordModalOpen(true)}>
+                  <Music2Icon className="size-4" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => setAddChordNotesModalOpen(true)}>
+                  <ListMusicIcon className="size-4" />
+                </Button>
+              </>
+            )}
+
+            {selectedText && (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setReplaceFromText(selectedText);
+                    setReplaceModalOpen(true);
+                  }}>
+                  <ReplaceIcon className="size-4" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={async () => {
+                    try {
+                      // Confirm action with the user
+                      await confirm({
+                        title: "Enclose in brackets?",
+                        description:
+                          "Are you sure you want to enclose the selected text in brackets?",
+                      });
+
+                      // Perform your action if confirmed
+                      doEncloseInBrackets();
+                    } catch (_err) {
+                      // user cancelled the dialog
+                    }
+                  }}>
+                  <BracketsIcon className="size-4" />
+                </Button>
+              </>
+            )}
+          </div>
 
           <Textarea
             placeholder={contentPlaceholder}
             value={content}
             onChange={handleContentChange}
             className="mt-4 min-h-[350px] font-mono"
+            onSelect={e => {
+              const target = e.target as HTMLTextAreaElement;
+              setSelection({
+                start: target.selectionStart,
+                end: target.selectionEnd,
+              });
+            }}
+            onFocus={() => setIsChordsFieldFocused(true)}
+            // onBlur={() => setIsChordsFieldFocused(false)}
           />
         </Tabs>
 
         <Button className="mt-4" onClick={handleSaveSong}>
-          {"Save Song"}
+          {t("save_song")}
         </Button>
       </Form>
 
-      <Dialog
-        open={isReplaceModalOpen}
-        onOpenChange={() => setReplaceModalOpen(false)}>
-        <DialogContent>
-          <Label htmlFor="replace-text">Replace From</Label>
-          <Input
-            id="replace-text"
-            value={replaceFromText}
-            onChange={e => setReplaceFromText(e.target.value)}
-          />
-          <Label htmlFor="replace-with">Replace From</Label>
-          <Input
-            id="replace-with"
-            value={replaceWithText}
-            onChange={e => setReplaceWithText(e.target.value)}
-          />
-          <Button onClick={handleReplaceText}>{"Replace"}</Button>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={isChordModalOpen}
-        onOpenChange={() => setChordModalOpen(false)}>
-        <DialogContent>
-          <Label htmlFor="add-chord">Add Chord</Label>
-          <Input
-            id="add-chord"
-            value={addChordText}
-            onChange={e => setAddChordText(e.target.value)}
-          />
-          <Button onClick={handleAddChord}>{"Add"}</Button>
-        </DialogContent>
-      </Dialog>
+      <TextInputModal
+        error={error}
+        enabled={isReplaceModalOpen}
+        onDismiss={() => {
+          setError(null);
+          setReplaceModalOpen(false);
+        }}
+        onChange={value => setReplaceWithText(value)}
+        onSubmit={handleReplaceText}
+        submitButtonTitle={t("replace")}
+        placeholder={t("replace_with")}
+        label={`${t("replace")}: ${replaceFromText}`}
+      />
+      <TextInputModal
+        error={error}
+        enabled={isAddChordNotesModalOpen}
+        onDismiss={() => {
+          setError(null);
+          setAddChordNotesModalOpen(false);
+        }}
+        onChange={value => setAddChordNotesText(value)}
+        onSubmit={handleAddChordNotes}
+        submitButtonTitle={`${t("add_chord_using_notes")}`}
+        placeholder={"e.g. A C E G is Am7"}
+        label={t("add_chord_using_notes")}
+      />
+      <TextInputModal
+        error={error}
+        enabled={isAddChordModalOpen}
+        onDismiss={() => {
+          setError(null);
+          setAddChordModalOpen(false);
+        }}
+        onChange={value => setAddChordText(value)}
+        onSubmit={handleAddChord}
+        submitButtonTitle={`${t("add_chord")}`}
+        placeholder={"e.g. Am7/C"}
+        label={t("add_chord")}
+      />
     </div>
   );
 }

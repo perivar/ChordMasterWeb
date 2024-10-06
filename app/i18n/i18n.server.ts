@@ -1,4 +1,7 @@
+// This version uses i18next-fs-backend like https://remix.run/resources/remix-i18next
+// For a version using bundling resources:
 // https://sergiodxa.com/tutorials/add-i18n-to-a-remix-vite-app
+// For a version using i18next-fetch-backend
 // https://github.com/sergiodxa/remix-vite-i18next/tree/main
 
 import { createCookie } from "@remix-run/node";

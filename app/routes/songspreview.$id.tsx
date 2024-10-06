@@ -45,28 +45,28 @@ export default function SongPreview() {
   const { addNewSong, getSongById } = useFirestore();
 
   useEffect(() => {
+    const loadSongData = async (songId: string) => {
+      try {
+        setIsLoading(true);
+        if (songId) {
+          const songFound = await getSongById(songId);
+          setSong(songFound);
+        }
+        setIsLoading(false);
+      } catch (e) {
+        if (e instanceof Error) {
+          setError(e.message);
+          setIsLoading(false);
+        } else {
+          throw e;
+        }
+      }
+    };
+
     if (songIdParam) {
       loadSongData(songIdParam);
     }
   }, [songIdParam]);
-
-  const loadSongData = async (songId: string) => {
-    try {
-      setIsLoading(true);
-      if (songId) {
-        const songFound = await getSongById(songId);
-        setSong(songFound);
-      }
-      setIsLoading(false);
-    } catch (e) {
-      if (e instanceof Error) {
-        setError(e.message);
-        setIsLoading(false);
-      } else {
-        throw e;
-      }
-    }
-  };
 
   const saveSong = async () => {
     if (isSaving) return;
@@ -117,6 +117,10 @@ export default function SongPreview() {
   return (
     <div className="relative mt-6 pb-4">
       <div className="size-full">
+        {/* Display error if exists */}
+        {error && (
+          <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>
+        )}
         <SongTransformer chordProSong={song?.content} transposeDelta={0}>
           {({ transformedSong }) => (
             <div className="flex flex-col pb-6 pl-6 font-mono">

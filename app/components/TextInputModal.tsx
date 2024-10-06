@@ -10,29 +10,43 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface TextInputModalProps {
-  error: string | null;
+  error: string | undefined | null;
   enabled: boolean;
-  dialogTitle: string;
+  dialogTitle?: string;
+  dialogDescription?: string;
   onDismiss: () => void;
-  dismissButtonTitle: string;
+  dismissButtonTitle?: string;
   onSubmit: (value: string) => void;
   submitButtonTitle: string;
+  onChange?: (name: string) => void;
+  label?: string;
   placeholder: string;
+  initialValue?: string;
 }
 
 export const TextInputModal: React.FC<TextInputModalProps> = ({
   error,
   enabled,
   dialogTitle,
-  onDismiss,
-  dismissButtonTitle,
+  dialogDescription,
   onSubmit,
-  submitButtonTitle,
+  submitButtonTitle = "OK",
+  onDismiss,
+  dismissButtonTitle = "Cancel",
+  onChange,
+  label,
   placeholder,
+  initialValue = "",
 }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(initialValue);
+
+  const onChangeText = (val: string) => {
+    setInputValue(val);
+    if (onChange) onChange(val);
+  };
 
   const handleSubmit = () => {
     onSubmit(inputValue);
@@ -44,19 +58,23 @@ export const TextInputModal: React.FC<TextInputModalProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
-          <DialogDescription></DialogDescription>
+          <DialogDescription>{dialogDescription}</DialogDescription>
         </DialogHeader>
 
         <div>
+          {label && (
+            <Label htmlFor={`text-input-modal-${label}`}>{label}</Label>
+          )}
           <Input
+            id={`text-input-modal-${label}`}
             value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
+            onChange={e => onChangeText(e.target.value)}
             placeholder={placeholder}
           />
           {/* Display error if exists */}
           {error && (
             <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>
-          )}{" "}
+          )}
         </div>
 
         <DialogFooter>
