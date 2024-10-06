@@ -161,7 +161,7 @@ const renderPianoChord = (
         viewBox="0 0 200 120">
         {/* Draw white keys including upper "C" */}
         {whiteKeys.map((key, index) => (
-          <g key={key}>
+          <g key={index}>
             <rect
               x={index * whiteKeyWidth}
               y={0}

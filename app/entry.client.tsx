@@ -8,7 +8,6 @@ import { startTransition, StrictMode } from "react";
 import { RemixBrowser } from "@remix-run/react";
 import i18next from "i18next";
 import I18nextBrowserLanguageDetector from "i18next-browser-languagedetector";
-import Backend from "i18next-fs-backend";
 import { hydrateRoot } from "react-dom/client";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import { getInitialNamespaces } from "remix-i18next/client";
@@ -19,7 +18,7 @@ async function hydrate() {
   await i18next
     .use(initReactI18next)
     .use(I18nextBrowserLanguageDetector)
-    .use(Backend) // Setup your backend, if not bundling the resource files
+    // .use(Backend) // Setup your i18next-fs-backend backend, if not bundling the resource files
     .init({
       ...i18n,
       // This function detects the namespaces your routes rendered while SSR use
@@ -47,12 +46,13 @@ async function hydrate() {
   });
 }
 
-if (window.requestIdleCallback) {
-  window.requestIdleCallback(hydrate);
-} else {
-  // Safari doesn't support requestIdleCallback
-  // https://caniuse.com/requestidlecallback
-  window.setTimeout(hydrate, 1);
-}
+// TODO: commenting out due to https://github.com/remix-run/remix/issues/4281
+// if (window.requestIdleCallback) {
+//   window.requestIdleCallback(hydrate);
+// } else {
+//   // Safari doesn't support requestIdleCallback
+//   // https://caniuse.com/requestidlecallback
+//   window.setTimeout(hydrate, 1);
+// }
 
 hydrate().catch(error => console.error(error));

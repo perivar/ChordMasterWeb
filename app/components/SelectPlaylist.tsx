@@ -103,9 +103,7 @@ const SelectPlaylist: FunctionComponent<Props> = ({
     <Dialog open={show} onOpenChange={handleClose}>
       <DialogContent className="space-y-4 p-6">
         <DialogHeader>
-          <DialogTitle>
-            <h3 className="text-lg font-medium">{t("playlist_select")}</h3>
-          </DialogTitle>
+          <DialogTitle>{t("playlist_select")}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
 

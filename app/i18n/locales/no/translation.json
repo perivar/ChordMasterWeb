@@ -124,5 +124,8 @@
   "enter_source_label": "Skriv inn kildenavn",
   "enter_source_url": "Skriv inn kilde-URL",
   "replace_from": "Erstatt fra",
-  "replace_with": "Erstatt med"
+  "replace_with": "Erstatt med",
+  "empty_field_not_allowed": "Feltet kan ikke være tomt",
+  "enclose_in_brackets": "Bruk hakeparantes",
+  "enclose_in_brackets_are_you_sure": "Er du sikker på at du vil sette den valgte teksten i hakeparentes"
 }

@@ -9,7 +9,6 @@ import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { createInstance, i18n } from "i18next";
-import Backend from "i18next-fs-backend";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { I18nextProvider, initReactI18next } from "react-i18next";
@@ -34,7 +33,7 @@ export default async function handleRequest(
 
   await instance
     .use(initReactI18next) // Tell our instance to use react-i18next
-    .use(Backend) // Setup your backend, if not bundling the resource files
+    // .use(Backend) // Setup your i18next-fs-backend backend, if not bundling the resource files
     .init({
       ...i18nConfig, // spread the configuration
       lng, // The locale we detected above

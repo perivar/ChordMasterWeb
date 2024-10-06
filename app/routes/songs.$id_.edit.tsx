@@ -196,7 +196,7 @@ export default function SongEdit() {
         }
       }
     } else {
-      setError("Missing addChordNotesText");
+      setError(t("empty_field_not_allowed"));
     }
   };
 
@@ -209,7 +209,7 @@ export default function SongEdit() {
       setContent(newContent);
       setAddChordModalOpen(false);
     } else {
-      setError("Missing addChordText");
+      setError(t("empty_field_not_allowed"));
     }
   };
 
@@ -460,12 +460,16 @@ export default function SongEdit() {
                   variant="ghost"
                   onClick={() => setAddChordModalOpen(true)}>
                   <Music2Icon className="size-4" />
+                  <span className="ml-2 hidden sm:block">{t("add_chord")}</span>
                 </Button>
 
                 <Button
                   variant="ghost"
                   onClick={() => setAddChordNotesModalOpen(true)}>
                   <ListMusicIcon className="size-4" />
+                  <span className="ml-2 hidden sm:block">
+                    {t("add_chord_using_notes")}
+                  </span>
                 </Button>
               </>
             )}
@@ -479,6 +483,7 @@ export default function SongEdit() {
                     setReplaceModalOpen(true);
                   }}>
                   <ReplaceIcon className="size-4" />
+                  <span className="ml-2 hidden sm:block">{t("replace")}</span>
                 </Button>
 
                 <Button
@@ -487,9 +492,8 @@ export default function SongEdit() {
                     try {
                       // Confirm action with the user
                       await confirm({
-                        title: "Enclose in brackets?",
-                        description:
-                          "Are you sure you want to enclose the selected text in brackets?",
+                        title: `${t("enclose_in_brackets")}?`,
+                        description: `${t("enclose_in_brackets_are_you_sure")}?`,
                       });
 
                       // Perform your action if confirmed
@@ -499,6 +503,9 @@ export default function SongEdit() {
                     }
                   }}>
                   <BracketsIcon className="size-4" />
+                  <span className="ml-2 hidden sm:block">
+                    {t("enclose_in_brackets")}
+                  </span>
                 </Button>
               </>
             )}

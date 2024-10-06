@@ -61,21 +61,15 @@ export const TextInputModal: React.FC<TextInputModalProps> = ({
           <DialogDescription>{dialogDescription}</DialogDescription>
         </DialogHeader>
 
-        <div>
-          {label && (
-            <Label htmlFor={`text-input-modal-${label}`}>{label}</Label>
-          )}
-          <Input
-            id={`text-input-modal-${label}`}
-            value={inputValue}
-            onChange={e => onChangeText(e.target.value)}
-            placeholder={placeholder}
-          />
-          {/* Display error if exists */}
-          {error && (
-            <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>
-          )}
-        </div>
+        {label && <Label htmlFor={`text-input-modal-${label}`}>{label}</Label>}
+        <Input
+          id={`text-input-modal-${label}`}
+          value={inputValue}
+          onChange={e => onChangeText(e.target.value)}
+          placeholder={placeholder}
+        />
+        {/* Display error if exists */}
+        {error && <p className="text-red-600 dark:text-red-400">{error}</p>}
 
         <DialogFooter>
           <Button variant="outline" onClick={onDismiss}>

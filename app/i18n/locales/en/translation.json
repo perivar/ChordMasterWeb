@@ -124,5 +124,8 @@
   "enter_source_label": "Enter source label",
   "enter_source_url": "Enter source URL",
   "replace_from": "Replace From",
-  "replace_with": "Replace With"
+  "replace_with": "Replace With",
+  "empty_field_not_allowed": "The field cannot be empty",
+  "enclose_in_brackets": "Enclose in brackets",
+  "enclose_in_brackets_are_you_sure": "Are you sure you want to enclose the selected text in brackets"
 }
