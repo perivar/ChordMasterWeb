@@ -24,6 +24,7 @@
     "@fontsource-variable/montserrat": "^5.1.0",
     "@fontsource-variable/roboto-mono": "^5.1.0",
     "@fontsource-variable/roboto-slab": "^5.1.0",
+    "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.1.1",
@@ -63,7 +64,7 @@
     "remix-themes": "^1.5.1",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
-    "tonal": "^6.2.0",
+    "tonal": "^6.3.0",
     "vaul": "^1.0.0",
     "yarn": "^1.22.22"
   },

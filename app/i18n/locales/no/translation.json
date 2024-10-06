@@ -2,8 +2,8 @@
   "title": "ChordMaster",
   "description": "Noter, akkorder og tabulatorer",
   "account_delete": "Slett konto",
-  "add_chord": "Legg til akkord",
-  "add_chord_using_notes": "Legg til akkord ved å bruke noter",
+  "add_chord": "Sett inn akkord",
+  "add_chord_using_notes": "Sett inn akkord ved å bruke noter",
   "add_song_using_url": "Legg til sang ved hjelp av url",
   "add_songs": "Legg til sanger",
   "add_to_playlist": "Legg til spilleliste",
@@ -127,5 +127,6 @@
   "replace_with": "Erstatt med",
   "empty_field_not_allowed": "Feltet kan ikke være tomt",
   "enclose_in_brackets": "Bruk hakeparantes",
-  "enclose_in_brackets_are_you_sure": "Er du sikker på at du vil sette den valgte teksten i hakeparentes"
+  "enclose_in_brackets_are_you_sure": "Er du sikker på at du vil sette den valgte teksten i hakeparentes",
+  "toggle_song_details": "Vis/ Skjul sangdetaljer"
 }

@@ -2049,7 +2049,7 @@
   resolved "https://registry.yarnpkg.com/@radix-ui/primitive/-/primitive-1.1.0.tgz#42ef83b3b56dccad5d703ae8c42919a68798bbe2"
   integrity sha512-4Z8dn6Upk0qk4P74xBhZ6Hd/w0mPEzOOLxy4xiPXOXqjF7jZS0VAKk7/x/H6FyY2zCkYJqePf1G5KmkmNJ4RBA==
 
-"@radix-ui/react-accordion@^1.1.2":
+"@radix-ui/react-accordion@^1.1.2", "@radix-ui/react-accordion@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-accordion/-/react-accordion-1.2.1.tgz#5c942c42c24267376b26204ec6847b17d15659b3"
   integrity sha512-bg/l7l5QzUjgsh8kjwDFommzAshnUsuVMV5NM56QVCm+7ZckYdd9P/ExR8xG/Oup0OajVxNLaHJ1tb8mXk+nzQ==
@@ -3055,10 +3055,10 @@
     "@tonaljs/pitch-distance" "^5.0.4"
     "@tonaljs/pitch-interval" "^6.0.0"
 
-"@tonaljs/key@4.10.0":
-  version "4.10.0"
-  resolved "https://registry.yarnpkg.com/@tonaljs/key/-/key-4.10.0.tgz#fe659eb39da41878eaa25ad649eee1f050c1425c"
-  integrity sha512-R+rD6JdeYjnNCRzXbERA5quIx1UrZhlHmA519UeSKzOB7Ia+3c/dQL7Um+zQ/TaWgBkM0/mYpHdlJfLpHixW/w==
+"@tonaljs/key@4.11.0":
+  version "4.11.0"
+  resolved "https://registry.yarnpkg.com/@tonaljs/key/-/key-4.11.0.tgz#599fe9c6150868dc40f976058acdddb18bb397ec"
+  integrity sha512-ZnuKdoiUMwgG2FDM1/OnXsqASSR6J1fpyZpX0ZNwMtlpEIPhvOkLqzrCH1DOIyxWQ1iqcoK6DZNPCxzWiowdIA==
   dependencies:
     "@tonaljs/note" "4.11.0"
     "@tonaljs/pitch-note" "6.0.0"
@@ -3676,7 +3676,7 @@ acorn-jsx@^5.0.0, acorn-jsx@^5.3.2:
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.3.2.tgz#7ed5bb55908b3b2f1bc55c6af1653bada7f07937"
   integrity sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==
 
-acorn@^8.0.0, acorn@^8.11.3, acorn@^8.12.0:
+acorn@^8.0.0, acorn@^8.12.0, acorn@^8.12.1:
   version "8.12.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.12.1.tgz#71616bdccbe25e27a54439e0046e89ca76df2248"
   integrity sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==
@@ -4482,9 +4482,9 @@ concat-stream@^1.4.7:
     typedarray "^0.0.6"
 
 confbox@^0.1.7:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/confbox/-/confbox-0.1.7.tgz#ccfc0a2bcae36a84838e83a3b7f770fb17d6c579"
-  integrity sha512-uJcB/FKZtBMCJpK8MQji6bJHgu1tixKPxRLeGkNzBoOZzpnZUJm0jm2/sBDWcuBx1dYgxV4JU+g5hmNxCyAmdA==
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/confbox/-/confbox-0.1.8.tgz#820d73d3b3c82d9bd910652c5d4d599ef8ff8b06"
+  integrity sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==
 
 config-chain@^1.1.13:
   version "1.1.13"
@@ -8147,14 +8147,14 @@ mkdirp@^1.0.3:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 mlly@^1.4.2, mlly@^1.7.1:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/mlly/-/mlly-1.7.1.tgz#e0336429bb0731b6a8e887b438cbdae522c8f32f"
-  integrity sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/mlly/-/mlly-1.7.2.tgz#21c0d04543207495b8d867eff0ac29fac9a023c0"
+  integrity sha512-tN3dvVHYVz4DhSXinXIk7u9syPYaJvio118uomkovAtWBT+RdbP6Lfh/5Lvo519YMmwBafwlh20IPTXIStscpA==
   dependencies:
-    acorn "^8.11.3"
+    acorn "^8.12.1"
     pathe "^1.1.2"
-    pkg-types "^1.1.1"
-    ufo "^1.5.3"
+    pkg-types "^1.2.0"
+    ufo "^1.5.4"
 
 modern-ahocorasick@^1.0.0:
   version "1.0.1"
@@ -8628,7 +8628,7 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-pkg-types@^1.0.3, pkg-types@^1.1.1:
+pkg-types@^1.0.3, pkg-types@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pkg-types/-/pkg-types-1.2.0.tgz#d0268e894e93acff11a6279de147e83354ebd42d"
   integrity sha512-+ifYuSSqOQ8CqP4MbZA5hDpb97n3E8SVWdJe+Wms9kj745lmd3b7EZJiqvmLwAlmRfjrI7Hi5z3kdBJ93lFNPA==
@@ -10006,10 +10006,10 @@ toml@^3.0.0:
   resolved "https://registry.yarnpkg.com/toml/-/toml-3.0.0.tgz#342160f1af1904ec9d204d03a5d61222d762c5ee"
   integrity sha512-y/mWCZinnvxjTKYhJ+pYxwD0mRLVvOtdS2Awbgxln6iEnt4rk0yBxeSBHkGJcPucRiG0e55mwWp+g/05rsrd6w==
 
-tonal@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/tonal/-/tonal-6.2.0.tgz#7651d367e3059934a1a786a74b4053f97a08cfe3"
-  integrity sha512-pRGSTkkUjMHiGmtGR8cVBMuoh2Jmy5CmMWE37r8G74boOOfiSXdFb2WxA0xtj8VuixxBS8qntBD1ynrCN9VolA==
+tonal@^6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/tonal/-/tonal-6.3.0.tgz#c436a26a3bf0934a0b1a35ff6d6df63ad5bee2d9"
+  integrity sha512-wLxWn5xgQ/IAeI8PaoTPevIPFYei6IdQbPFCEW0TsZX3JuG2ILKnl3Ex0ZS+eL9jpas9cKb1mSJ1JgAqJnX4VA==
   dependencies:
     "@tonaljs/abc-notation" "4.9.0"
     "@tonaljs/array" "4.8.3"
@@ -10019,7 +10019,7 @@ tonal@^6.2.0:
     "@tonaljs/core" "5.0.1"
     "@tonaljs/duration-value" "4.9.0"
     "@tonaljs/interval" "5.1.0"
-    "@tonaljs/key" "4.10.0"
+    "@tonaljs/key" "4.11.0"
     "@tonaljs/midi" "4.10.0"
     "@tonaljs/mode" "4.9.0"
     "@tonaljs/note" "4.11.0"
@@ -10192,7 +10192,7 @@ typescript@^5.6.2:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.2.tgz#d1de67b6bef77c41823f822df8f0b3bcff60a5a0"
   integrity sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==
 
-ufo@^1.5.3:
+ufo@^1.5.4:
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/ufo/-/ufo-1.5.4.tgz#16d6949674ca0c9e0fbbae1fa20a71d7b1ded754"
   integrity sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==

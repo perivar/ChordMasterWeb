@@ -16,6 +16,8 @@ import { getChordSymbol } from "~/utils/getChordSymbol";
 import ChordSheetJS from "chordsheetjs";
 import {
   BracketsIcon,
+  ChevronDown,
+  ChevronUp,
   ListMusicIcon,
   Music2Icon,
   ReplaceIcon,
@@ -26,6 +28,11 @@ import useFirestore, { IArtist } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -78,6 +85,8 @@ export default function SongEdit() {
   const [selectedText, setSelectedText] = useState<string>();
 
   const [isChordsFieldFocused, setIsChordsFieldFocused] = useState(false);
+
+  const [isSongDetailsOpen, setIsSongDetailsOpen] = useState(true);
 
   const { addNewSong, editSong, getArtistsByName, addNewArtist } =
     useFirestore();
@@ -393,52 +402,70 @@ export default function SongEdit() {
   }
 
   return (
-    <div className="mx-auto grid w-full p-4">
-      {error && <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>}
+    <div className="mx-auto grid w-full">
+      {error && (
+        <p className="ml-4 mt-4 text-red-600 dark:text-red-400">{error}</p>
+      )}
 
       <Form id="edit-form">
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="song-title">{t("song_title")}</Label>
-            <Input
-              id="song-title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder={t("enter_song_title")}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="artist-name">{t("artist_name")}</Label>
-            <Input
-              id="artist-name"
-              value={artist}
-              onChange={e => setArtist(e.target.value)}
-              placeholder={t("enter_artist_name")}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="source-label">{t("source_label")}</Label>
-            <Input
-              id="source-label"
-              value={sourceLabel}
-              onChange={e => setSourceLabel(e.target.value)}
-              placeholder={t("enter_source_label")}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="source-url">{t("source_url")}</Label>
-            <Input
-              id="source-url"
-              type="url"
-              value={sourceUrl}
-              onChange={e => setSourceUrl(e.target.value)}
-              placeholder={t("enter_source_url")}
-            />
-          </div>
-        </div>
+        <Collapsible
+          open={isSongDetailsOpen}
+          onOpenChange={setIsSongDetailsOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="mx-4 my-2">
+              {t("toggle_song_details")}
+              {isSongDetailsOpen ? (
+                <ChevronUp className="ml-2" />
+              ) : (
+                <ChevronDown className="ml-2" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="mx-4 mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="song-title">{t("song_title")}</Label>
+                <Input
+                  id="song-title"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder={t("enter_song_title")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="artist-name">{t("artist_name")}</Label>
+                <Input
+                  id="artist-name"
+                  value={artist}
+                  onChange={e => setArtist(e.target.value)}
+                  placeholder={t("enter_artist_name")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="source-label">{t("source_label")}</Label>
+                <Input
+                  id="source-label"
+                  value={sourceLabel}
+                  onChange={e => setSourceLabel(e.target.value)}
+                  placeholder={t("enter_source_label")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="source-url">{t("source_url")}</Label>
+                <Input
+                  id="source-url"
+                  type="url"
+                  value={sourceUrl}
+                  onChange={e => setSourceUrl(e.target.value)}
+                  placeholder={t("enter_source_url")}
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
         <Tabs
           defaultValue="chordpro"
-          className="w-full"
+          className="w-full px-4"
           onValueChange={handleTabChange}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger
@@ -453,7 +480,7 @@ export default function SongEdit() {
             </TabsTrigger>
           </TabsList>
 
-          <div className="mt-3 flex flex-row space-x-2">
+          <div className="mt-2 flex flex-row space-x-2">
             {!selectedText && isChordsFieldFocused && (
               <>
                 <Button
@@ -490,16 +517,13 @@ export default function SongEdit() {
                   variant="ghost"
                   onClick={async () => {
                     try {
-                      // Confirm action with the user
                       await confirm({
                         title: `${t("enclose_in_brackets")}?`,
                         description: `${t("enclose_in_brackets_are_you_sure")}?`,
                       });
-
-                      // Perform your action if confirmed
                       doEncloseInBrackets();
                     } catch (_err) {
-                      // user cancelled the dialog
+                      // user canceled the dialog
                     }
                   }}>
                   <BracketsIcon className="size-4" />
@@ -515,7 +539,7 @@ export default function SongEdit() {
             placeholder={contentPlaceholder}
             value={content}
             onChange={handleContentChange}
-            className="mt-4 min-h-[350px] font-mono"
+            className="mt-4 min-h-[400px] font-mono"
             onSelect={e => {
               const target = e.target as HTMLTextAreaElement;
               setSelection({
@@ -528,7 +552,7 @@ export default function SongEdit() {
           />
         </Tabs>
 
-        <Button className="mt-4" onClick={handleSaveSong}>
+        <Button className="mx-4 mt-4" onClick={handleSaveSong}>
           {t("save_song")}
         </Button>
       </Form>
