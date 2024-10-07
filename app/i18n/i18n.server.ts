@@ -14,6 +14,7 @@ export const localeCookie = createCookie("lng", {
   sameSite: "lax",
   secure: process.env.NODE_ENV === "production",
   httpOnly: true,
+  maxAge: 365 * 24 * 60 * 60, // 365 days
 });
 
 const i18next = new RemixI18Next({

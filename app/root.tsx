@@ -55,16 +55,19 @@ export const handle = {
   // will need to load. This key can be a single string or an array of strings.
   // TIP: In most cases, you should set this to your defaultNS from your i18n config
   // or if you did not set one, set it to the i18next default namespace "translation"
-  i18n: "common",
+  i18n: "translation",
 };
 
 // Return the theme and the session from the session storage using the loader
 export async function loader({ request }: LoaderFunctionArgs) {
-  // get theme
-  const { getTheme } = await themeSessionResolver(request);
+  // Get theme from session
+  const themeSession = await themeSessionResolver(request);
+  const theme = themeSession.getTheme();
+  console.log("Theme: " + theme);
 
-  // get locale
-  const locale = await i18next.getLocale(request); // get the locale
+  // Get locale from i18next
+  const locale = await i18next.getLocale(request);
+  console.log("Locale: " + locale);
 
   // check if we are authenticated, and if we are, return the claims and the user
   const userSession = await isSessionValid(request);
@@ -91,7 +94,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
   return json(
-    { theme: getTheme(), locale, decodedClaims, user },
+    { theme, locale, decodedClaims, user },
     { headers: { "Set-Cookie": await localeCookie.serialize(locale) } }
   );
 }

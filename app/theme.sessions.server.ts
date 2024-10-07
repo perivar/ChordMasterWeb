@@ -10,6 +10,7 @@ const sessionStorage = createCookieSessionStorage({
     httpOnly: true,
     sameSite: "lax",
     secrets: ["s3cr3t"],
+    maxAge: 365 * 24 * 60 * 60, // 365 days
 
     // Set domain and secure only if in production
     ...(isProduction

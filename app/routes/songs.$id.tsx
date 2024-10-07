@@ -284,9 +284,7 @@ export default function SongView() {
           </Button>
         </SheetTrigger>
 
-        <SheetContent
-          side="right"
-          className="flex w-60 flex-col space-y-4 p-4 md:w-60">
+        <SheetContent side="right" className="flex w-auto flex-col space-y-4">
           <SheetHeader>
             <SheetTitle>{t("settings")}</SheetTitle>
             <SheetDescription></SheetDescription>
