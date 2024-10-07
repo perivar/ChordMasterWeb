@@ -3,8 +3,8 @@ import {
   setArtists,
   setPlaylists,
   setSongs,
-  updateAppConfig,
-  updateUserAppConfig,
+  updateAppConfigReducer,
+  updateUserAppConfigReducer,
   useAppContext,
 } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
@@ -60,7 +60,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     if (user && user.uid) {
       const config = await getAppConfig(id);
       if (isMounted()) {
-        dispatch(updateAppConfig(config));
+        dispatch(updateAppConfigReducer(config));
       }
     }
     setIsLoading(false);
@@ -71,7 +71,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     if (user && user.uid) {
       const config = await getUserAppConfig(user.uid);
       if (isMounted()) {
-        dispatch(updateUserAppConfig(config));
+        dispatch(updateUserAppConfigReducer(config));
       }
     }
     setIsLoading(false);

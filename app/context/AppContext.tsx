@@ -176,23 +176,26 @@ const appSlice = createSlice({
     },
 
     // Confiig Reducers
-    setAppConfig: (state, action: PayloadAction<IAppConfig>) => {
+    setAppConfigReducer: (state, action: PayloadAction<IAppConfig>) => {
       state.appConfig = action.payload;
     },
-    updateAppConfig: (state, action: PayloadAction<Partial<IAppConfig>>) => {
+    updateAppConfigReducer: (
+      state,
+      action: PayloadAction<Partial<IAppConfig>>
+    ) => {
       // update only part of the state
-      // like dispatch(updateAppConfig({language: 'en'})
+      // like dispatch(updateAppConfigReducer({language: 'en'})
       state.appConfig = { ...state.appConfig, ...action.payload };
     },
-    setUserAppConfig: (state, action: PayloadAction<IUserAppConfig>) => {
+    setUserAppConfigReducer: (state, action: PayloadAction<IUserAppConfig>) => {
       state.userAppConfig = action.payload;
     },
-    updateUserAppConfig: (
+    updateUserAppConfigReducer: (
       state,
       action: PayloadAction<Partial<IUserAppConfig>>
     ) => {
       // update only part of the state
-      // like dispatch(updateUserAppConfig({language: 'en'})
+      // like dispatch(updateUserAppConfigReducer({language: 'en'})
       state.userAppConfig = { ...state.userAppConfig, ...action.payload };
     },
 
@@ -235,10 +238,10 @@ export const {
   addOrUpdatePlaylistReducer,
 
   // config
-  setAppConfig,
-  updateAppConfig,
-  setUserAppConfig,
-  updateUserAppConfig,
+  setAppConfigReducer,
+  updateAppConfigReducer,
+  setUserAppConfigReducer,
+  updateUserAppConfigReducer,
 
   // reset
   resetState,

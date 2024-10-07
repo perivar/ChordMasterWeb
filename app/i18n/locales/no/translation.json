@@ -35,7 +35,7 @@
   "go_to_online_search": "Gå til nettsøk",
   "hide_tabs_by_default": "Skjul Gitartabulator som standard",
   "home": "Hjem",
-  "import": "Import",
+  "import": "Importer",
   "import_description": "Sikkerhetskopier, spillelister og .txt-filer",
   "import_from_url": "Importer fra URL",
   "info": "Info",
@@ -128,5 +128,10 @@
   "empty_field_not_allowed": "Feltet kan ikke være tomt",
   "enclose_in_brackets": "Bruk hakeparantes",
   "enclose_in_brackets_are_you_sure": "Er du sikker på at du vil sette den valgte teksten i hakeparentes",
-  "toggle_song_details": "Vis/ Skjul sangdetaljer"
+  "toggle_song_details": "Vis/ Skjul sangdetaljer",
+  "guitar_tabs": "Gitartabulator",
+  "theme": "Tema",
+  "cancel": "Avbryt",
+  "upload_restore": "Last opp og gjenopprett",
+  "upload_restore_json_file": "Last opp en JSON-fil for å gjenopprette data."
 }
