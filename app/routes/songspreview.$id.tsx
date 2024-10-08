@@ -26,9 +26,6 @@ export const meta: MetaFunction = () => [
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const MIN_FONT_SIZE = 12;
-export const MAX_FONT_SIZE = 26;
-
 export default function SongPreview() {
   const navigate = useNavigate();
   const params = useParams();

@@ -31,6 +31,11 @@ import { useToast } from "~/components/ui/use-toast";
 import FileUploadDialog from "~/components/FileUploadDialog";
 import ListItem, { ListItemOption } from "~/components/ListItem";
 import { ModeToggle } from "~/components/ModeToggle";
+import {
+  FONT_SIZE_STEP,
+  MAX_FONT_SIZE,
+  MIN_FONT_SIZE,
+} from "~/components/SongRender";
 
 export const meta: MetaFunction = () => [
   { title: "Settings" },
@@ -155,6 +160,14 @@ export default function SettingsView() {
     }
   };
 
+  const onChangeFontSize = async (value: number) => {
+    if (user && user.uid) {
+      await updateUserAppConfig(user.uid, { fontSize: value });
+      dispatch(updateUserAppConfigReducer({ fontSize: value }));
+      setFontSize(value);
+    }
+  };
+
   return (
     <div className="container mx-auto my-6">
       <h1 className="pb-2 text-2xl font-bold">{t("settings")}</h1>
@@ -208,11 +221,11 @@ export default function SettingsView() {
 
       <ListItem title={t("text_size")} subtitle={`${fontSize}`}>
         <Slider
-          min={12}
-          max={24}
+          min={MIN_FONT_SIZE}
+          max={MAX_FONT_SIZE}
           value={[fontSize]}
-          onValueChange={value => setFontSize(value[0])}
-          step={1}
+          onValueChange={value => onChangeFontSize(value[0])}
+          step={FONT_SIZE_STEP}
           className="w-2/5"></Slider>
       </ListItem>
 

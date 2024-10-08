@@ -44,7 +44,11 @@ import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SelectPlaylist from "~/components/SelectPlaylist";
-import SongRender, { FONT_SIZES } from "~/components/SongRender";
+import SongRender, {
+  FONT_SIZES,
+  MAX_FONT_SIZE,
+  MIN_FONT_SIZE,
+} from "~/components/SongRender";
 import SongTransformer from "~/components/SongTransformer";
 import styles from "~/styles/chordsheetjs.css?url";
 
@@ -69,9 +73,6 @@ export async function loader() {
 
   return json({ chords: chordsData }, { headers });
 }
-
-export const MIN_FONT_SIZE = 12;
-export const MAX_FONT_SIZE = 26;
 
 export default function SongView() {
   const { t } = useTranslation();

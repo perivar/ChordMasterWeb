@@ -20,6 +20,10 @@ interface Props {
   fontSize?: number;
 }
 
+export const MIN_FONT_SIZE = 12;
+export const MAX_FONT_SIZE = 26;
+export const FONT_SIZE_STEP = 2;
+
 // Mapping font size numbers to Tailwind text classes
 export const FONT_SIZE_MAPPING: Record<number, string> = {
   12: "text-xs", // 12px
