@@ -9,7 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-export function ModeToggle() {
+interface ModeToggleProps {
+  lightLabel: string;
+  darkLabel: string;
+}
+
+export function ModeToggle({ lightLabel, darkLabel }: ModeToggleProps) {
   const [, setTheme] = useTheme();
 
   return (
@@ -23,10 +28,10 @@ export function ModeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme(Theme.LIGHT)}>
-          Light
+          {lightLabel}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme(Theme.DARK)}>
-          Dark
+          {darkLabel}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

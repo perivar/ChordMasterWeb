@@ -13,7 +13,7 @@ import { type loader as parentLoader } from "~/root";
 import { exportFile } from "~/utils/exportFile";
 import pad from "~/utils/pad";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "remix-themes";
+import { Theme, useTheme } from "remix-themes";
 
 import useBundler from "~/hooks/useBundler";
 import useFirestore from "~/hooks/useFirestore";
@@ -189,8 +189,10 @@ export default function SettingsView() {
         />
       </ListItem>
 
-      <ListItem title={t("theme")} subtitle={`${theme}`}>
-        <ModeToggle />
+      <ListItem
+        title={t("theme")}
+        subtitle={theme == Theme.DARK ? t("theme_dark") : t("theme_light")}>
+        <ModeToggle lightLabel={t("theme_light")} darkLabel={t("theme_dark")} />
       </ListItem>
 
       <ListItem

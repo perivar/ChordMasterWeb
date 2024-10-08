@@ -133,5 +133,7 @@
   "theme": "Theme",
   "upload_restore": "Upload and restore",
   "upload_restore_json_file": "Upload a JSON file to restore data.",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "theme_dark": "Dark",
+  "theme_light": "Light"
 }
