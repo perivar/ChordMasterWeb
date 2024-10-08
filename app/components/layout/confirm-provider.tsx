@@ -47,41 +47,43 @@ export const ConfirmProvider = ({
   children: React.ReactNode;
 }): JSX.Element => {
   // State to manage dialog options
-  const [options, setOptions] = useState<DialogOptions>({ ...DEFAULT_OPTIONS });
+  const [dialogOptions, setDialogOptions] = useState<DialogOptions>({
+    ...DEFAULT_OPTIONS,
+  });
 
   // State to manage resolve and reject for dialog
   const [resolveReject, setResolveReject] = useState<
     [() => void, (reason?: unknown) => void] | []
   >([]);
 
-  const [resolve, reject] = resolveReject;
+  const [resolveFn, rejectFn] = resolveReject;
 
   // Confirm function: Shows the dialog and returns a Promise
-  const confirm = useCallback((options: DialogOptions): Promise<void> => {
+  const confirm = useCallback((newOptions: DialogOptions): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
-      setOptions({ ...DEFAULT_OPTIONS, ...options });
+      setDialogOptions({ ...DEFAULT_OPTIONS, ...newOptions });
       setResolveReject([resolve, reject]);
     });
   }, []);
 
   // Handler to close the dialog
   const handleClose = useCallback(() => {
-    setResolveReject([]);
+    setResolveReject([]); // Clear resolve/reject functions when dialog is closed
   }, []);
 
   // Handler for the cancel button
   const handleCancel = useCallback(() => {
-    if (reject) {
-      reject(new Error("User canceled the dialog"));
+    if (rejectFn) {
+      rejectFn(new Error("User canceled the dialog"));
     }
     handleClose();
-  }, [reject, handleClose]);
+  }, [rejectFn, handleClose]);
 
   // Handler for the confirm button
   const handleConfirm = useCallback(() => {
-    if (resolve) resolve();
+    if (resolveFn) resolveFn();
     handleClose();
-  }, [resolve, handleClose]);
+  }, [resolveFn, handleClose]);
 
   return (
     <>
@@ -89,18 +91,20 @@ export const ConfirmProvider = ({
       <AlertDialog open={resolveReject.length === 2}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{options.title}</AlertDialogTitle>
+            <AlertDialogTitle>{dialogOptions.title}</AlertDialogTitle>
             <AlertDialogDescription>
-              {options.description}
+              {dialogOptions.description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleCancel}>
-              {options.alert ? options.closeLabel : options.cancelLabel}
+              {dialogOptions.alert
+                ? dialogOptions.closeLabel
+                : dialogOptions.cancelLabel}
             </AlertDialogCancel>
-            {!options.alert && (
+            {!dialogOptions.alert && (
               <AlertDialogAction onClick={handleConfirm}>
-                {options.confirmLabel}
+                {dialogOptions.confirmLabel}
               </AlertDialogAction>
             )}
           </AlertDialogFooter>

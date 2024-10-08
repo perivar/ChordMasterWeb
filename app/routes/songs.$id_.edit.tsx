@@ -178,7 +178,7 @@ export default function SongEdit() {
           // make sure the chord name is formatted well
           chordText = getChordSymbol(chordText);
 
-          const chordPro = content;
+          // const chordPro = content;
 
           if (mode === "CHORD_PRO") {
             // enclose the chord in brackets
@@ -289,11 +289,13 @@ export default function SongEdit() {
       }
     } else {
       try {
+        if (!user) throw new Error("User object is undefined!");
+
         const newSong = await addNewSong(
           {
-            uid: user?.uid!,
-            email: user?.email!,
-            displayName: user?.displayName!,
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
           },
           {
             id: artistDb.id,

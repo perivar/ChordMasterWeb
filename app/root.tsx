@@ -24,7 +24,7 @@ import { Toaster } from "./components/ui/toaster";
 import {
   AppProvider,
   loadStateFromLocalStorage,
-  setState,
+  setStateReducer,
   useAppContext,
 } from "./context/AppContext";
 import { UserProvider, useUser } from "./context/UserContext";
@@ -204,7 +204,7 @@ export default function App() {
 
       if (persistedState) {
         // If a persisted state exists, update the app's state
-        dispatch(setState(persistedState));
+        dispatch(setStateReducer(persistedState));
       } else {
         // If no persisted state, load the necessary data
         loadData();

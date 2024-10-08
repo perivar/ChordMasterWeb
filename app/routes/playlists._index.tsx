@@ -186,7 +186,7 @@ export default function PlaylistsView() {
         },
       },
     ];
-  }, [confirm, deletePlaylist, dispatch, navigate]);
+  }, []);
 
   const table = useReactTable({
     data: playlists,

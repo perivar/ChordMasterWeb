@@ -8,9 +8,9 @@ import {
   useAppContext,
 } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
+import { translatedLanguages } from "~/i18n/i18n";
 import { type loader as parentLoader } from "~/root";
 import { exportFile } from "~/utils/exportFile";
-import { importFile } from "~/utils/importFile";
 import pad from "~/utils/pad";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "remix-themes";
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Slider } from "~/components/ui/slider";
+import { useToast } from "~/components/ui/use-toast";
 import FileUploadDialog from "~/components/FileUploadDialog";
 import ListItem, { ListItemOption } from "~/components/ListItem";
 import { ModeToggle } from "~/components/ModeToggle";
@@ -45,6 +46,7 @@ export default function SettingsView() {
   const { user } = useUser();
 
   const [theme, _setTheme] = useTheme();
+  const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -103,18 +105,18 @@ export default function SettingsView() {
     setIsLoading(false);
   };
 
-  const handleImport = async () => {
-    if (isLoading) return;
+  const handleImport = async (textContent: string) => {
     setIsLoading(true);
     try {
-      const { success, fileContent } = await importFile();
+      const bundle = await decodeJsonBundle(textContent);
 
-      if (success) {
-        const bundle = await decodeJsonBundle(fileContent);
+      await importBundle(bundle);
 
-        await importBundle(bundle);
-        // Alert.alert(t("info"), t("songs_imported_successfully"));
-      }
+      toast({
+        title: t("info"),
+        description: t("songs_imported_successfully"),
+        duration: 4000,
+      });
     } catch (err) {
       console.warn(err);
     }
@@ -169,7 +171,8 @@ export default function SettingsView() {
           dialogDescription={t("upload_restore_json_file")}
           openButtonLabel={t("upload_restore")}
           closeButtonLabel={t("cancel")}
-          handleFileContent={val => console.log(val)}
+          handleFileContent={handleImport}
+          accept=".json"
         />
       </ListItem>
 
@@ -179,7 +182,9 @@ export default function SettingsView() {
 
       <ListItem
         title={t("language")}
-        subtitle={locale === "en" ? "English" : "Norwegian"}>
+        subtitle={
+          translatedLanguages.find(lang => lang.code === locale)?.label
+        }>
         <fetcher.Form
           method="post"
           action="/action/set-locale"
@@ -187,12 +192,15 @@ export default function SettingsView() {
           <Select onValueChange={handleLocaleChange} value={locale}>
             <SelectTrigger className="w-fit">
               <SelectValue>
-                {locale === "en" ? "English" : "Norwegian"}
+                {translatedLanguages.find(lang => lang.code === locale)?.label}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="no">Norwegian</SelectItem>
-              <SelectItem value="en">English</SelectItem>
+              {translatedLanguages.map(lang => (
+                <SelectItem key={`lang-option-${lang.code}`} value={lang.code}>
+                  {lang.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </fetcher.Form>

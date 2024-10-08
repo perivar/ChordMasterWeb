@@ -10,12 +10,13 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 
-interface JsonUploadDialogProps {
+interface UploadDialogProps {
   dialogTitle: string;
   dialogDescription: string;
   openButtonLabel: string;
   closeButtonLabel: string;
-  handleFileContent: (parsedJson: string) => void; // Method to handle the parsed JSON
+  handleFileContent: (textContent: string) => void; // Method to handle the text content
+  accept?: string | undefined;
 }
 
 export default function FileUploadDialog({
@@ -24,7 +25,8 @@ export default function FileUploadDialog({
   openButtonLabel,
   closeButtonLabel,
   handleFileContent,
-}: JsonUploadDialogProps) {
+  accept,
+}: UploadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,14 +41,13 @@ export default function FileUploadDialog({
 
     reader.onload = e => {
       try {
-        const content = e.target?.result as string;
-        const parsedJson = JSON.parse(content); // Parse JSON
-        handleFileContent(parsedJson); // Call the method with parsed JSON
+        const textContent = e.target?.result as string;
+        handleFileContent(textContent); // Call the method with the text content
         setError(""); // Clear any previous errors
         setIsOpen(false);
       } catch (err) {
-        console.error("Failed to parse JSON:", err);
-        setError("Invalid JSON file. Please upload a valid file.");
+        console.error("Failed reading file:", err);
+        setError("Failed uploading file. Please upload a valid file.");
       }
     };
 
@@ -73,7 +74,7 @@ export default function FileUploadDialog({
           {/* File input */}
           <input
             type="file"
-            accept=".json"
+            accept={accept}
             onChange={handleFileUpload}
             className="mt-4"
           />

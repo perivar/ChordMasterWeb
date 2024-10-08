@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { useAutoCloseToast } from "~/hooks/useAutoCloseToast";
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import useSongs from "~/hooks/useSongs";
 import useUserAppConfig from "~/hooks/useUserAppConfig";
@@ -40,6 +39,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
+import { useToast } from "~/components/ui/use-toast";
 import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
@@ -83,7 +83,7 @@ export default function SongView() {
 
   const { dispatch } = useAppContext();
 
-  const { autoCloseToast } = useAutoCloseToast();
+  const { toast } = useToast();
 
   const { setSongPreferences } = useFirestore();
 
@@ -99,8 +99,8 @@ export default function SongView() {
 
   const [content, setContent] = useState<string>("");
   const [transpose, setTranspose] = useState<number>(0);
-  const [showAutoScrollSlider, setShowAutoScrollSlider] = useState(false);
-  const [scrollSpeed, setScrollSpeed] = useState<number>(0);
+  // const [showAutoScrollSlider, setShowAutoScrollSlider] = useState(false);
+  const [scrollSpeed, _setScrollSpeed] = useState<number>(0);
   const [selectedChord, setSelectedChord] = useState<Chord | null>(null);
   const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
   const [showPiano, setShowPiano] = useState(true);
@@ -149,12 +149,13 @@ export default function SongView() {
     if (foundChord) {
       setSelectedChord(foundChord);
     } else {
-      autoCloseToast({
-        autoCloseDelay: 2000,
-        variant: "destructive",
+      toast({
         title: "Error",
         description: `${chordString} is not a valid chord`,
+        duration: 2000,
+        variant: "destructive",
       });
+
       setSelectedChord(null);
     }
   };

@@ -186,7 +186,7 @@ const SongTransformer: FunctionComponent<Props> = props => {
     }
   } catch (e) {
     if (e instanceof Error) {
-      console.log(e.message);
+      console.warn(e.message);
       return showErrorMessage("Parser", e);
     } else {
       throw e;
@@ -201,7 +201,7 @@ const SongTransformer: FunctionComponent<Props> = props => {
     }
   } catch (e) {
     if (e instanceof Error) {
-      console.log(e.message);
+      console.warn(e.message);
       return showErrorMessage("Transpose", e);
     } else {
       throw e;
@@ -212,7 +212,7 @@ const SongTransformer: FunctionComponent<Props> = props => {
     allChords = getChords(transposedSong);
   } catch (e) {
     if (e instanceof Error) {
-      console.log(e.message);
+      console.warn(e.message);
       return showErrorMessage("getChords", e);
     } else {
       throw e;
@@ -224,7 +224,7 @@ const SongTransformer: FunctionComponent<Props> = props => {
     formattedSong = transposedSong;
   } catch (e) {
     if (e instanceof Error) {
-      console.log(e.message);
+      console.warn(e.message);
       return showErrorMessage("Formatter", e);
     } else {
       throw e;

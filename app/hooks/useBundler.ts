@@ -142,8 +142,9 @@ const useBundler = (): UseBundlerHookResult => {
       });
     }
 
-    if (db.songs.length == 0 && db.playlists.length == 0)
+    if (db.songs.length == 0 && db.playlists.length == 0) {
       throw new Error("There is nothing to backup");
+    }
 
     return db;
   };
@@ -191,7 +192,7 @@ const useBundler = (): UseBundlerHookResult => {
           await dispatch(addOrUpdateSongReducer(updatedSong));
         } else {
           console.log(
-            `Importing > Song backup ${
+            `Importing > Song backup for "${bundleSong.title}" ${
               bundleSong.updatedAt
             } is equal/older than the db ${songDb.updatedAt}. Skipping...`
           );
@@ -250,7 +251,12 @@ const useBundler = (): UseBundlerHookResult => {
         bundlePlaylist.songs.forEach(async bundleSong => {
           const songDb = allSongs.find(s => s.id === bundleSong.id);
           if (songDb == null) {
-            throw new Error("Playlist song not found");
+            // instead of throwing an error, continue to next song
+            console.log(
+              `Importing > Playlist ${playlistDb.id} specfies a song that no longer exist ${bundleSong.id}`
+            );
+
+            return;
           }
 
           // see if the playlist already has the song added

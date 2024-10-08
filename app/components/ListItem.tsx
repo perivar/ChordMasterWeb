@@ -46,13 +46,15 @@ function ListItem<T>({
   return (
     <div
       className={cn(
-        "p-4 border-b border-gray-200 hover:bg-gray-100 transition-colors",
+        "p-4 border-b border-secondary-foreground transition-colors hover:bg-primary-foreground",
         className
       )}>
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">{title}</h3>
-          {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-sm text-secondary-foreground">{subtitle}</p>
+          )}
         </div>
         {children}
 

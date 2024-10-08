@@ -79,7 +79,7 @@ export const isSessionValid = async (request: Request) => {
       return { success: false, err };
     }
   } catch (error) {
-    console.log(error);
+    console.warn(error);
     return { success: false, error };
   }
 };
@@ -132,7 +132,7 @@ export const sessionLogin = async (
         return setCookieAndRedirect(request, sessionCookie, redirectTo);
       },
       error => {
-        console.log(error);
+        console.warn(error);
 
         return {
           error: `sessionLogin error!: ${error.message}`,
@@ -164,7 +164,7 @@ export const sessionLogout = async (request: Request) => {
       });
     })
     .catch(error => {
-      console.log(error);
+      console.warn(error);
 
       // Session cookie is unavailable or invalid. Force user to login.
       return { error: error?.message };

@@ -22,7 +22,7 @@ export async function readDataFile(dataFilePath: string) {
     return data;
   } catch (e) {
     if (e instanceof Error) {
-      console.log(e.message);
+      console.warn(e.message);
       return { error: e.message };
     } else {
       throw e;

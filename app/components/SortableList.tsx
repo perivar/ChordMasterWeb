@@ -36,7 +36,7 @@ export default function SortableList<T extends ListItem>({
 
   useEffect(() => {
     onFilterChange(itemFilter);
-  }, [itemFilter, onFilterChange]);
+  }, [itemFilter]);
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     const filterQuery = e.target.value;

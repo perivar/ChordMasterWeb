@@ -8,22 +8,13 @@ import React, {
 import { createSlice, PayloadAction, UnknownAction } from "@reduxjs/toolkit";
 import { APP_DEFAULTS, USER_APP_DEFAULTS } from "~/constants/defaults";
 import {
-  addArtistToArray,
-  addOrUpdateArtistInArray,
-  addOrUpdateArtistsInArray,
-  addOrUpdatePlaylistInArray,
-  addOrUpdatePlaylistsInArray,
-  addOrUpdateSongInArray,
-  addOrUpdateSongsInArray,
-  addPlaylistToArray,
-  addSongToArray,
-  deleteArtistFromArray,
-  deletePlaylistFromArray,
-  deleteSongFromArray,
-  editArtistInArray,
-  editPlaylistInArray,
-  editSongInArray,
+  addItemToArray,
+  addOrUpdateItemInArray,
+  addOrUpdateItemsInArray,
+  deleteItemFromArray,
+  editItemInArray,
 } from "~/utils/arrayUtilities";
+import { convertTimestampsInArray } from "~/utils/convertTimestamp";
 import { getCache, setCache } from "~/utils/localStorageUtils";
 
 import {
@@ -86,17 +77,25 @@ export const saveStateToLocalStorage = (state: State, user?: IAuthUser) => {
 export const loadStateFromLocalStorage = (
   user?: IAuthUser
 ): State | undefined => {
-  try {
-    if (user) {
-      const userKey = user?.uid;
-      const localStorageKey = `${LOCAL_STORAGE_KEY}_${userKey}`;
+  if (!user) return undefined;
 
-      // getCache return null if non exist or expired
-      return getCache(localStorageKey) ?? undefined;
-    }
-    return undefined;
+  const localStorageKey = `${LOCAL_STORAGE_KEY}_${user.uid}`;
+
+  try {
+    // getCache returns null if non-existent or expired
+    const persistedState = getCache(localStorageKey);
+
+    if (!persistedState) return undefined;
+
+    // The Firestore Timestamp objects may lose their prototype methods when they are serialized or deserialized.
+    return {
+      ...persistedState,
+      songs: convertTimestampsInArray(persistedState.songs),
+      artists: convertTimestampsInArray(persistedState.artists),
+      playlists: convertTimestampsInArray(persistedState.playlists),
+    };
   } catch (error) {
-    console.error("Could not load state", error);
+    console.error(`Could not load state for user ${user.uid}:`, error);
     return undefined;
   }
 };
@@ -107,72 +106,66 @@ const appSlice = createSlice({
   initialState,
   reducers: {
     // Song Reducers
-    setSongs(state, action: PayloadAction<ISong[]>) {
+    setSongsReducer(state, action: PayloadAction<ISong[]>) {
       state.songs = action.payload;
     },
-    addOrUpdateSongs(state, action: PayloadAction<ISong[]>) {
-      state.songs = addOrUpdateSongsInArray(state.songs, action.payload);
+    addOrUpdateSongsReducer(state, action: PayloadAction<ISong[]>) {
+      state.songs = addOrUpdateItemsInArray(state.songs, action.payload);
     },
     addSongReducer(state, action: PayloadAction<ISong>) {
-      state.songs = addSongToArray(state.songs, action.payload);
+      state.songs = addItemToArray(state.songs, action.payload);
     },
     addOrUpdateSongReducer(state, action: PayloadAction<ISong>) {
-      state.songs = addOrUpdateSongInArray(state.songs, action.payload);
+      state.songs = addOrUpdateItemInArray(state.songs, action.payload);
     },
     editSongReducer(state, action: PayloadAction<ISong>) {
-      state.songs = editSongInArray(state.songs, action.payload);
+      state.songs = editItemInArray(state.songs, action.payload);
     },
     deleteSongReducer(state, action: PayloadAction<string>) {
-      state.songs = deleteSongFromArray(state.songs, action.payload);
+      state.songs = deleteItemFromArray(state.songs, action.payload);
     },
 
     // Artist Reducers
-    setArtists(state, action: PayloadAction<IArtist[]>) {
+    setArtistsReducer(state, action: PayloadAction<IArtist[]>) {
       state.artists = action.payload;
     },
-    addOrUpdateArtists(state, action: PayloadAction<IArtist[]>) {
-      state.artists = addOrUpdateArtistsInArray(state.artists, action.payload);
+    addOrUpdateArtistsReducer(state, action: PayloadAction<IArtist[]>) {
+      state.artists = addOrUpdateItemsInArray(state.artists, action.payload);
     },
     addArtistReducer(state, action: PayloadAction<IArtist>) {
-      state.artists = addArtistToArray(state.artists, action.payload);
+      state.artists = addItemToArray(state.artists, action.payload);
     },
     addOrUpdateArtistReducer(state, action: PayloadAction<IArtist>) {
-      state.artists = addOrUpdateArtistInArray(state.artists, action.payload);
+      state.artists = addOrUpdateItemInArray(state.artists, action.payload);
     },
     editArtistReducer(state, action: PayloadAction<IArtist>) {
-      state.artists = editArtistInArray(state.artists, action.payload);
+      state.artists = editItemInArray(state.artists, action.payload);
     },
     deleteArtistReducer(state, action: PayloadAction<string>) {
-      state.artists = deleteArtistFromArray(state.artists, action.payload);
+      state.artists = deleteItemFromArray(state.artists, action.payload);
     },
 
     // Playlist Reducers
-    setPlaylists(state, action: PayloadAction<IPlaylist[]>) {
+    setPlaylistsReducer(state, action: PayloadAction<IPlaylist[]>) {
       state.playlists = action.payload;
     },
-    addOrUpdatePlaylists(state, action: PayloadAction<IPlaylist[]>) {
-      state.playlists = addOrUpdatePlaylistsInArray(
+    addOrUpdatePlaylistsReducer(state, action: PayloadAction<IPlaylist[]>) {
+      state.playlists = addOrUpdateItemsInArray(
         state.playlists,
         action.payload
       );
     },
     addPlaylistReducer(state, action: PayloadAction<IPlaylist>) {
-      state.playlists = addPlaylistToArray(state.playlists, action.payload);
+      state.playlists = addItemToArray(state.playlists, action.payload);
     },
     addOrUpdatePlaylistReducer(state, action: PayloadAction<IPlaylist>) {
-      state.playlists = addOrUpdatePlaylistInArray(
-        state.playlists,
-        action.payload
-      );
+      state.playlists = addOrUpdateItemInArray(state.playlists, action.payload);
     },
     editPlaylistReducer(state, action: PayloadAction<IPlaylist>) {
-      state.playlists = editPlaylistInArray(state.playlists, action.payload);
+      state.playlists = editItemInArray(state.playlists, action.payload);
     },
     deletePlaylistReducer(state, action: PayloadAction<string>) {
-      state.playlists = deletePlaylistFromArray(
-        state.playlists,
-        action.payload
-      );
+      state.playlists = deleteItemFromArray(state.playlists, action.payload);
     },
 
     // Confiig Reducers
@@ -200,15 +193,15 @@ const appSlice = createSlice({
     },
 
     // Reset State Reducer
-    resetState: () => initialState,
+    resetStateReducer: () => initialState,
 
     // Reducer to set the entire persisted state
-    setState(_state, action: PayloadAction<State>) {
+    setStateReducer(_state, action: PayloadAction<State>) {
       return action.payload; // Replace current state with new state
     },
 
     // Reducer to merge state
-    mergeState(state, action: PayloadAction<State>) {
+    mergeStateReducer(state, action: PayloadAction<State>) {
       return { ...state, ...action.payload }; // Merge persisted state with current state
     },
   },
@@ -216,22 +209,22 @@ const appSlice = createSlice({
 
 // Export actions for use in components
 export const {
-  setSongs,
-  addOrUpdateSongs,
+  setSongsReducer,
+  addOrUpdateSongsReducer,
   addSongReducer,
   editSongReducer,
   deleteSongReducer,
   addOrUpdateSongReducer,
 
-  setArtists,
-  addOrUpdateArtists,
+  setArtistsReducer,
+  addOrUpdateArtistsReducer,
   addArtistReducer,
   editArtistReducer,
   deleteArtistReducer,
   addOrUpdateArtistReducer,
 
-  setPlaylists,
-  addOrUpdatePlaylists,
+  setPlaylistsReducer,
+  addOrUpdatePlaylistsReducer,
   addPlaylistReducer,
   editPlaylistReducer,
   deletePlaylistReducer,
@@ -244,9 +237,9 @@ export const {
   updateUserAppConfigReducer,
 
   // reset
-  resetState,
-  setState,
-  mergeState,
+  resetStateReducer,
+  setStateReducer,
+  mergeStateReducer,
 } = appSlice.actions;
 
 const AppContext = createContext<

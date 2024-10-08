@@ -151,7 +151,7 @@ export default function SortableSongList({ allItems }: ListProps) {
         },
       },
     ];
-  }, [confirm, navigate]);
+  }, []);
 
   const table = useReactTable({
     data: songs,

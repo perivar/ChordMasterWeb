@@ -1,18 +1,14 @@
 import { useState } from "react";
 import {
-  setArtists,
-  setPlaylists,
-  setSongs,
+  setArtistsReducer,
+  setPlaylistsReducer,
+  setSongsReducer,
   updateAppConfigReducer,
   updateUserAppConfigReducer,
   useAppContext,
 } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
-import {
-  addOrUpdateArtistInArray,
-  addOrUpdatePlaylistInArray,
-  addOrUpdateSongInArray,
-} from "~/utils/arrayUtilities";
+import { addOrUpdateItemInArray } from "~/utils/arrayUtilities";
 
 import useFirestore from "./useFirestore";
 import useIsMounted from "./useIsMounted";
@@ -82,7 +78,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
 
     const a = await getAllArtists();
     if (isMounted()) {
-      dispatch(setArtists(a));
+      dispatch(setArtistsReducer(a));
     }
 
     setIsLoading(false);
@@ -113,10 +109,10 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
           x.title.localeCompare(y.title)
         );
 
-        dispatch(setSongs(sortedSongs));
+        dispatch(setSongsReducer(sortedSongs));
 
         // also set artist from the loaded song
-        dispatch(setArtists(artists));
+        dispatch(setArtistsReducer(artists));
       }
     }
     setIsLoading(false);
@@ -132,7 +128,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
           x.name.localeCompare(y.name)
         );
 
-        dispatch(setPlaylists(sortedPlaylists));
+        dispatch(setPlaylistsReducer(sortedPlaylists));
       }
     }
     setIsLoading(false);
@@ -143,16 +139,16 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     const song = await getSongById(songId);
 
     // Update the song array
-    const updatedSongs = addOrUpdateSongInArray(state.songs, song);
+    const updatedSongs = addOrUpdateItemInArray(state.songs, song);
 
     // Dispatch setSongs action to update the entire song array
-    dispatch(setSongs(updatedSongs));
+    dispatch(setSongsReducer(updatedSongs));
 
     // Update the artist array
-    const updatedArtists = addOrUpdateArtistInArray(state.artists, song.artist);
+    const updatedArtists = addOrUpdateItemInArray(state.artists, song.artist);
 
     // Dispatch setArtists action to update the entire artist array
-    dispatch(setArtists(updatedArtists));
+    dispatch(setArtistsReducer(updatedArtists));
     setIsLoading(false);
   };
 
@@ -161,13 +157,10 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
     const playlist = await getPlaylistById(playlistId);
 
     // Update the playlist array
-    const updatedPlaylists = addOrUpdatePlaylistInArray(
-      state.playlists,
-      playlist
-    );
+    const updatedPlaylists = addOrUpdateItemInArray(state.playlists, playlist);
 
     // Dispatch setPlaylists action to update the entire playlists array
-    dispatch(setPlaylists(updatedPlaylists));
+    dispatch(setPlaylistsReducer(updatedPlaylists));
 
     setIsLoading(false);
   };
@@ -185,7 +178,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
       const updatedPlaylists = state.playlists.map(p =>
         p.id === playlistId ? { ...p, songIds: [...p.songIds, songId] } : p
       );
-      dispatch(setPlaylists(updatedPlaylists));
+      dispatch(setPlaylistsReducer(updatedPlaylists));
     }
   };
 
@@ -198,7 +191,7 @@ const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
           ? { ...p, songIds: p.songIds.filter(id => id !== songId) }
           : p
       );
-      dispatch(setPlaylists(updatedPlaylists));
+      dispatch(setPlaylistsReducer(updatedPlaylists));
     }
   };
 

@@ -51,8 +51,7 @@ export default function PlaylistView() {
 
   const { editPlaylist } = useFirestore();
 
-  const { hasPlaylistContainsSong, playlistRemoveSong, loadPlaylistData } =
-    useFirestoreMethods();
+  const { hasPlaylistContainsSong, playlistRemoveSong } = useFirestoreMethods();
 
   const onUpdatePlaylistSongOrder = async (songsOrdered: ISong[]) => {
     if (playlist) {

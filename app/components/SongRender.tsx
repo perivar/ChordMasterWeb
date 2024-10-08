@@ -66,7 +66,7 @@ const SongRender = (props: Props) => {
     return literal;
   };
 
-  const getTabStringArray = (song: Song, startAtIndex: number) => {
+  const getTabStringArray = (startAtIndex: number) => {
     const tabArray: string[] = [];
     let line = song.lines[startAtIndex];
     do {
@@ -152,7 +152,7 @@ const SongRender = (props: Props) => {
         waitEndOfTabs = true; // Set the flag to true to wait for the end of the tab
 
         // Get the tab string array and transpose if necessary
-        const tabStringArray = getTabStringArray(song, lineIndex);
+        const tabStringArray = getTabStringArray(lineIndex);
         const transposedArray = transposeArray(tabStringArray);
 
         // Render the tab block

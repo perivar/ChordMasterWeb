@@ -1,8 +1,8 @@
 import { FunctionComponent, useState } from "react";
 import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { setPlaylists, useAppContext } from "~/context/AppContext";
+import { setPlaylistsReducer, useAppContext } from "~/context/AppContext";
 import { useUser } from "~/context/UserContext";
-import { addPlaylistToArray } from "~/utils/arrayUtilities";
+import { addItemToArray } from "~/utils/arrayUtilities";
 import { PlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -67,10 +67,10 @@ const SelectPlaylist: FunctionComponent<Props> = ({
       );
 
       // Update the playlist array
-      const updatedPlaylists = addPlaylistToArray(state.playlists, newPlaylist);
+      const updatedPlaylists = addItemToArray(state.playlists, newPlaylist);
 
       // Dispatch setPlaylists action to update the entire playlists array
-      dispatch(setPlaylists(updatedPlaylists));
+      dispatch(setPlaylistsReducer(updatedPlaylists));
     }
   };
 
