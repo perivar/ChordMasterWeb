@@ -2,7 +2,7 @@
 
 import type { MetaFunction } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
-import { PlusIcon } from "lucide-react";
+import { EarthIcon, PlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import useSongs from "~/hooks/useSongs";
@@ -18,7 +18,11 @@ export default function SongsView() {
   const songs = useSongs();
   const navigate = useNavigate();
 
-  const addNewSong = () => {
+  const handleAddNewSongUsingUrl = () => {
+    return navigate(`/songs/addurl`);
+  };
+
+  const handleAddNewSong = () => {
     return navigate(`/songs/new/edit`);
   };
 
@@ -28,7 +32,13 @@ export default function SongsView() {
         <div className="flex-1"></div>
         <div className="flex-1 text-center text-xl">{t("songs")}</div>
         <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
-          <Button size="sm" onClick={addNewSong}>
+          <Button size="sm" onClick={handleAddNewSongUsingUrl}>
+            <EarthIcon className="size-4 " />
+            <span className="ml-2 hidden sm:block">
+              {t("add_song_using_url")}
+            </span>
+          </Button>
+          <Button size="sm" onClick={handleAddNewSong}>
             <PlusIcon className="size-4 " />
             <span className="ml-2 hidden sm:block">{t("add_song")}</span>
           </Button>
