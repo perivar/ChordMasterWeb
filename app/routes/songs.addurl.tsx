@@ -8,6 +8,7 @@ import {
   MetaFunction,
   useLoaderData,
   useNavigate,
+  useNavigation,
   useSubmit,
 } from "@remix-run/react";
 import {
@@ -43,6 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   try {
+    // see https://www.jacobparis.com/content/use-effect-fetching
     const { artist, songName, chordPro, source } = await fetchSongData(url);
 
     return json({
@@ -65,10 +67,14 @@ export default function AddSongUsingUrl() {
   const { dispatch } = useAppContext();
   const { user } = useUser();
   const navigate = useNavigate();
+  const { state } = useNavigation();
+
+  // show loading when loader is running
+  // https://github.com/remix-run/react-router/discussions/8914
+  const isLoading = state === "loading";
 
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const { addNewSong, getArtistsByName, addNewArtist } = useFirestore();
@@ -204,9 +210,7 @@ export default function AddSongUsingUrl() {
       {/* Display loader data or errors */}
       {error && <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>}
       {message && (
-        <p className="mt-4 text-center text-gray-700">
-          <pre>{message}</pre>
-        </p>
+        <p className="mt-4 text-center font-mono text-gray-700">{message}</p>
       )}
     </div>
   );

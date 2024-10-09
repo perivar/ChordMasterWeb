@@ -103,7 +103,13 @@ export default function SettingsView() {
       const year = today.getFullYear();
       const filename = `backup-${year}_${month}_${day}`;
 
-      await exportFile("cache", "ChordMaster", filename, ".txt", bundleString);
+      await exportFile("cache", "ChordMaster", filename, ".json", bundleString);
+
+      toast({
+        title: t("info"),
+        description: t("songs_exported_successfully"),
+        duration: 4000,
+      });
     } catch (err) {
       console.warn(err);
     }

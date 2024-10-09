@@ -135,5 +135,6 @@
   "upload_restore": "Last opp og gjenopprett",
   "upload_restore_json_file": "Last opp en JSON-fil for å gjenopprette data.",
   "theme_dark": "Mørk",
-  "theme_light": "Lys"
+  "theme_light": "Lys",
+  "songs_exported_successfully": "Sanger ble eksportert"
 }

@@ -135,5 +135,7 @@
   "upload_restore_json_file": "Upload a JSON file to restore data.",
   "cancel": "Cancel",
   "theme_dark": "Dark",
-  "theme_light": "Light"
+  "theme_light": "Light",
+  "songs_exported_successfully": "Songs exported succesfully",
+  "deleted_item_with_id": "Deleted item with id"
 }

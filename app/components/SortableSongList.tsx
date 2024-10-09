@@ -27,6 +27,7 @@ import {
 
 import { useConfirm } from "./layout/confirm-provider";
 import SortableList from "./SortableList";
+import { useToast } from "./ui/use-toast";
 
 interface ListProps {
   allItems: ISong[];
@@ -38,6 +39,7 @@ export default function SortableSongList({ allItems }: ListProps) {
   const [songs, setSongs] = useState<ISong[]>(allItems);
   const confirm = useConfirm();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { deleteSong } = useFirestore();
   const { dispatch } = useAppContext();
 
@@ -76,7 +78,16 @@ export default function SortableSongList({ allItems }: ListProps) {
         if (id) {
           await deleteSong(id);
           dispatch(deleteSongReducer(id));
-          console.log(`Deleted item with id: ${id}`);
+
+          toast({
+            title: t("info"),
+            description: `${t("deleted_item_with_id")}: ${id}`,
+            duration: 4000,
+          });
+
+          // reset query
+          setSongs(allItems);
+          return navigate(`/songs`);
         }
       } catch (_err) {
         // If the user cancels the confirmation, handle the rejection here

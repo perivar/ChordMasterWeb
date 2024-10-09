@@ -10,7 +10,7 @@ export async function exportFile(
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = "backup.json";
+  link.download = `${fileName}.${fileExtension}`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
