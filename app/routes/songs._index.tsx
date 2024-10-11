@@ -2,10 +2,10 @@
 
 import type { MetaFunction } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
+import { useAppContext } from "~/context/AppContext";
 import { EarthIcon, PlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import SortableSongList from "~/components/SortableSongList";
 
@@ -15,7 +15,10 @@ export const meta: MetaFunction = () => {
 
 export default function SongsView() {
   const { t } = useTranslation();
-  const songs = useSongs();
+
+  const { state } = useAppContext();
+  const songs = state.songs;
+
   const navigate = useNavigate();
 
   const handleAddNewSongUsingUrl = () => {

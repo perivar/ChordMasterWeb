@@ -7,7 +7,7 @@ import {
   updateUserAppConfigReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import { translatedLanguages } from "~/i18n/i18n";
 import { type loader as parentLoader } from "~/root";
 import { exportFile } from "~/utils/exportFile";
@@ -17,7 +17,6 @@ import { Theme, useTheme } from "remix-themes";
 
 import useBundler from "~/hooks/useBundler";
 import useFirestore from "~/hooks/useFirestore";
-import useUserAppConfig from "~/hooks/useUserAppConfig";
 import {
   Select,
   SelectContent,
@@ -47,15 +46,14 @@ export default function SettingsView() {
   const loaderData = useRouteLoaderData<typeof parentLoader>("root");
   const fetcher = useFetcher();
 
-  const { dispatch } = useAppContext();
-  const { user } = useUser();
+  const { state, dispatch } = useAppContext();
+  const { user } = useFirebase();
+  const userAppConfig = state.userAppConfig;
 
   const [theme, _setTheme] = useTheme();
   const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
-
-  const userAppConfig = useUserAppConfig();
 
   const [locale, setLocale] = useState(loaderData?.locale);
 
@@ -111,7 +109,7 @@ export default function SettingsView() {
         duration: 4000,
       });
     } catch (err) {
-      console.warn(err);
+      console.error(err);
     }
     setIsLoading(false);
   };
@@ -129,7 +127,7 @@ export default function SettingsView() {
         duration: 4000,
       });
     } catch (err) {
-      console.warn(err);
+      console.error(err);
     }
     setIsLoading(false);
   };

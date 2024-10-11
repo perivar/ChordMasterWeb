@@ -8,8 +8,6 @@ import { Edit2Icon, PlusIcon, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
-import usePlaylists from "~/hooks/usePlaylists";
-import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import { useConfirm } from "~/components/layout/confirm-provider";
 import SortableSongList from "~/components/SortableSongList";
@@ -21,17 +19,18 @@ export const meta: MetaFunction = () => [
 
 export default function PlaylistView() {
   const { t } = useTranslation();
-  const allSongs = useSongs();
   const params = useParams();
-  const navigate = useNavigate();
   const playlistIdParam = params?.id;
-  const allPlaylists = usePlaylists();
+
+  const navigate = useNavigate();
   const confirm = useConfirm();
-  const { dispatch } = useAppContext();
+
+  const { state, dispatch } = useAppContext();
+  const allSongs = state.songs;
+  const allPlaylists = state.playlists;
+  const playlist = allPlaylists.find(a => a.id === playlistIdParam);
 
   const { deletePlaylist } = useFirestore();
-
-  const playlist = allPlaylists.find(a => a.id === playlistIdParam);
 
   // Use type guard to filter out undefined values
   const notUndefined = (anyValue: ISong | undefined): anyValue is ISong =>

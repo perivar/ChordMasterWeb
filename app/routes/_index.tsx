@@ -1,9 +1,9 @@
 // app/routes/_index.tsx
 
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, Link, useRouteLoaderData } from "@remix-run/react";
+import { json, Link } from "@remix-run/react";
+import { useFirebase } from "~/context/FirebaseContext";
 import i18next from "~/i18n/i18n.server";
-import { type loader as parentLoader } from "~/root";
 import { useTranslation } from "react-i18next";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -19,18 +19,16 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function Index() {
-  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
   const { t } = useTranslation();
+  const { user } = useFirebase();
 
   return (
     <section className="flex min-h-screen w-full flex-col">
-      {loaderData?.decodedClaims?.email && (
+      {user?.email && (
         <div className="mt-5 flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <div className="grid grid-cols-2 gap-2">
             <div>{t("logged_in_as")}:</div>
-            <div className="text-blue-600">
-              {loaderData.decodedClaims?.email}
-            </div>
+            <div className="text-blue-600">{user?.email}</div>
           </div>
           <div className="text-center">
             <Link to="/logout" className="font-medium underline">

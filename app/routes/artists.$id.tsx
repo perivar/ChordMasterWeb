@@ -2,8 +2,8 @@
 
 import { MetaFunction } from "@remix-run/node";
 import { useParams } from "@remix-run/react";
+import { useAppContext } from "~/context/AppContext";
 
-import useSongs from "~/hooks/useSongs";
 import SortableSongList from "~/components/SortableSongList";
 
 export const meta: MetaFunction = () => [
@@ -12,9 +12,11 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function ArtistView() {
-  const songs = useSongs();
   const params = useParams();
   const artistIdParam = params?.id;
+
+  const { state } = useAppContext();
+  const songs = state.songs;
   const artistSongs = songs.filter(s => s.artist.id === artistIdParam);
 
   return (

@@ -1,14 +1,13 @@
 import { FunctionComponent, useState } from "react";
 import { Dialog, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { setPlaylistsReducer, useAppContext } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import { addItemToArray } from "~/utils/arrayUtilities";
 import { PlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import useFirestore from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
-import usePlaylists from "~/hooks/usePlaylists";
 
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
@@ -30,11 +29,12 @@ const SelectPlaylist: FunctionComponent<Props> = ({
   const { t } = useTranslation();
   const { hasPlaylistContainsSong, playlistRemoveSong, playlistAddSong } =
     useFirestoreMethods();
-  const allPlaylists = usePlaylists();
 
   const { addNewPlaylist } = useFirestore();
   const { state, dispatch } = useAppContext();
-  const { user } = useUser();
+  const { user } = useFirebase();
+
+  const allPlaylists = state.playlists;
 
   const [showInput, setShowInput] = useState(false);
   const [error, setError] = useState<string | null>(null);

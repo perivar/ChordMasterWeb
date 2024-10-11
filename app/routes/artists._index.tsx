@@ -11,10 +11,10 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { useAppContext } from "~/context/AppContext";
 import { MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useArtists from "~/hooks/useArtists";
 import { IArtist } from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import {
@@ -34,7 +34,9 @@ export const meta: MetaFunction = () => [
 export default function ArtistsView() {
   const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const allItems = useArtists();
+
+  const { state } = useAppContext();
+  const allItems = state.artists;
   const [artists, setArtists] = useState<IArtist[]>(allItems);
 
   const onFilterChange = useMemo(

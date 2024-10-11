@@ -14,8 +14,6 @@ import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
-import usePlaylists from "~/hooks/usePlaylists";
-import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -30,14 +28,15 @@ export const meta: MetaFunction = () => [
 
 export default function PlaylistView() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const allSongs = useSongs();
   const params = useParams();
   const playlistIdParam = params?.id;
-  const allPlaylists = usePlaylists();
-  const confirm = useConfirm();
-  const { dispatch } = useAppContext();
 
+  const navigate = useNavigate();
+  const confirm = useConfirm();
+
+  const { state, dispatch } = useAppContext();
+  const allSongs = state.songs;
+  const allPlaylists = state.playlists;
   const playlist = allPlaylists.find(a => a.id === playlistIdParam);
 
   // Use type guard to filter out undefined values

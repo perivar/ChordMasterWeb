@@ -16,12 +16,11 @@ import {
   deletePlaylistReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import { Edit, MoreHorizontal, PlusIcon, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import useFirestore, { IPlaylist } from "~/hooks/useFirestore";
-import usePlaylists from "~/hooks/usePlaylists";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -45,10 +44,10 @@ export default function PlaylistsView() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const navigate = useNavigate();
   const confirm = useConfirm();
-  const { dispatch } = useAppContext();
-  const { user } = useUser();
 
-  const allItems = usePlaylists();
+  const { state, dispatch } = useAppContext();
+  const { user } = useFirebase();
+  const allItems = state.playlists;
   const [playlists, setPlaylists] = useState<IPlaylist[]>(allItems);
 
   const [showAddPlaylistModal, setShowAddPlaylistModal] = useState(false);

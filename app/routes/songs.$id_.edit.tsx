@@ -8,7 +8,7 @@ import {
   addOrUpdateSongReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter";
 import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
 import { getChordAlternatives } from "~/utils/getChordAlternatives";
@@ -26,7 +26,6 @@ import { useTranslation } from "react-i18next";
 
 import useFirestore, { IArtist } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
-import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import {
   Collapsible,
@@ -50,16 +49,17 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function SongEdit() {
-  const navigate = useNavigate();
+  const { t } = useTranslation();
   const params = useParams();
   let songIdParam = params?.id;
 
-  const { t } = useTranslation();
+  const navigate = useNavigate();
   const confirm = useConfirm();
 
-  const { dispatch } = useAppContext();
-  const { user } = useUser();
-  const allSongs = useSongs();
+  const { user } = useFirebase();
+
+  const { state, dispatch } = useAppContext();
+  const allSongs = state.songs;
   const song = allSongs.find(s => s.id === songIdParam);
 
   const [title, setTitle] = useState("");

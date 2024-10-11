@@ -10,13 +10,12 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { useAppContext } from "~/context/AppContext";
 import { Check, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { ISong } from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
-import usePlaylists from "~/hooks/usePlaylists";
-import useSongs from "~/hooks/useSongs";
 import { Button } from "~/components/ui/button";
 import SortableList from "~/components/SortableList";
 
@@ -27,11 +26,12 @@ export const meta: MetaFunction = () => [
 
 export default function PlaylistAddSongs() {
   const { t } = useTranslation();
-  const allSongs = useSongs();
   const params = useParams();
   const playlistIdParam = params?.id;
-  const allPlaylists = usePlaylists();
 
+  const { state } = useAppContext();
+  const allSongs = state.songs;
+  const allPlaylists = state.playlists;
   const playlist = allPlaylists.find(a => a.id === playlistIdParam);
 
   const [error, setError] = useState<string | null>(null);

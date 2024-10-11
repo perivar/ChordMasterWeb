@@ -1,24 +1,11 @@
 // app/routes/login.tsx
 
 import { FormEvent, SVGProps, useState } from "react";
-import { ActionFunctionArgs, LinksFunction } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  useActionData,
-  useFetcher,
-  useRouteLoaderData,
-} from "@remix-run/react";
-import { sessionLogin } from "~/fb.sessions.server";
-import { auth } from "~/firebase-service";
-import { type loader as parentLoader } from "~/root";
-import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
+import { LinksFunction } from "@remix-run/node";
+import { Form, Link, useNavigate } from "@remix-run/react";
+import { useFirebase } from "~/context/FirebaseContext";
 
+import { useFirebaseAuth } from "~/hooks/useFirebaseAuth";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -36,29 +23,13 @@ export const links: LinksFunction = () => {
   return [];
 };
 
-// our action function will be launched when the submit button is clicked
-// this will sign in our firebase user and create our session and cookie using user.getIDToken()
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-
-  try {
-    const idToken = formData.get("idToken") as string;
-    return await sessionLogin(request, idToken, "/");
-  } catch (error) {
-    if (error instanceof Error) {
-      return { error: { message: error?.message } };
-    }
-  }
-}
-
 export default function Login() {
-  // to use our actionData error in our form, we need to pull in our action data
-  const actionData = useActionData<typeof action>();
-  const fetcher = useFetcher();
-  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
-
+  const navigate = useNavigate();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { loginWithEmailAndPassword, loginWithGoogle } = useFirebaseAuth();
+  const { user } = useFirebase();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); // this will prevent Remix from submitting the form
@@ -75,55 +46,41 @@ export default function Login() {
     const email = formElements.email.value;
     const password = formElements.password.value;
 
-    await signInWithEmail(email, password);
+    try {
+      await loginWithEmailAndPassword(email, password);
+      console.log("User logged in with email and password successfully!");
+    } catch (err) {
+      console.log("loginWithEmailAndPassword", error);
+      if (err instanceof Error) {
+        setError(err);
+      }
+    }
+
     setIsLoading(false);
+
+    return navigate(`/`);
   }
 
   const signInWithGoogle = async () => {
     setIsLoading(true);
 
-    await signOut(auth);
-    const provider = new GoogleAuthProvider();
-
-    signInWithPopup(auth, provider)
-      .then(async res => {
-        const idToken = await res.user.getIdToken();
-        setIsLoading(false);
-        fetcher.submit(
-          { idToken: idToken, "google-login": true },
-          { method: "post" }
-        );
-      })
-      .catch(err => {
-        console.log("signInWithGoogle", err);
-        setError(err);
-        setIsLoading(false);
-      });
-  };
-
-  const signInWithEmail = async (email: string, password: string) => {
     try {
-      await signOut(auth);
-      const authResp = await signInWithEmailAndPassword(auth, email, password);
-
-      // if signin was successful then we have a user
-      if (authResp.user) {
-        const idToken = (await auth.currentUser?.getIdToken()) ?? "";
-        fetcher.submit(
-          { idToken: idToken, "email-login": true },
-          { method: "post" }
-        );
-      }
+      await loginWithGoogle();
+      console.log("User logged in with google successfully!");
     } catch (err) {
-      console.log("signInWithEmail", error);
+      console.log("loginWithGoogle", error);
       if (err instanceof Error) {
         setError(err);
       }
     }
+
+    setIsLoading(false);
+
+    return navigate(`/`);
   };
 
   return (
-    <div className="mx-auto mt-8 max-w-[400px] ">
+    <div className="mx-auto mt-8 max-w-[400px]">
       <Form id="login-form" onSubmit={onSubmit}>
         <Card className="w-full max-w-md">
           <CardHeader className="flex items-center justify-between">
@@ -204,20 +161,17 @@ export default function Login() {
       </Form>
 
       <div className="mt-2 flex flex-col items-center gap-2 text-sm text-red-600">
-        {actionData?.error ? (actionData?.error as Error).message : null}
         {error ? error.message : null}
       </div>
 
-      {loaderData?.user?.email && (
+      {user?.email && (
         <div className="flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <div className="flex flex-row gap-2">
             <div>Logged in as:</div>
-            {loaderData.user?.displayName && (
-              <div className="text-blue-600">
-                {loaderData.user?.displayName}
-              </div>
+            {user?.displayName && (
+              <div className="text-blue-600">{user?.displayName}</div>
             )}
-            <div className="text-blue-600">{loaderData.user?.email ?? ""}</div>
+            <div className="text-blue-600">{user?.email ?? ""}</div>
           </div>
           <div className="text-center">
             Do you want to{" "}

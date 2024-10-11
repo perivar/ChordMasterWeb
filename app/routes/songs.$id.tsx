@@ -26,8 +26,6 @@ import {
 import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
-import useSongs from "~/hooks/useSongs";
-import useUserAppConfig from "~/hooks/useUserAppConfig";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {
@@ -82,16 +80,15 @@ export default function SongView() {
 
   const data = useLoaderData<typeof loader>();
 
-  const { dispatch } = useAppContext();
-
   const { toast } = useToast();
 
   const { setSongPreferences } = useFirestore();
 
-  const [song, setSong] = useState<ISong>();
-  const songs = useSongs();
-  const userAppConfig = useUserAppConfig();
+  const { state, dispatch } = useAppContext();
+  const songs = state.songs;
+  const userAppConfig = state.userAppConfig;
 
+  const [song, setSong] = useState<ISong>();
   const [fontSize, setFontSize] = useState<number>(userAppConfig.fontSize);
   const [showTabs, setShowTabs] = useState(userAppConfig.showTablature);
   const [showPageTurner, setShowPageTurner] = useState(

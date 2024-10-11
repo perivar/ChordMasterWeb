@@ -7,7 +7,7 @@ import {
   updateUserAppConfigReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import { addOrUpdateItemInArray } from "~/utils/arrayUtilities";
 
 import useFirestore from "./useFirestore";
@@ -29,7 +29,7 @@ export type UseFirestoreMethodsHookResult = {
 
 const useFirestoreMethods = (): UseFirestoreMethodsHookResult => {
   const isMounted = useIsMounted();
-  const { user } = useUser();
+  const { user } = useFirebase();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {

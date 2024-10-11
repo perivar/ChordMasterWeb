@@ -26,7 +26,7 @@ import {
   IUserAppConfig,
 } from "~/hooks/useFirestore";
 
-import { useUser } from "./UserContext";
+import { useFirebase } from "./FirebaseContext";
 
 type State = {
   songs: ISong[];
@@ -246,8 +246,8 @@ const AppContext = createContext<
   { state: State; dispatch: React.Dispatch<UnknownAction> } | undefined
 >(undefined);
 
-export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useUser();
+export const AppContextProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useFirebase();
 
   // Initial state using just initialState
   const [state, dispatch] = useReducer(appSlice.reducer, initialState);

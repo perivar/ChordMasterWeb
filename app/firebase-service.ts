@@ -1,18 +1,21 @@
-// https://github.com/aaronksaunders/remix-firebase-sample-app/tree/main
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore/lite";
 
-// read firebase config from app config
+// Read firebase config from your environment or a JSON config file
 import firebaseConfig from "../firebase-config.json";
 
-// Initialize Firebase
-console.log("initializing firebase app: " + JSON.stringify(firebaseConfig));
-// console.log('Initializing firebase app');
+// Function to initialize Firebase
+export const initializeFirebaseApp = () => {
+  // console.log(
+  //   "Initializing firebase service: " + JSON.stringify(firebaseConfig)
+  // );
+  console.log("Initializing firebase service for " + firebaseConfig.projectId);
 
-// Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
+  return getApps().length ? getApp() : initializeApp(firebaseConfig);
+};
 
-export { auth, db };
+// Initialize Firebase app and services
+export const app = initializeFirebaseApp();
+export const auth = getAuth(app);
+export const db = getFirestore(app);

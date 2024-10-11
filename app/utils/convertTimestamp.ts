@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore/lite";
 
 // When you retrieve a Firestore document that contains Timestamp fields (createdAt and updatedAt),
 // and you store this data in a state or local storage, the Firestore Timestamp objects may lose

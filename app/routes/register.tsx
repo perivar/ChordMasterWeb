@@ -1,11 +1,10 @@
 // app/routes/register.tsx
 
-import { ActionFunctionArgs, LinksFunction } from "@remix-run/node";
-import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
-import { sessionLogin } from "~/fb.sessions.server";
-import { auth } from "~/firebase-service";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { FormEvent, useState } from "react";
+import { LinksFunction } from "@remix-run/node";
+import { Form, Link, useNavigate } from "@remix-run/react";
 
+import { useFirebaseAuth } from "~/hooks/useFirebaseAuth";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -23,39 +22,46 @@ export const links: LinksFunction = () => {
   return [];
 };
 
-// This will be the same as our Sign In but it will say Register and use createUser instead of signIn
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-
-  // const data = Object.fromEntries(formData);
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  // perform a signout to clear any active sessions
-  await auth.signOut();
-
-  try {
-    // setup user data
-    await createUserWithEmailAndPassword(auth, email, password);
-
-    const idToken = (await auth.currentUser?.getIdToken()) ?? "";
-
-    return await sessionLogin(request, idToken, "/");
-  } catch (error) {
-    if (error instanceof Error) {
-      return { error: { message: error?.message } };
-    }
-  }
-}
-
 export default function Register() {
-  const actionData = useActionData<typeof action>();
-  const { state } = useNavigation();
-  const isLoading = state === "loading";
+  const navigate = useNavigate();
+  const [error, setError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { createUser } = useFirebaseAuth();
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); // this will prevent Remix from submitting the form
+
+    setIsLoading(true);
+
+    // read form elements
+    const form = event.currentTarget;
+    const formElements = form.elements as typeof form.elements & {
+      email: HTMLInputElement;
+      password: HTMLInputElement;
+    };
+
+    const email = formElements.email.value;
+    const password = formElements.password.value;
+
+    try {
+      await createUser(email, password);
+      console.log("User registered successfully!");
+    } catch (err) {
+      console.log("createUser", error);
+      if (err instanceof Error) {
+        setError(err);
+      }
+    }
+
+    setIsLoading(false);
+
+    return navigate(`/`);
+  }
 
   return (
     <div className="mx-auto mt-8 max-w-[400px] ">
-      <Form id="register-form" method="post">
+      <Form id="register-form" method="post" onSubmit={onSubmit}>
         <Card className="w-full max-w-md">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="text-3xl font-bold">Sign Up</CardTitle>
@@ -104,9 +110,10 @@ export default function Register() {
         </Card>
       </Form>
 
-      <div className="mt-2 flex flex-col items-center gap-2 text-sm text-red-600">
-        {actionData?.error ? (actionData?.error as Error).message : null}
-      </div>
+      {/* Display error if exists */}
+      {error && (
+        <p className="mt-1 text-red-600 dark:text-red-400">{error.message}</p>
+      )}
     </div>
   );
 }

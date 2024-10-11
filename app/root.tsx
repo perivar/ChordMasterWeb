@@ -22,15 +22,11 @@ import LoadingIndicator from "./components/LoadingIndicator";
 import ResponsiveNavBar from "./components/ResponsiveNavBar";
 import { Toaster } from "./components/ui/toaster";
 import {
-  AppProvider,
+  AppContextProvider,
   loadStateFromLocalStorage,
   setStateReducer,
   useAppContext,
 } from "./context/AppContext";
-import { UserProvider, useUser } from "./context/UserContext";
-import { isSessionValid } from "./fb.sessions.server";
-import useFirebaseUser from "./hooks/useFirebaseUser";
-import { IAuthUser } from "./hooks/useFirestore";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
 import { themeSessionResolver } from "./theme.sessions.server";
 
@@ -42,6 +38,7 @@ import "./tailwind.css";
 import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next/react";
 
+import { FirebaseProvider, useFirebase } from "./context/FirebaseContext";
 import i18next, { localeCookie } from "./i18n/i18n.server";
 
 // dark mode
@@ -69,32 +66,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locale = await i18next.getLocale(request);
   console.log("Locale: " + locale);
 
-  // check if we are authenticated, and if we are, return the claims and the user
-  const userSession = await isSessionValid(request);
-  let decodedClaims;
-  let user: IAuthUser = {
-    uid: "",
-    displayName: "",
-    email: "",
-    avatar: "",
-  };
-  if (userSession?.success) {
-    decodedClaims = userSession?.decodedClaims;
-    user = {
-      uid: userSession.user?.uid ?? "",
-      email: userSession.user?.email ?? "",
-      displayName:
-        userSession.user?.providerData[0]?.displayName ??
-        userSession.user?.displayName ??
-        "",
-      avatar:
-        userSession.user?.providerData[0]?.photoURL ??
-        userSession.user?.photoURL ??
-        "",
-    };
-  }
   return json(
-    { theme, locale, decodedClaims, user },
+    { theme, locale },
     { headers: { "Set-Cookie": await localeCookie.serialize(locale) } }
   );
 }
@@ -107,8 +80,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <ThemeProvider
       specifiedTheme={loaderData?.theme ?? null}
       themeAction="/action/set-theme">
-      <UserProvider>
-        <AppProvider>
+      <FirebaseProvider>
+        <AppContextProvider>
           <ConfirmProvider>
             <InnerLayout
               ssrTheme={Boolean(loaderData?.theme)}
@@ -116,8 +89,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {children}
             </InnerLayout>
           </ConfirmProvider>
-        </AppProvider>
-      </UserProvider>
+        </AppContextProvider>
+      </FirebaseProvider>
     </ThemeProvider>
   );
 }
@@ -160,11 +133,9 @@ export default function App() {
   const { locale } = useLoaderData<typeof loader>();
   useChangeLanguage(locale); // Change i18next language if locale changes
 
-  useFirebaseUser();
-
   const { dispatch } = useAppContext();
 
-  const { user } = useUser();
+  const { user } = useFirebase();
 
   // In order to avoid the Error: useAppContext must be used within a AppProvider
   const {

@@ -1,4 +1,4 @@
-import { auth, db } from "~/firebase-service";
+import { useFirebase } from "~/context/FirebaseContext";
 import deepmerge from "deepmerge";
 import {
   addDoc,
@@ -13,7 +13,6 @@ import {
   getDoc,
   getDocs,
   limit,
-  onSnapshot,
   orderBy,
   Query,
   query,
@@ -27,7 +26,7 @@ import {
   updateDoc,
   where,
   writeBatch,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 
 export type UseFirestore = ReturnType<typeof useFirestore>;
 
@@ -126,45 +125,9 @@ export const debug = (text: string, ...args: any[]) => {
 };
 
 const useFirestore = (errorCallback?: (error: string) => void) => {
+  const { auth, db } = useFirebase();
+
   const currentUser = auth.currentUser;
-
-  //#region User Region
-  const subscribeToUserChange = (
-    userId: string,
-    updateUser: (userInfo: IAuthUser) => void
-  ) => {
-    const userRef = doc(db, "users", userId);
-    const unsubscribe = onSnapshot(
-      userRef,
-      userDoc => {
-        if (userDoc.exists()) {
-          const userCredentials = userDoc.data() as UserCredentials;
-          debug("subscribeToUserChange - user changed: ", userCredentials);
-          const userInfo: IAuthUser = {
-            uid: userCredentials.uid,
-            displayName: userCredentials.displayName,
-            email: userCredentials.email,
-            avatar: userCredentials.avatar,
-            token: userCredentials.token,
-            roles: userCredentials.roles,
-
-            // apple credential variables
-            appleAuthorizationCode: userCredentials.appleAuthorizationCode,
-            appleUser: userCredentials.appleUser,
-          };
-          updateUser(userInfo);
-        }
-      },
-      error => {
-        // this might throw 'Missing or insufficient permissions' when logging out
-        // since the the non user will not have access to the user collection
-        debug("error:", error);
-        errorCallback?.(JSON.stringify(error));
-        // throw error;
-      }
-    );
-    return unsubscribe;
-  };
 
   const getUserDetails = async (uid: string) => {
     try {
@@ -1271,7 +1234,6 @@ const useFirestore = (errorCallback?: (error: string) => void) => {
   //#endregion
 
   return {
-    subscribeToUserChange,
     getUserDetails,
     addTokenToUser,
 

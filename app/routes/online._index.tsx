@@ -1,6 +1,6 @@
 // app/routes/online._index.tsx
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import {
@@ -11,7 +11,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import { useTranslation } from "react-i18next";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
@@ -30,7 +30,7 @@ export default function OnlineSearchView() {
   const [invertOwner] = useState(true); // change the behavior to the exact opposite, only get songs that the userId does not own
   const [onlyPublished] = useState(true); // only include published songs
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user } = useUser();
+  const { user } = useFirebase();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [allSongs, setAllSongs] = useState<ISong[]>();
@@ -39,30 +39,34 @@ export default function OnlineSearchView() {
   const { getSongsByUserId } = useFirestore();
 
   useEffect(() => {
-    loadSongs();
-  }, []);
+    const loadSongs = async () => {
+      if (!user || !user.uid) return;
 
-  const loadSongs = useCallback(async () => {
-    if (user && user.uid) {
-      setIsLoading(true);
-      console.log(`Loading ${limitCount} songs ...`);
+      try {
+        setIsLoading(true);
+        console.log(`Loading ${limitCount ?? "all"} songs ...`);
 
-      const data = await getSongsByUserId(
-        user.uid,
-        limitCount,
-        undefined,
-        invertOwner,
-        onlyPublished
-      );
+        const data = await getSongsByUserId(
+          user.uid,
+          limitCount,
+          undefined,
+          invertOwner,
+          onlyPublished
+        );
 
-      console.log(`Found ${data.songs.length} ...`);
+        console.log(`Found ${data.songs.length} songs ...`);
 
-      if (data.songs.length > 0) {
-        setAllSongs(data.songs);
+        if (data.songs.length > 0) {
+          setAllSongs(data.songs);
+        }
+      } catch (error) {
+        console.error("Error loading songs:", error);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      setIsLoading(false);
-    }
+    loadSongs();
   }, []);
 
   const onFilterChange = useMemo(

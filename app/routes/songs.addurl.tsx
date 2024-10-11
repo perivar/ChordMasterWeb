@@ -16,7 +16,7 @@ import {
   addOrUpdateSongReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import i18next from "~/i18n/i18n.server";
 import { fetchSongData } from "~/utils/fetchSongData";
 import { useTranslation } from "react-i18next";
@@ -65,7 +65,7 @@ export default function AddSongUsingUrl() {
   const { t } = useTranslation();
 
   const { dispatch } = useAppContext();
-  const { user } = useUser();
+  const { user } = useFirebase();
   const navigate = useNavigate();
   const { state } = useNavigation();
 

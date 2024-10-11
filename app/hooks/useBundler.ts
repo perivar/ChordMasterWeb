@@ -6,12 +6,9 @@ import {
   editPlaylistReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 
-import useFirestore, { IPlaylist, ISong } from "../hooks/useFirestore";
-import useArtists from "./useArtists";
-import usePlaylists from "./usePlaylists";
-import useSongs from "./useSongs";
+import useFirestore, { IPlaylist, ISong } from "./useFirestore";
 
 export interface SongBundle {
   id?: string;
@@ -83,12 +80,12 @@ const Playlist2Bundle = (playlist: IPlaylist): PlaylistBundle => {
 };
 
 const useBundler = (): UseBundlerHookResult => {
-  const { dispatch } = useAppContext();
-  const { user } = useUser();
+  const { state, dispatch } = useAppContext();
+  const { user } = useFirebase();
 
-  const allSongs = useSongs();
-  const allPlaylists = usePlaylists();
-  const allArtists = useArtists();
+  const allSongs = state.songs;
+  const allPlaylists = state.playlists;
+  const allArtists = state.artists;
 
   const {
     addNewSong,
@@ -202,9 +199,9 @@ const useBundler = (): UseBundlerHookResult => {
           console.log(`Importing > Adding new song ${bundleSong.title}`);
           const newSong = await addNewSong(
             {
-              uid: user?.uid,
-              email: user?.email,
-              displayName: user?.displayName,
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
             },
             {
               id: artistDb.id,

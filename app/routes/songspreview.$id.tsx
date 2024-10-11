@@ -8,7 +8,7 @@ import {
   addOrUpdateSongReducer,
   useAppContext,
 } from "~/context/AppContext";
-import { useUser } from "~/context/UserContext";
+import { useFirebase } from "~/context/FirebaseContext";
 import { DownloadIcon } from "lucide-react";
 
 import useFirestore, { ISong } from "~/hooks/useFirestore";
@@ -32,7 +32,7 @@ export default function SongPreview() {
   const songIdParam = params.id;
 
   const { dispatch } = useAppContext();
-  const { user } = useUser();
+  const { user } = useFirebase();
 
   const [song, setSong] = useState<ISong>();
   const [isSaving, setIsSaving] = useState(false);
