@@ -8,7 +8,9 @@ import {
   useLoaderData,
   useNavigate,
   useParams,
+  useSubmit,
 } from "@remix-run/react";
+import { USER_APP_DEFAULTS } from "~/constants/defaults";
 import { editSongReducer, useAppContext } from "~/context/AppContext";
 import { readDataFile } from "~/files.server";
 import clamp from "~/utils/clamp";
@@ -19,13 +21,15 @@ import {
   ChevronUp,
   Edit2Icon,
   EllipsisVertical,
+  FileMusicIcon,
   ListPlus,
   Minus,
   Plus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { ISong } from "~/hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {
@@ -81,6 +85,7 @@ export default function SongView() {
   const data = useLoaderData<typeof loader>();
 
   const { toast } = useToast();
+  const submit = useSubmit();
 
   const { setSongPreferences } = useFirestore();
 
@@ -128,6 +133,42 @@ export default function SongView() {
       }
     }
   }, [song]);
+
+  const onPressPDF = async () => {
+    if (songIdParam && song) {
+      const formData = new FormData();
+      formData.append("id", song.id || "");
+      formData.append("title", song.title);
+      formData.append("chordpro", song.content);
+      formData.append("transpose", String(song.transposeAmount || 0)); // Default to 0 if undefined
+      formData.append(
+        "font",
+        String(song.fontSize || USER_APP_DEFAULTS.fontSize)
+      );
+
+      const response = await fetch("/action/get-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      // Convert the response to a Blob
+      const blob = await response.blob();
+
+      // Create a URL for the Blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Open the PDF in a new browser tab
+      window.open(url, "_blank");
+
+      // Or download the url instead
+      // const a = document.createElement("a");
+      // a.href = url;
+      // a.download = "chordsheet.pdf"; // Set the file name
+      // document.body.appendChild(a);
+      // a.click();
+      // a.remove();
+    }
+  };
 
   const onChangeShowTabs = async (value: boolean) => {
     setShowTabs(value);
@@ -227,6 +268,13 @@ export default function SongView() {
             <Edit2Icon className="size-4" />
           </Link>
         </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onPressPDF}
+          className="ml-4">
+          <FileMusicIcon className="size-4" />
+        </Button>
       </div>
       {/* Main content (song sheet) */}
       <div className="size-full pb-96">
@@ -245,6 +293,12 @@ export default function SongView() {
                 fontSize={fontSize}
                 scrollSpeed={scrollSpeed}
               />
+              {/* Testing out the PDF Rendering */}
+              {/* <SongPDFRender
+                song={songProps.transformedSong}
+                fontSize={fontSize}
+              /> */}
+
               <LinkButton
                 title={song?.external?.source}
                 url={song?.external?.url}

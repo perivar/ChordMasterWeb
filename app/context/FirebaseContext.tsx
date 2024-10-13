@@ -10,7 +10,7 @@ import { FirebaseApp } from "firebase/app";
 import { Auth, onIdTokenChanged, type User } from "firebase/auth";
 import { Firestore } from "firebase/firestore/lite";
 
-import { IAuthUser } from "~/hooks/useFirestore";
+import { IAuthUser } from "~/lib/firestoreQueries";
 
 // Define types for Firebase and user contexts
 type FirebaseContextType = {

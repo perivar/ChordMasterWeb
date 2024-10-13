@@ -14,7 +14,7 @@ import { useAppContext } from "~/context/AppContext";
 import { Check, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { ISong } from "~/hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import { Button } from "~/components/ui/button";
 import SortableList from "~/components/SortableList";

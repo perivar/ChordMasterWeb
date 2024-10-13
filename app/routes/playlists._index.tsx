@@ -20,7 +20,8 @@ import { useFirebase } from "~/context/FirebaseContext";
 import { Edit, MoreHorizontal, PlusIcon, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { IPlaylist } from "~/hooks/useFirestore";
+import { IPlaylist } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

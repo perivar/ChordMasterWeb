@@ -15,7 +15,7 @@ import { useAppContext } from "~/context/AppContext";
 import { MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { IArtist } from "~/hooks/useFirestore";
+import { IArtist } from "~/lib/firestoreQueries";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

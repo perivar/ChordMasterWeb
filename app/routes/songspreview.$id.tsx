@@ -11,7 +11,8 @@ import {
 import { useFirebase } from "~/context/FirebaseContext";
 import { DownloadIcon } from "lucide-react";
 
-import useFirestore, { ISong } from "~/hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";

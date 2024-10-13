@@ -21,7 +21,8 @@ import i18next from "~/i18n/i18n.server";
 import { fetchSongData } from "~/utils/fetchSongData";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { IArtist } from "~/hooks/useFirestore";
+import { IArtist } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SearchBar from "~/components/SearchBar";

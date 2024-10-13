@@ -8,7 +8,9 @@ import {
 } from "~/context/AppContext";
 import { useFirebase } from "~/context/FirebaseContext";
 
-import useFirestore, { IPlaylist, ISong } from "./useFirestore";
+import { IPlaylist, ISong } from "~/lib/firestoreQueries";
+
+import useFirestore from "./useFirestore";
 
 export interface SongBundle {
   id?: string;

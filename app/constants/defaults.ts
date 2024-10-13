@@ -1,4 +1,4 @@
-import { IAppConfig, IUserAppConfig } from "../hooks/useFirestore";
+import { IAppConfig, IUserAppConfig } from "~/lib/firestoreQueries";
 
 export const USER_APP_DEFAULTS: IUserAppConfig = {
   language: "en_us",

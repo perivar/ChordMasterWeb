@@ -14,7 +14,8 @@ import { deleteSongReducer, useAppContext } from "~/context/AppContext";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { ISong } from "~/hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

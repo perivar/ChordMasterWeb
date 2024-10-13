@@ -55,25 +55,25 @@ async function hydrate() {
 //   window.setTimeout(hydrate, 1);
 // }
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/service-worker.js")
-      .then(registration => {
-        console.log(
-          "Service Worker registered with scope:",
-          registration.scope
-        );
-      })
-      .catch(error => {
-        console.warn("Service Worker registration failed:", error);
-      });
+// if ("serviceWorker" in navigator) {
+//   window.addEventListener("load", () => {
+//     navigator.serviceWorker
+//       .register("/service-worker.js")
+//       .then(registration => {
+//         console.log(
+//           "Service Worker registered with scope:",
+//           registration.scope
+//         );
+//       })
+//       .catch(error => {
+//         console.warn("Service Worker registration failed:", error);
+//       });
 
-    // Optional: Send a message to the service worker
-    navigator.serviceWorker.ready.then(registration => {
-      registration.active?.postMessage("Hello from the main thread!");
-    });
-  });
-}
+//     // Optional: Send a message to the service worker
+//     navigator.serviceWorker.ready.then(registration => {
+//       registration.active?.postMessage("Hello from the main thread!");
+//     });
+//   });
+// }
 
 hydrate().catch(error => console.error(error));

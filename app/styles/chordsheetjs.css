@@ -23,7 +23,7 @@
 }
 
 .row {
-  @apply flex;
+  @apply flex min-h-[1.5em] leading-[1.5];
 }
 
 .column {

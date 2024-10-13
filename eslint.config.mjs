@@ -29,7 +29,7 @@ export default eslintTs.config(
       ".cache",
       ".env",
       "build",
-      "public/build",
+      "public",
       "*.config.ts",
     ],
   },

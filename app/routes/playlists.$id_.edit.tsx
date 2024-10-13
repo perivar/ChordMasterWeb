@@ -12,7 +12,8 @@ import {
 import { GripVertical, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { ISong } from "~/hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";

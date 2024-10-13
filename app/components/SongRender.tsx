@@ -112,11 +112,7 @@ const SongRender = (props: Props) => {
 
   // Function to render a single ChordLyricsPair (handling both chords and lyrics)
   const renderChordLyricsPair = (item: ChordLyricsPair, key: string) => {
-    let { lyrics } = item;
-    const chordName = item.chords;
-    if (lyrics && lyrics.length <= chordName.length) {
-      lyrics = lyrics + " ".repeat(chordName.length - lyrics.length + 1);
-    }
+    const { chords: chordName, lyrics } = item;
 
     return (
       <div className="column" key={key}>
@@ -132,7 +128,7 @@ const SongRender = (props: Props) => {
         ) : (
           <div className="chord"></div>
         )}
-        {<div className="lyrics">{item.lyrics}</div>}
+        {<div className="lyrics">{lyrics}</div>}
       </div>
     );
   };

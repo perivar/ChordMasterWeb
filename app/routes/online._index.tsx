@@ -14,7 +14,8 @@ import {
 import { useFirebase } from "~/context/FirebaseContext";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { ISong } from "~/hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import EmptyListMessage from "~/components/EmptyListMessage";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SortableList from "~/components/SortableList";

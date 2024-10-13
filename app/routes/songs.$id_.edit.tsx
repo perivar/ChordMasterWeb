@@ -24,7 +24,8 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import useFirestore, { IArtist } from "~/hooks/useFirestore";
+import { IArtist } from "~/lib/firestoreQueries";
+import useFirestore from "~/hooks/useFirestore";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import { Button } from "~/components/ui/button";
 import {

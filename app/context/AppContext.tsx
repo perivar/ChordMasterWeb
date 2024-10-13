@@ -24,7 +24,7 @@ import {
   IPlaylist,
   ISong,
   IUserAppConfig,
-} from "~/hooks/useFirestore";
+} from "~/lib/firestoreQueries";
 
 import { useFirebase } from "./FirebaseContext";
 

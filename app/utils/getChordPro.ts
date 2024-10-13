@@ -1,4 +1,4 @@
-import { ISong } from "../hooks/useFirestore";
+import { ISong } from "~/lib/firestoreQueries";
 
 export const getChordPro = (song: ISong) => {
   let headerlessContent = song.content;
